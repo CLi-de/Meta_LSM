@@ -20,7 +20,7 @@ Predicting a landslide susceptibility map (LSM) is essential for risk recognitio
 <img src="figs/global_vs_local.jpg" width="800px" hight="800px"/> 
 ​         Fig. 1: Global vs block-wise prediction
 
-<img src="figs/overview.jpg" width="400px" hight="400px"/> 
+<img src="figs/overview.jpg" width="800px" hight="800px"/> 
 		Fig. 2: Overview
 
 ## Dependencies
