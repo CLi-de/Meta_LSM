@@ -1,0 +1,35 @@
+# root
+/*.xlsx
+
+# pycache
+.idea/
+__pycache__/
+
+# checkpoint_dir
+
+# DAS_logs
+DAS_logs/*.npz
+
+# figs
+figs/*.pdf
+
+# models_of_blocks
+models_of_blocks/**/*.npz
+
+# seg_output
+seg_output/*.tif
+seg_output/*.xlsx
+
+# src_data
+src_data/
+
+# src_data_
+
+# tmp 
+tmp/*.csv
+
+# Unsupervised_Pretraining
+
+
+*~
+
