@@ -40,7 +40,7 @@ This code is implemented with the anaconda environment:
 
 ## Data
 
-* Thematic maps of Fengjie County (FJ) and Fuling District (FL) formatted as `.tif` with `.twf`, are stored in folders `./src_data/FJ` and `./src_data/FJ`. 
+* Composited thematic maps of Fengjie County (FJ) and Fuling District (FL) formatted as `composite.tif` with `composite.twf`, are stored in folders `./src_data/FJ` and `./src_data/FJ`. 
 * `src_data` folder also contains: `samples_fj_rand.xlsx`, `samples_fl_rand.xlsx` and `FJ_FL.xlsx`, respectively storing sample vectors in FJ, FL, and FJ&FL;
 together with `grid_samples_fj.xlsx` and `grid_samples_fl.xlsx`, which consists of rasterized sample vectors to be predicted.
 * The data is sensitive and confidential so we only provide few part of them for formating of these files.
