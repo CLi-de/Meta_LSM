@@ -1,9 +1,9 @@
 # meta_LSM
-# Block-wise Prediction of Landslide Susceptibility in A Meta-learning Way.
+# Block-wise Prediction of Landslide Susceptibility in a Meta-learning Way.
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-this repo contains code accompaning the paper, [Meta-learning An Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility](). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
+this repo contains code accompaning the paper, [Meta-learning an Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility](). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
 
 ##Table of Contents
 

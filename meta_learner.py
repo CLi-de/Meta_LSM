@@ -243,7 +243,7 @@ def main():
         fj_tasks = read_tasks(taskspath_FJ)
         print('Done reading FJ tasks from previous SLIC result')
     else:
-        print('start FJ tasks sampling...')
+        print('start FJ tasks segmenting...')
         FLAGS.str_region = 'FJ'
         FLAGS.landslide_pts = './src_data/samples_fj_rand.xlsx'
         p = SLICProcessor('./src_data/'+FLAGS.str_region+'/composite.tif', FLAGS.K, FLAGS.M)
@@ -251,7 +251,7 @@ def main():
         t = TaskSampling(p.clusters)
         fj_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
         save_tasks(fj_tasks)
-
+		print('Start FJ task sampling...')
         savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks.xlsx')
         print('Done saving FJ tasks to file!')
     if os.path.exists(taskspath_FL):
@@ -259,7 +259,7 @@ def main():
         fl_tasks = read_tasks(taskspath_FL)
         print('Done reading FL tasks from previous SLIC result')
     else:
-        print('start FL tasks sampling...')
+        print('start FL tasks segmenting...')
         FLAGS.str_region = 'FL'
         FLAGS.landslide_pts = './src_data/samples_fl_rand.xlsx'
         p = SLICProcessor('./src_data/'+FLAGS.str_region+'/composite.tif', 96, FLAGS.M)
@@ -267,7 +267,7 @@ def main():
         t = TaskSampling(p.clusters)
         fl_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
         save_tasks(fl_tasks)
-
+		print('Start FL task sampling...')
         savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks.xlsx')
         print('Done saving FL tasks to file!')
 
