@@ -1,5 +1,5 @@
 # meta_LSM
-# Block-wise Prediction of Landslide Susceptibility in a Meta-learning Way.
+# Few-shot Prediction of Landslide Susceptibility in a Meta-learning Way.
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
@@ -43,7 +43,7 @@ This code is implemented with the anaconda environment:
 * Composited thematic maps of Fengjie County (FJ) and Fuling District (FL) formatted as `composite.tif` with `composite.twf`, are stored in folders `./src_data/FJ` and `./src_data/FJ`. 
 * `src_data` folder also contains: `samples_fj_rand.xlsx`, `samples_fl_rand.xlsx` and `FJ_FL.xlsx`, respectively storing sample vectors in FJ, FL, and FJ&FL;
 together with `grid_samples_fj.xlsx` and `grid_samples_fl.xlsx`, which consists of rasterized sample vectors to be predicted.
-* The data is sensitive and confidential so we only provide few part of them for formating of these files.
+* Here we only provide materials for formating these files, detailed data are available on the website: https://zenodo.org/record/5900776#.Ye-4xf5BwuV
 
 
 ## Usage

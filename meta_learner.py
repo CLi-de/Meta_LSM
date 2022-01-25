@@ -79,8 +79,8 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
             train_writer = tf.summary.FileWriter(FLAGS.logdir + '/' + exp_string, sess.graph)
         for itr in range(resume_itr, FLAGS.pretrain_iterations + FLAGS.metatrain_iterations):
             batch_x, batch_y, cnt_sample = tasksbatch_generator(tasks, FLAGS.meta_batch_size
-                                               , FLAGS.num_samples_each_task,
-                                               FLAGS.dim_input, FLAGS.dim_output)  # task_batch[i]: (x, y, features)
+                                                                , FLAGS.num_samples_each_task,
+                                                                FLAGS.dim_input, FLAGS.dim_output)  # task_batch[i]: (x, y, features)
             # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
             # inputa = batch_x[:, :int(FLAGS.num_samples_each_task/2), :]  # a used for training
             # labela = batch_y[:, :int(FLAGS.num_samples_each_task/2), :]
@@ -159,7 +159,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             grads = tf.gradients(task_loss,list(model.weights.values()))
             gradients = dict(zip(model.weights.keys(), grads))
             fast_weights = dict(zip(model.weights.keys(), [model.weights[key] -
-                           model.update_lr*gradients[key] for key in model.weights.keys()]))
+                                                           model.update_lr*gradients[key] for key in model.weights.keys()]))
             for j in range(num_updates - 1):
                 loss = model.loss_func(model.forward(inputa[0], fast_weights, reuse=True), labela[0])  # fast_weight和grads（stopped）有关系，但不影响这里的梯度计算
                 grads = tf.gradients(loss, list(fast_weights.values()))
@@ -251,7 +251,7 @@ def main():
         t = TaskSampling(p.clusters)
         fj_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
         save_tasks(fj_tasks)
-		print('Start FJ task sampling...')
+        print('Start FJ task sampling...')
         savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks.xlsx')
         print('Done saving FJ tasks to file!')
     if os.path.exists(taskspath_FL):
@@ -267,7 +267,7 @@ def main():
         t = TaskSampling(p.clusters)
         fl_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
         save_tasks(fl_tasks)
-		print('Start FL task sampling...')
+        print('Start FL task sampling...')
         savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks.xlsx')
         print('Done saving FL tasks to file!')
 
@@ -294,8 +294,8 @@ def main():
     # print(sess.run(tf.report_uninitialized_variables()))
     sess.run(tf.variables_initializer(var_list=init))
 
-    exp_string = 'mode'+str(FLAGS.mode)+'.mbs'+str(FLAGS.meta_batch_size)+'.ubs_'+\
-        str(FLAGS.num_samples_each_task)+'.numstep' + str(FLAGS.num_updates) + \
+    exp_string = 'mode'+str(FLAGS.mode)+'.mbs'+str(FLAGS.meta_batch_size)+'.ubs_'+ \
+                 str(FLAGS.num_samples_each_task)+'.numstep' + str(FLAGS.num_updates) + \
                  '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
 
     resume_itr = 0
