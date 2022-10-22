@@ -3,7 +3,7 @@
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-this repo contains code accompaning the paper, [Meta-learning an Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility](). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
+this repo contains code accompanying the paper, [Meta-learning an Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility in Large Areas](https://scholar.google.com.hk/citations?view_op=view_citation&hl=zh-CN&user=OVV566YAAAAJ&citation_for_view=OVV566YAAAAJ:2osOgNQ5qMEC). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
 
 ##Table of Contents
 
@@ -30,7 +30,7 @@ This code is implemented with the anaconda environment:
 * tensorflow-gpu v1.9.0
 * gdal 3.0.4
 * numpy 1.19.5
-* opepyxl 3.0.7
+* openpyxl 3.0.7
 * pandas 0.25.2
 * scipy 1.3.0
 * scikit--image 0.17.2
