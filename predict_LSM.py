@@ -9,7 +9,7 @@ from scene_sampling import SLICProcessor
 
 import pandas as pd
 import numpy as np
-import gdal
+from osgeo import gdal
 
 from tensorflow.python.platform import flags
 FLAGS = flags.FLAGS

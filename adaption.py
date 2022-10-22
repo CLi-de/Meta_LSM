@@ -8,7 +8,7 @@ from scene_sampling import SLICProcessor
 
 import pandas as pd
 import numpy as np
-import gdal
+from osgeo import gdal
 
 from utils import read_pts, sample_generator_
 
