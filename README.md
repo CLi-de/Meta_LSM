@@ -3,7 +3,7 @@
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
 
-this repo contains code accompanying the paper, [Meta-learning an Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility in Large Areas](https://scholar.google.com.hk/citations?view_op=view_citation&hl=zh-CN&user=OVV566YAAAAJ&citation_for_view=OVV566YAAAAJ:2osOgNQ5qMEC). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
+this repo contains code accompanying the paper, [Meta-learning an Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility in Large Areas](https://www.sciencedirect.com/science/article/pii/S1569843222000097). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
 
 ##Table of Contents
 
