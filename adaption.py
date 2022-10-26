@@ -13,9 +13,8 @@ from osgeo import gdal
 from utils import read_pts, sample_generator_
 
 from tensorflow.python.platform import flags
+
 FLAGS = flags.FLAGS
-
-
 flags.DEFINE_integer('dim_input', 16, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_float('update_lr', 1e-1, 'learning rate in meta-learning task')

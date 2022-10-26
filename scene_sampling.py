@@ -2,7 +2,7 @@ import math
 from skimage import io, color
 import numpy as np
 from tqdm import trange
-import gdal
+from osgeo import gdal
 import pandas as pd
 from tensorflow.python.platform import flags
 
