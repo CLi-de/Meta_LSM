@@ -5,11 +5,11 @@ import numpy as np
 import tensorflow as tf
 from sklearn.base import ClassifierMixin, RegressorMixin
 
-from ..models import AbstractSupervisedDBN as BaseAbstractSupervisedDBN
-from ..models import BaseModel
-from ..models import BinaryRBM as BaseBinaryRBM
-from ..models import UnsupervisedDBN as BaseUnsupervisedDBN
-from ..utils import batch_generator, to_categorical
+from ..models_v2 import AbstractSupervisedDBN as BaseAbstractSupervisedDBN
+from ..models_v2 import BaseModel
+from ..models_v2 import BinaryRBM as BaseBinaryRBM
+from ..models_v2 import UnsupervisedDBN as BaseUnsupervisedDBN
+from ..utils_v2 import batch_generator, to_categorical
 
 
 def close_session():

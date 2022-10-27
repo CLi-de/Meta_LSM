@@ -4,8 +4,8 @@
 from sklearn.metrics._classification import accuracy_score
 import pandas as pd
 
-from .denoising_AE import *
-from .utils import *
+from .denoising_AE_v2 import *
+from .utils_v2 import *
 from .dbn.tensorflow import SupervisedDBNClassification
 
 # define proposed algorithm

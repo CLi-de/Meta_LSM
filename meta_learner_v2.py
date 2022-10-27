@@ -15,7 +15,7 @@ from scene_sampling import SLICProcessor, TaskSampling
 
 from tensorflow.python.platform import flags
 
-from utils import tasksbatch_generator, sample_generator, meta_train_test, save_tasks, read_tasks, \
+from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, save_tasks, read_tasks, \
     savepts_fortask
 
 from Unsupervised_Pretraining.DAS_pretraining import DAS

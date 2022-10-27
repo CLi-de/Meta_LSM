@@ -4,8 +4,8 @@ import numpy as np
 from scipy.stats import truncnorm
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin, RegressorMixin
 
-from .activations import SigmoidActivationFunction, ReLUActivationFunction
-from .utils import batch_generator
+from .activations_v2 import SigmoidActivationFunction, ReLUActivationFunction
+from .utils_v2 import batch_generator
 
 
 class BaseModel(object):

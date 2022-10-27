@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from maml import MAML
 
-from utils import sample_generator, read_pts, read_tasks
+from utils_v2 import sample_generator, read_pts, read_tasks
 
 from scene_sampling import SLICProcessor
 

@@ -13,7 +13,7 @@ import os
 #           file=sys.stderr)
 
 from tensorflow.python.platform import flags
-from utils import mse, xent, normalize
+from utils_v2 import mse, xent, normalize
 
 FLAGS = flags.FLAGS
 

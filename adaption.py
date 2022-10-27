@@ -3,7 +3,7 @@ import tensorflow as tf
 
 from maml import MAML
 
-from utils import sample_generator, read_pts
+from utils_v2 import sample_generator, read_pts
 
 from scene_sampling import SLICProcessor
 
@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 from osgeo import gdal
 
-from utils import read_pts, sample_generator_
+from utils_v2 import read_pts, sample_generator_
 
 from tensorflow.python.platform import flags
 
