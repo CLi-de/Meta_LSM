@@ -36,12 +36,12 @@ if __name__ == "__main__":
     input_tensors = None
     model.construct_model(input_tensors=input_tensors, prefix='metatrain_')
 
-    var_list = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+    var_list = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
     #saver = tf.train.import_meta_graph('./checkpoint_dir/' + exp_string + '/model4999.meta')
-    saver = tf.train.Saver(var_list)
-    sess = tf.InteractiveSession()
-    init = tf.global_variables()  # extra variables require initialization in the optimizer
-    sess.run(tf.variables_initializer(var_list=init))
+    saver = tf.compat.v1.train.Saver(var_list)
+    sess = tf.compat.v1.InteractiveSession()
+    init = tf.compat.v1.global_variables()  # extra variables require initialization in the optimizer
+    sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
     model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string)
     if model_file:
@@ -56,17 +56,17 @@ if __name__ == "__main__":
     def overall_adapting(taskfile, num_updates=5):
         tasks = read_pts(taskfile)
         inputa, labela = sample_generator_(tasks, FLAGS.dim_input, FLAGS.dim_output)
-        with tf.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
+        with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
             task_output = model.forward(inputa[0], model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela)
-            grads = tf.gradients(task_loss,list(model.weights.values()))
+            grads = tf.gradients(ys=task_loss,xs=list(model.weights.values()))
             gradients = dict(zip(model.weights.keys(), grads))
             fast_weights = dict(zip(model.weights.keys(), [model.weights[key] -
                                                            model.update_lr*gradients[key] for key in model.weights.keys()]))
             for j in range(num_updates - 1):
                 # fast_weight is related to grads (stopped), but doesn't affect the gradient computation
                 loss = model.loss_func(model.forward(inputa[0], fast_weights, reuse=True), labela)
-                grads = tf.gradients(loss, list(fast_weights.values()))
+                grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
                 gradients = dict(zip(fast_weights.keys(), grads))
                 fast_weights = dict(zip(fast_weights.keys(), [fast_weights[key] - model.update_lr*gradients[key] for key in fast_weights.keys()]))
             adapted_weights = sess.run(fast_weights)

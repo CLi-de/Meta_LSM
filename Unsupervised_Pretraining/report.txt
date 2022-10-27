@@ -1,0 +1,27 @@
+TensorFlow 2.0 Upgrade Script
+-----------------------------
+Converted 1 files
+Detected 0 issues that require attention
+--------------------------------------------------------------------------------
+================================================================================
+Detailed log follows:
+
+================================================================================
+--------------------------------------------------------------------------------
+Processing file 'denoising_AE.py'
+ outputting to 'denoising_AE_v2.py'
+--------------------------------------------------------------------------------
+
+17:11: INFO: Renamed 'tf.random_uniform' to 'tf.random.uniform'
+23:29: INFO: Renamed 'tf.train.AdamOptimizer' to 'tf.compat.v1.train.AdamOptimizer'
+27:19: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+33:15: INFO: Renamed 'tf.placeholder' to 'tf.compat.v1.placeholder'
+34:66: INFO: Renamed 'tf.random_normal' to 'tf.random.normal'
+37:24: INFO: Added keywords to args of function 'tf.reduce_sum'
+40:26: INFO: Renamed 'tf.global_variables' to 'tf.compat.v1.global_variables'
+41:27: INFO: Renamed 'tf.global_variables' to 'tf.compat.v1.global_variables'
+42:13: INFO: Renamed 'tf.variables_initializer' to 'tf.compat.v1.variables_initializer'
+42:47: INFO: Renamed 'tf.global_variables' to 'tf.compat.v1.global_variables'
+44:18: INFO: Renamed 'tf.Session' to 'tf.compat.v1.Session'
+--------------------------------------------------------------------------------
+

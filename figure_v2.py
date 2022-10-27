@@ -51,11 +51,11 @@ def load_weights(npzfile):
     return weights
 
 def transform_relu(inputX, weights, bias, activations=tf.nn.relu):
-    return activations(tf.transpose(tf.matmul(weights, tf.transpose(inputX))) + bias)
+    return activations(tf.transpose(a=tf.matmul(weights, tf.transpose(a=inputX))) + bias)
 
 def forward(inp, weights, sess):
     for i in range(int(len(weights)/2)):  # 3 layers
-        inp = transform_relu(inp, tf.transpose(weights['w' + str(i)]), weights['b' + str(i)])
+        inp = transform_relu(inp, tf.transpose(a=weights['w' + str(i)]), weights['b' + str(i)])
     return sess.run(inp)
 
 def _PCA(X, y, figsavename):
@@ -249,7 +249,7 @@ def visualization():
     #     return ori_Xs, inf_Xs, Ys
     """overall FJ and FL data for visualization"""
     def get_oriandinf_Xs(tasks, regionname):
-        with tf.Session() as sess:  # for tf calculation
+        with tf.compat.v1.Session() as sess:  # for tf calculation
             w = load_weights('models_of_blocks/'+'overall_' + regionname + '/model_MAML' + '.npz')
             ori_Xs=tasks[0][0]
             inf_Xs=forward(tasks[0][0], w, sess)
