@@ -5,7 +5,7 @@ from maml_v2 import MAML
 
 from utils_v2 import sample_generator, read_pts, read_tasks
 
-from scene_sampling import SLICProcessor
+from scene_sampling_v2 import SLICProcessor
 
 import pandas as pd
 import numpy as np

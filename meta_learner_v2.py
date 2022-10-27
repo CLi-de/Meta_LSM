@@ -11,7 +11,7 @@ import tensorflow as tf
 import pandas as pd
 
 from maml import MAML
-from scene_sampling import SLICProcessor, TaskSampling
+from scene_sampling_v2 import SLICProcessor, TaskSampling
 
 from tensorflow.python.platform import flags
 
