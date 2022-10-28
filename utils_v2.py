@@ -5,21 +5,35 @@ import random
 import tensorflow as tf
 import pandas as pd
 
-from tensorflow.contrib.layers.python import layers as tf_layers
+# from tensorflow.contrib.layers.python import layers as tf_layers  // deprecated by tf2
+import tf_slim as slim
 from tensorflow.python.platform import flags
+
 
 FLAGS = flags.FLAGS
 
+# def normalize(inp, activation, reuse, scope):
+#     if FLAGS.norm == 'batch_norm':
+#         return tf_layers.batch_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
+#     elif FLAGS.norm == 'layer_norm':
+#         return tf_layers.layer_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
+#     elif FLAGS.norm == 'None':
+#         if activation is not None:
+#             return activation(inp)
+#         else:
+#             return inp
+
 def normalize(inp, activation, reuse, scope):
     if FLAGS.norm == 'batch_norm':
-        return tf_layers.batch_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
+        return slim.batch_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
     elif FLAGS.norm == 'layer_norm':
-        return tf_layers.layer_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
+        return slim.layer_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
     elif FLAGS.norm == 'None':
         if activation is not None:
             return activation(inp)
         else:
             return inp
+
 
 ## Loss functions
 def mse(pred, label):
