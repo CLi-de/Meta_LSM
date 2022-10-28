@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 import tensorflow as tf
 
-from maml import MAML
+from maml_v2 import MAML
 
 from utils_v2 import sample_generator, read_pts
 

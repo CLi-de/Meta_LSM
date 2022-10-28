@@ -10,7 +10,7 @@ import tensorflow as tf
 
 import pandas as pd
 
-from maml import MAML
+from maml_v2 import MAML
 from scene_sampling_v2 import SLICProcessor, TaskSampling
 
 from tensorflow.python.platform import flags
@@ -18,7 +18,7 @@ from tensorflow.python.platform import flags
 from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, save_tasks, read_tasks, \
     savepts_fortask
 
-from Unsupervised_Pretraining.DAS_pretraining import DAS
+from Unsupervised_Pretraining.DAS_pretraining_v2 import DAS
 
 from sklearn.metrics._classification import accuracy_score
 
