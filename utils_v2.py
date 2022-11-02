@@ -174,10 +174,10 @@ def read_tasks(file):
     """获取tasks"""
     f = pd.ExcelFile(file)
     tasks = [[] for i in range(len(f.sheet_names))]
-    k = 0
+    k = 0  # count task
     for sheetname in f.sheet_names:
-        attr = pd.read_excel(file, usecols=FLAGS.dim_input-1, sheet_name=sheetname).values.astype(np.float32)
-        label = pd.read_excel(file, usecols=[FLAGS.dim_input], sheet_name=sheetname).values.reshape((-1,)).astype(np.float32)
+        attr = pd.read_excel(file, usecols=[i for i in range(FLAGS.dim_input)], sheet_name=sheetname, header=None).values.astype(np.float32)
+        label = pd.read_excel(file, usecols=[FLAGS.dim_input], sheet_name=sheetname, header=None).values.reshape((-1,)).astype(np.float32)
         for j in range(np.shape(attr)[0]):
             tasks[k].append([attr[j], label[j]])
         k += 1
