@@ -42,8 +42,8 @@ flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of
                                  2:meta train part of FJ and FL, test the other part FJ; \
                                  3:meta train FJ and part of FL, test the other part FL')
 flags.DEFINE_string('path', 'tasks', 'folder path of tasks file(excel)')
-flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
-flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
+flags.DEFINE_string('basemodel', 'MLP', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
+flags.DEFINE_string('norm', 'layer_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 
@@ -281,7 +281,7 @@ def main():
 
     """meta_training"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
-    input_tensors = None
+    input_tensors = ()
     model.construct_model(input_tensors=input_tensors, prefix='metatrain_')
     model.summ_op = tf.compat.v1.summary.merge_all()
 
@@ -319,4 +319,5 @@ def main():
 
 
 if __name__ == "__main__":
+    tf.compat.v1.disable_eager_execution()
     main()

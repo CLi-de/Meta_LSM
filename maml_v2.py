@@ -39,10 +39,10 @@ class MAML:
 
     def construct_model(self, input_tensors=None, prefix='metatrain_'):
         # a: training data for inner gradient, b: test data for meta gradient
-        self.inputa = tf.compat.v1.placeholder(tf.float32)  # for train in a task
-        self.inputb = tf.compat.v1.placeholder(tf.float32)
-        self.labela = tf.compat.v1.placeholder(tf.float32)  # for test in a task
-        self.labelb = tf.compat.v1.placeholder(tf.float32)
+        self.inputa = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)  #  for train in a task, shape should be specified for tf.slim (but not should be correct)
+        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)
+        self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)  # for test in a task
+        self.labelb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)
         self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
         with tf.compat.v1.variable_scope('model', reuse=None) as training_scope:
@@ -92,7 +92,7 @@ class MAML:
                 return [task_outputa, task_outputbs, task_lossa, task_lossesb]   #  task_outpouta, task_lossa是仅
 
             if FLAGS.norm is not 'None':  # 此处不能删，考虑到reuse
-                # to initialize the batch norm vars, might want to combine this, and not run idx 0 twice.
+                '''to initialize the batch norm vars, might want to combine this, and not run idx 0 twice (use reuse=tf.AUTO_REUSE instead).'''
                 unused = task_metalearn((self.inputa[0], self.inputb[0], self.labela[0], self.labelb[0]), False)
 
 
@@ -149,9 +149,10 @@ class MAML:
         weights['b'+str(len(self.dim_hidden)+1)] = tf.Variable(tf.zeros([self.dim_output]))
         return weights
 
+    # TODO: change forward to keras
     def forward_fc(self, inp, weights, reuse=False):
         hidden = normalize(tf.matmul(inp, weights['w1']) + weights['b1'], activation=tf.nn.relu, reuse=reuse, scope='0')
-        for i in range(1,len(self.dim_hidden)):
+        for i in range(1, len(self.dim_hidden)):
             hidden = normalize(tf.matmul(hidden, weights['w'+str(i+1)]) + weights['b'+str(i+1)], activation=tf.nn.relu, reuse=reuse, scope=str(i+1))
         return tf.matmul(hidden, weights['w'+str(len(self.dim_hidden)+1)]) + weights['b'+str(len(self.dim_hidden)+1)]
 
