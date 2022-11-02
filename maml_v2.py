@@ -149,7 +149,7 @@ class MAML:
         weights['b'+str(len(self.dim_hidden)+1)] = tf.Variable(tf.zeros([self.dim_output]))
         return weights
 
-    # TODO: change forward to keras
+    # TODO: change forward to keras or solve tf.slim.batch_norm shape problem
     def forward_fc(self, inp, weights, reuse=False):
         hidden = normalize(tf.matmul(inp, weights['w1']) + weights['b1'], activation=tf.nn.relu, reuse=reuse, scope='0')
         for i in range(1, len(self.dim_hidden)):
