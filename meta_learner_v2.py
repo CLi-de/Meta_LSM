@@ -7,6 +7,7 @@ import numpy as np
 # import pickle
 import random
 import tensorflow as tf
+import tensorflow as tf2
 
 import pandas as pd
 
@@ -278,11 +279,13 @@ def main():
     # if FLAGS.train == False:
     #     # always use meta batch size of 1 when testing.
     #     FLAGS.meta_batch_size = 1
+    tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
 
     """meta_training"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
-    input_tensors = ()
-    model.construct_model(input_tensors=input_tensors, prefix='metatrain_')
+    input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task/2), FLAGS.dim_input)
+    input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task/2), FLAGS.dim_output)
+    model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label, prefix='metatrain_')
     model.summ_op = tf.compat.v1.summary.merge_all()
 
     saver = loader = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES), max_to_keep=10)
@@ -311,13 +314,12 @@ def main():
             print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
 
-    tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
-
     train(model, saver, sess, exp_string, tasks_train, resume_itr)
 
     test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
 
 
 if __name__ == "__main__":
+    print(tf2.test.is_gpu_available())
     tf.compat.v1.disable_eager_execution()
     main()

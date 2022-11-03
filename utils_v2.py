@@ -59,7 +59,7 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
     batch_tasks = data[start_index:(start_index + batch_size)]
 
     cnt_sample = []
-    for i in range(len(batch_tasks)):
+    for i in range(batch_size):
         cnt_sample.append(len(batch_tasks[i]))
 
     for i in range(batch_size):

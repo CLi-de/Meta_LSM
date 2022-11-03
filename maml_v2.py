@@ -37,12 +37,12 @@ class MAML:
         else:
             raise ValueError('Unrecognized base model, please specify a base model such as "MLP", "DAS"...')
 
-    def construct_model(self, input_tensors=None, prefix='metatrain_'):
+    def construct_model(self, input_tensors_input=None, input_tensors_label=None, prefix='metatrain_'):
         # a: training data for inner gradient, b: test data for meta gradient
-        self.inputa = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)  #  for train in a task, shape should be specified for tf.slim (but not should be correct)
-        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)
-        self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)  # for test in a task
-        self.labelb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors)
+        self.inputa = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)  #  for train in a task, shape should be specified for tf.slim (but not should be correct)
+        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)
+        self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)  # for test in a task
+        self.labelb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
         self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
         with tf.compat.v1.variable_scope('model', reuse=None) as training_scope:
