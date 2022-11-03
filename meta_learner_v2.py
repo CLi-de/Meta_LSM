@@ -7,7 +7,6 @@ import numpy as np
 # import pickle
 import random
 import tensorflow as tf
-import tensorflow as tf2
 
 import pandas as pd
 
@@ -279,7 +278,6 @@ def main():
     # if FLAGS.train == False:
     #     # always use meta batch size of 1 when testing.
     #     FLAGS.meta_batch_size = 1
-    tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
 
     """meta_training"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
@@ -314,12 +312,14 @@ def main():
             print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
 
+    tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
+
     train(model, saver, sess, exp_string, tasks_train, resume_itr)
 
     test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
 
 
 if __name__ == "__main__":
-    print(tf2.test.is_gpu_available())
+    # device=tf.config.list_physical_devices('GPU')
     tf.compat.v1.disable_eager_execution()
     main()
