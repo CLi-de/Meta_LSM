@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 
 from maml_v2 import MAML
@@ -12,6 +11,7 @@ import numpy as np
 from osgeo import gdal
 
 from tensorflow.python.platform import flags
+
 FLAGS = flags.FLAGS
 
 flags.DEFINE_integer('dim_input', 16, 'dim of input data')
@@ -21,12 +21,15 @@ flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta learning pro
 flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
-flags.DEFINE_integer('num_samples_each_task', 12, 'number of samples sampling from each task when training, inner_batch_size')
+flags.DEFINE_integer('num_samples_each_task', 12,
+                     'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
-flags.DEFINE_integer('test_update_batch_size', 5, 'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
+flags.DEFINE_integer('test_update_batch_size', 5,
+                     'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
+
 
 def readpts(filepath):
     tmp = np.loadtxt(filepath, dtype=np.str, delimiter=",", encoding='UTF-8')
@@ -34,6 +37,7 @@ def readpts(filepath):
     features = features / features.max(axis=0)  # Normalization
     xy = tmp[1:, -2:].astype(np.float32)
     return features, xy
+
 
 def getclusters(gridpts_xy, taskpts, tifformat_path):
     dataset = gdal.Open(tifformat_path)
@@ -49,6 +53,7 @@ def getclusters(gridpts_xy, taskpts, tifformat_path):
                 gridcluster[j].append(i)
                 break
     return gridcluster
+
 
 def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
     """restore model from checkpoint"""
@@ -71,7 +76,8 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
 
     for i in range(len(tasks_samples)):
         # TODO: 1.考虑few-shot样本数量； 2. 考虑少于6个样本地区的LSM预测
-        batch_x, batch_y = sample_generator(tasks_samples[i], FLAGS.dim_input, FLAGS.dim_output)   # only one task samples
+        batch_x, batch_y = sample_generator(tasks_samples[i], FLAGS.dim_input,
+                                            FLAGS.dim_output)  # only one task samples
         inputa = batch_x[:, :FLAGS.test_update_batch_size, :]  # setting K-shot K here
         labela = batch_y[:, :FLAGS.test_update_batch_size, :]
         # inputb = batch_x[:, FLAGS.test_update_batch_size:, :]
@@ -79,29 +85,33 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
         with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
             task_output = model.forward(inputa[0], model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela)
-            grads = tf.gradients(ys=task_loss,xs=list(model.weights.values()))
+            grads = tf.gradients(ys=task_loss, xs=list(model.weights.values()))
             gradients = dict(zip(model.weights.keys(), grads))
             fast_weights = dict(zip(model.weights.keys(), [model.weights[key] -
-                                                           model.update_lr*gradients[key] for key in model.weights.keys()]))
+                                                           model.update_lr * gradients[key] for key in
+                                                           model.weights.keys()]))
             for j in range(num_updates - 1):
                 loss = model.loss_func(model.forward(inputa[0], fast_weights, reuse=True), labela)
                 grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
                 gradients = dict(zip(fast_weights.keys(), grads))
-                fast_weights = dict(zip(fast_weights.keys(), [fast_weights[key] - model.update_lr*gradients[key] for key in fast_weights.keys()]))
+                fast_weights = dict(zip(fast_weights.keys(),
+                                        [fast_weights[key] - model.update_lr * gradients[key] for key in
+                                         fast_weights.keys()]))
             """predict LSM"""
             if len(indexes[i]):
                 features_arr = np.array([features[index] for index in indexes[i]])
                 xy_arr = np.array([xy[index] for index in indexes[i]])
                 pred = model.forward(features_arr, fast_weights, reuse=True)
                 pred = sess.run(tf.nn.softmax(pred))
-                tmp = np.hstack((xy_arr[:, 0]. reshape(xy_arr.shape[0], 1), xy_arr[:, 1].reshape(xy_arr.shape[0], 1), pred))
-                savearr=np.vstack((savearr, tmp))
+                tmp = np.hstack(
+                    (xy_arr[:, 0].reshape(xy_arr.shape[0], 1), xy_arr[:, 1].reshape(xy_arr.shape[0], 1), pred))
+                savearr = np.vstack((savearr, tmp))
             """save model parameters to npz file"""
             adapted_weights = sess.run(fast_weights)
-            np.savez('models_of_blocks/FL/model'+str(i), adapted_weights['w1'],adapted_weights['b1'],
-                     adapted_weights['w2'],adapted_weights['b2'],
-                     adapted_weights['w3'],adapted_weights['b3'],
-                     adapted_weights['w4'],adapted_weights['b4'])
+            np.savez('models_of_blocks/FL/model' + str(i), adapted_weights['w1'], adapted_weights['b1'],
+                     adapted_weights['w2'], adapted_weights['b2'],
+                     adapted_weights['w3'], adapted_weights['b3'],
+                     adapted_weights['w4'], adapted_weights['b4'])
 
     writer = pd.ExcelWriter(savename)
     data_df = pd.DataFrame(savearr)
@@ -133,4 +143,3 @@ if __name__ == "__main__":
     predict_LSM(fl_tasks, FL_gridpts_feature, FL_gridpts_xy, FL_gridcluster, 'FL_LSpred.xlsx')
 
     # for each task， predict LS of each pt
-

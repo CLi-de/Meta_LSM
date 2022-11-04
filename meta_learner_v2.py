@@ -23,6 +23,7 @@ from Unsupervised_Pretraining.DAS_pretraining_v2 import DAS
 from sklearn.metrics._classification import accuracy_score
 
 import os
+
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 FLAGS = flags.FLAGS
@@ -32,32 +33,34 @@ FLAGS = flags.FLAGS
 flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
 flags.DEFINE_integer('K', 256, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
-#flags.DEFINE_string('seg_path', './src_data/CompositeBands2.tif', 'path to segmentation result of tasks by SLIC')
-flags.DEFINE_string('str_region', '', 'the region to be sampling tasks')
-flags.DEFINE_string('landslide_pts', './src_data/samples_fj_rand.xlsx', 'path to (non)landslide samples')
+# flags.DEFINE_string('seg_path', './src_data/CompositeBands2.tif', 'path to segmentation result of tasks by SLIC')
+# flags.DEFINE_string('str_region', '', 'the region to be sampling tasks')
+# flags.DEFINE_string('landslide_pts', './src_data/samples_fj_rand.xlsx', 'path to (non)landslide samples')
 
 """for meta-train"""
-flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of FJ; \
+flags.DEFINE_integer('mode', 0, '0:meta train part of FJ, test the other part of FJ; \
                                  1:meta train FJ, test FL; \
                                  2:meta train part of FJ and FL, test the other part FJ; \
                                  3:meta train FJ and part of FL, test the other part FL')
 flags.DEFINE_string('path', 'tasks', 'folder path of tasks file(excel)')
-flags.DEFINE_string('basemodel', 'MLP', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
+flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_string('norm', 'layer_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 
-flags.DEFINE_integer('num_classes', 2, 'number of classes used in classification (e.g. 2-way classification， landslide and nonlandslide).')
+flags.DEFINE_integer('num_classes', 2,
+                     'number of classes used in classification (e.g. 2-way classification， landslide and nonlandslide).')
 flags.DEFINE_integer('dim_input', 16, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
-flags.DEFINE_integer('num_samples_each_task', 12, 'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_integer('test_update_batch_size', -1, 'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot); -1: M.')
+flags.DEFINE_integer('num_samples_each_task', 12,
+                     'number of samples sampling from each task when training, inner_batch_size')
+flags.DEFINE_integer('test_update_batch_size', -1,
+                     'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot); -1: M.')
 flags.DEFINE_integer('metatrain_iterations', 5001, 'number of metatraining iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
-
 
 flags.DEFINE_float('update_lr', 1e-1, 'learning rate in meta-learning task')
 flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta learning process')
@@ -65,6 +68,7 @@ flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta learning pro
 # flags.DEFINE_bool('train', False, 'True to train, False to test.')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
+
 
 def train(model, saver, sess, exp_string, tasks, resume_itr):
     SUMMARY_INTERVAL = 100
@@ -80,7 +84,8 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
         for itr in range(resume_itr, FLAGS.pretrain_iterations + FLAGS.metatrain_iterations):
             batch_x, batch_y, cnt_sample = tasksbatch_generator(tasks, FLAGS.meta_batch_size
                                                                 , FLAGS.num_samples_each_task,
-                                                                FLAGS.dim_input, FLAGS.dim_output)  # task_batch[i]: (x, y, features)
+                                                                FLAGS.dim_input,
+                                                                FLAGS.dim_output)  # task_batch[i]: (x, y, features)
             # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
             # inputa = batch_x[:, :int(FLAGS.num_samples_each_task/2), :]  # a used for training
             # labela = batch_y[:, :int(FLAGS.num_samples_each_task/2), :]
@@ -93,7 +98,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
             labelb = batch_y[:, int(len(batch_y[0]) / 2):, :]
 
             feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela,
-                         model.labelb: labelb,  model.cnt_sample: cnt_sample}
+                         model.labelb: labelb, model.cnt_sample: cnt_sample}
 
             if itr < FLAGS.pretrain_iterations:
                 input_tensors = [model.pretrain_op]  # for comparison
@@ -101,7 +106,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                 input_tensors = [model.metatrain_op]  # meta_train
 
             if (itr % SUMMARY_INTERVAL == 0 or itr % PRINT_INTERVAL == 0):
-                input_tensors.extend([model.summ_op, model.total_loss1, model.total_losses2[FLAGS.num_updates-1]])
+                input_tensors.extend([model.summ_op, model.total_loss1, model.total_losses2[FLAGS.num_updates - 1]])
 
             result = sess.run(input_tensors, feed_dict)
 
@@ -139,7 +144,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     sum_accuracies = []
     sum_accuracies1 = []
     for i in range(len(elig_tasks)):
-        batch_x, batch_y = sample_generator(elig_tasks[i], FLAGS.dim_input, FLAGS.dim_output)   # only one task samples
+        batch_x, batch_y = sample_generator(elig_tasks[i], FLAGS.dim_input, FLAGS.dim_output)  # only one task samples
         if FLAGS.test_update_batch_size == -1:
             inputa = batch_x[:, :int(len(batch_x[0]) / 2), :]  # a used for fine tuning
             labela = batch_y[:, :int(len(batch_y[0]) / 2), :]
@@ -151,20 +156,24 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             inputb = batch_x[:, FLAGS.test_update_batch_size:, :]
             labelb = batch_y[:, FLAGS.test_update_batch_size:, :]
 
-        #feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela, model.labelb: labelb}
+        # feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela, model.labelb: labelb}
         """few-steps tuning"""
         with tf.compat.v1.variable_scope('model', reuse=True):  # np.normalize()里Variable重用
             task_output = model.forward(inputa[0], model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela[0])
-            grads = tf.gradients(ys=task_loss,xs=list(model.weights.values()))
+            grads = tf.gradients(ys=task_loss, xs=list(model.weights.values()))
             gradients = dict(zip(model.weights.keys(), grads))
             fast_weights = dict(zip(model.weights.keys(), [model.weights[key] -
-                                                           model.update_lr*gradients[key] for key in model.weights.keys()]))
+                                                           model.update_lr * gradients[key] for key in
+                                                           model.weights.keys()]))
             for j in range(num_updates - 1):
-                loss = model.loss_func(model.forward(inputa[0], fast_weights, reuse=True), labela[0])  # fast_weight和grads（stopped）有关系，但不影响这里的梯度计算
+                loss = model.loss_func(model.forward(inputa[0], fast_weights, reuse=True),
+                                       labela[0])  # fast_weight和grads（stopped）有关系，但不影响这里的梯度计算
                 grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
                 gradients = dict(zip(fast_weights.keys(), grads))
-                fast_weights = dict(zip(fast_weights.keys(), [fast_weights[key] - model.update_lr*gradients[key] for key in fast_weights.keys()]))
+                fast_weights = dict(zip(fast_weights.keys(),
+                                        [fast_weights[key] - model.update_lr * gradients[key] for key in
+                                         fast_weights.keys()]))
             """后续考虑用跑op"""
             # for j in range(num_update):
             #     sess.run(model.pretrain_op, feed_dict=feed_dict)  # num_update次迭代 # 存储各task模型
@@ -201,20 +210,20 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     data_df.to_excel(writer)
     writer.save()
     # measure performance
-    total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred),)
+    total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)
     total_accr = accuracy_score(total_Ytest, total_Ypred)
     print('Total_Accuracy: %f' % total_accr)
 
     """TP,TP,FN,FP"""
-    TP = ((total_Ypred==1)*(total_Ytest==1)).astype(int).sum()
-    FP = ((total_Ypred==1)*(total_Ytest==0)).astype(int).sum()
-    FN = ((total_Ypred==0)*(total_Ytest==1)).astype(int).sum()
-    TN = ((total_Ypred==0)*(total_Ytest==0)).astype(int).sum()
+    TP = ((total_Ypred == 1) * (total_Ytest == 1)).astype(int).sum()
+    FP = ((total_Ypred == 1) * (total_Ytest == 0)).astype(int).sum()
+    FN = ((total_Ypred == 0) * (total_Ytest == 1)).astype(int).sum()
+    TN = ((total_Ypred == 0) * (total_Ytest == 0)).astype(int).sum()
 
-    Precision = TP / (TP+FP)
-    Recall = TP / (TP+FN)
-    F_measures = 2 * Precision * Recall / (Precision+Recall)
+    Precision = TP / (TP + FP)
+    Recall = TP / (TP + FN)
+    F_measures = 2 * Precision * Recall / (Precision + Recall)
 
     print('Precision: %f' % Precision)
     print('Recall: %f' % Recall)
@@ -229,47 +238,69 @@ def main():
     """unsupervised pretraining"""
     if not os.path.exists('./DAS_logs/savedmodel.npz'):
         print("start unsupervised pretraining")
-        tmp = np.loadtxt('src_data/FJ_FL.csv', dtype=np.str, delimiter=",",encoding='UTF-8')
-        tmp_feature = tmp[1:,:]
+        tmp = np.loadtxt('src_data/FJ_FL.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
+        tmp_feature = tmp[1:, :]
         np.random.shuffle(tmp_feature)  # shuffle
         DAS(tmp_feature)
 
-    """任务采样"""
+    r"""任务采样"""
+
+    def tasks_load(taskspath, str_region):
+        if os.path.exists(taskspath):
+            tasks = read_tasks(taskspath)
+            print('Done reading ' + str_region + ' tasks from previous SLIC result')
+        else:
+            print('start tasks sampling by using SLIC algorithm:')
+            # str_region = 'HK'  # TODO: to be changed
+            p = SLICProcessor('./src_data/' + str_region + '/composite.tif', FLAGS.K, FLAGS.M)
+            p.iterate_times(loop=FLAGS.loop)
+            t = TaskSampling(p.clusters)
+            tasks = t.sampling(p.im_geotrans)
+            save_tasks(tasks)
+            print('Start task sampling...')
+            savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
+            print('Done saving FJ tasks to file!')
+        return tasks
+
     taskspath_FJ = './seg_output/FJ_tasks.xlsx'
     taskspath_FL = './seg_output/FL_tasks.xlsx'
-    fj_tasks, fl_tasks = [], []
-    if os.path.exists(taskspath_FJ):
-        # read tasks csv
-        fj_tasks = read_tasks(taskspath_FJ)
-        print('Done reading FJ tasks from previous SLIC result')
-    else:
-        print('start FJ tasks segmenting...')
-        FLAGS.str_region = 'FJ'
-        FLAGS.landslide_pts = './src_data/samples_fj_rand.xlsx'
-        p = SLICProcessor('./src_data/'+FLAGS.str_region+'/composite.tif', FLAGS.K, FLAGS.M)
-        p.iterate_times(loop=FLAGS.loop)
-        t = TaskSampling(p.clusters)
-        fj_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
-        save_tasks(fj_tasks)
-        print('Start FJ task sampling...')
-        savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks.xlsx')
-        print('Done saving FJ tasks to file!')
-    if os.path.exists(taskspath_FL):
-        # read tasks csv
-        fl_tasks = read_tasks(taskspath_FL)
-        print('Done reading FL tasks from previous SLIC result')
-    else:
-        print('start FL tasks segmenting...')
-        FLAGS.str_region = 'FL'
-        FLAGS.landslide_pts = './src_data/samples_fl_rand.xlsx'
-        p = SLICProcessor('./src_data/'+FLAGS.str_region+'/composite.tif', 96, FLAGS.M)
-        p.iterate_times(loop=FLAGS.loop)
-        t = TaskSampling(p.clusters)
-        fl_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
-        save_tasks(fl_tasks)
-        print('Start FL task sampling...')
-        savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks.xlsx')
-        print('Done saving FL tasks to file!')
+
+    fj_tasks = tasks_load(taskspath_FJ, 'FJ')
+    fl_tasks = tasks_load(taskspath_FL, 'FL')
+
+    # # fj_tasks, fl_tasks = [], []
+    # if os.path.exists(taskspath_FJ):
+    #     # read tasks csv
+    #     fj_tasks = read_tasks(taskspath_FJ)
+    #     print('Done reading FJ tasks from previous SLIC result')
+    # else:
+    #     print('start FJ tasks segmenting...')
+    #     str_region = 'FJ'
+    #     # FLAGS.landslide_pts = './src_data/samples_fj_rand.xlsx'
+    #     p = SLICProcessor('./src_data/'+str_region+'/composite.tif', FLAGS.K, FLAGS.M)
+    #     p.iterate_times(loop=FLAGS.loop)
+    #     t = TaskSampling(p.clusters)
+    #     fj_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
+    #     save_tasks(fj_tasks)
+    #     print('Start FJ task sampling...')
+    #     savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
+    #     print('Done saving FJ tasks to file!')
+    # if os.path.exists(taskspath_FL):
+    #     # read tasks csv
+    #     fl_tasks = read_tasks(taskspath_FL)
+    #     print('Done reading FL tasks from previous SLIC result')
+    # else:
+    #     print('start FL tasks segmenting...')
+    #     str_region = 'FL'
+    #     # FLAGS.landslide_pts = './src_data/samples_fl_rand.xlsx'
+    #     p = SLICProcessor('./src_data/'+str_region+'/composite.tif', 96, FLAGS.M)
+    #     p.iterate_times(loop=FLAGS.loop)
+    #     t = TaskSampling(p.clusters)
+    #     fl_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
+    #     save_tasks(fl_tasks)
+    #     print('Start FL task sampling...')
+    #     savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
+    #     print('Done saving FL tasks to file!')
 
     # if FLAGS.train:
     #     test_num_updates = 5
@@ -281,12 +312,14 @@ def main():
 
     """meta_training"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
-    input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task/2), FLAGS.dim_input)
-    input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task/2), FLAGS.dim_output)
-    model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label, prefix='metatrain_')
+    input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
+    input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
+    model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
+                          prefix='metatrain_')
     model.summ_op = tf.compat.v1.summary.merge_all()
 
-    saver = loader = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES), max_to_keep=10)
+    saver = loader = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES),
+                                              max_to_keep=10)
 
     sess = tf.compat.v1.InteractiveSession()
 
@@ -295,8 +328,8 @@ def main():
     # print(sess.run(tf.report_uninitialized_variables()))
     sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-    exp_string = 'mode'+str(FLAGS.mode)+'.mbs'+str(FLAGS.meta_batch_size)+'.ubs_'+ \
-                 str(FLAGS.num_samples_each_task)+'.numstep' + str(FLAGS.num_updates) + \
+    exp_string = 'mode' + str(FLAGS.mode) + '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
+                 str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
                  '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
 
     resume_itr = 0

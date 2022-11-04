@@ -10,6 +10,8 @@ from .dbn.tensorflow import SupervisedDBNClassification
 
 # define proposed algorithm
 """仅做无监督"""
+
+
 def DAS(tmp_feature):
     label_attr = tmp_feature[:, -1].astype(np.float32)  # 加载类别标签部分
     data_atrr = tmp_feature[:, :-1].astype(np.float32)  # 加载i行数据部分
@@ -36,7 +38,6 @@ def DAS(tmp_feature):
     with tf.compat.v1.Session() as sess:
         X_train_dae = sess.run(activations)
 
-
     # 超参数设置
     weights1 = {'w': [], 'b': []}
     input_units = int(X_train_dae.shape[1])  # dae输入节点
@@ -53,7 +54,8 @@ def DAS(tmp_feature):
         with tf.compat.v1.variable_scope('DAE'):
             autoencoder = AdditiveGaussianNoiseAutoencoder(n_input=input_units, n_hidden=hidden_units,
                                                            transfer_function=tf.nn.softplus,
-                                                           optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=0.00005), scale=0.01)
+                                                           optimizer=tf.compat.v1.train.AdamOptimizer(
+                                                               learning_rate=0.00005), scale=0.01)
         print("[START] DAE training step:")
         current_weights2 = tf.compat.v1.global_variables()  # just see if right exist the weights
         for epoch in range(training_epochs):
@@ -73,4 +75,3 @@ def DAS(tmp_feature):
              weights[0]['w'], weights[0]['b'],
              weights[1]['w'], weights[1]['b'],
              weights1['w'][0], weights1['b'][0])
-

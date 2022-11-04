@@ -9,8 +9,8 @@ import pandas as pd
 import tf_slim as slim
 from tensorflow.python.platform import flags
 
-
 FLAGS = flags.FLAGS
+
 
 # def normalize(inp, activation, reuse, scope):
 #     if FLAGS.norm == 'batch_norm':
@@ -39,11 +39,14 @@ def normalize(inp, activation, reuse, scope):
 def mse(pred, label):
     pred = tf.reshape(pred, [-1])
     label = tf.reshape(label, [-1])
-    return tf.reduce_mean(input_tensor=tf.square(pred-label))
+    return tf.reduce_mean(input_tensor=tf.square(pred - label))
+
 
 def xent(pred, label):
     # Note - with tf version <=0.12, this loss has incorrect 2nd derivatives
-    return tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=label) / tf.cast(tf.shape(input=label)[0], dtype=tf.float32)  # 注意归一
+    return tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=label) / tf.cast(tf.shape(input=label)[0],
+                                                                                        dtype=tf.float32)  # 注意归一
+
 
 # def xent(pred, label):
 #     # Note - with tf version <=0.12, this loss has incorrect 2nd derivatives
@@ -74,6 +77,7 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
                 labels[i][j][1] = 1  # 非滑坡
     return init_inputs, labels, np.array(cnt_sample).astype(np.float32)
 
+
 # for each task
 def sample_generator(one_task, dim_input, dim_output):
     """generate samples from one tasks"""
@@ -89,13 +93,14 @@ def sample_generator(one_task, dim_input, dim_output):
             labels[0][i][1] = 1
     return init_inputs, labels
 
+
 # for each region (e.g., FJ&FL)
 def sample_generator_(tasks, dim_input, dim_output):
     all_samples = np.array(tasks[0])
-    num_samples =5
-    for i in range(len(tasks)-1):
-        if len(tasks[i+1]) > 0:
-            all_samples = np.vstack((all_samples, np.array(tasks[i+1])))
+    num_samples = 5
+    for i in range(len(tasks) - 1):
+        if len(tasks[i + 1]) > 0:
+            all_samples = np.vstack((all_samples, np.array(tasks[i + 1])))
     init_inputs = np.zeros([1, num_samples, dim_input], dtype=np.float32)
     labels = np.zeros([1, num_samples, dim_output], dtype=np.float32)
     for i in range(num_samples):
@@ -111,7 +116,7 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
     test1_fj_tasks, test1_fl_tasks, resd_tasks, one_test_tasks = [], [], [], []
     _train, _test = [], []
     # np.random.shuffle(tasks)
-    if mode==0:
+    if mode == 0:
         elig_tasks = []
         for i in range(len(fj_tasks)):
             if len(fj_tasks[i]) > FLAGS.num_samples_each_task:
@@ -126,7 +131,7 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
             one_test_tasks.extend(resd_tasks[i])
         return _train, _test
 
-    if mode==1:
+    if mode == 1:
         for i in range(len(fj_tasks)):
             if len(fj_tasks[i]) > FLAGS.num_samples_each_task:
                 _train.append(fj_tasks[i])
@@ -135,7 +140,7 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
                 _test.append(fl_tasks[i])
         return _train, _test
 
-    if mode==2 or mode==3:
+    if mode == 2 or mode == 3:
         elig_fj_tasks, elig_fl_tasks = [], []
         for i in range(len(fj_tasks)):
             if len(fj_tasks[i]) > FLAGS.num_samples_each_task:
@@ -147,15 +152,16 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
                 elig_fl_tasks.append(fl_tasks[i])
             elif len(fl_tasks[i]) > 10:
                 test1_fl_tasks.append(fl_tasks[i])
-        if mode==2:
+        if mode == 2:
             _train = elig_fj_tasks[:int(len(elig_fj_tasks) / 4 * 3)] + elig_fl_tasks
             _test = elig_fj_tasks[int(len(elig_fj_tasks) / 4 * 3):] + test1_fj_tasks
             return _train, _test
-        elif mode==3:
+        elif mode == 3:
             _train = elig_fj_tasks + elig_fl_tasks[:int(len(elig_fj_tasks) / 2)]
             _test = elig_fl_tasks[int(len(elig_fl_tasks) / 2):] + test1_fl_tasks
             return _train, _test
     # _test.extend(resid_tasks)
+
 
 def save_tasks(tasks):
     """将tasks存到csv中"""
@@ -166,9 +172,10 @@ def save_tasks(tasks):
             attr_lb = np.append(tasks[i][j][0], tasks[i][j][1])
             task_sampels.append(attr_lb)
         data_df = pd.DataFrame(task_sampels)
-        data_df.to_excel(writer, 'task_'+str(i), float_format='%.5f', header=False, index=False)
+        data_df.to_excel(writer, 'task_' + str(i), float_format='%.5f', header=False, index=False)
         writer.save()
     writer.close()
+
 
 def read_tasks(file):
     """获取tasks"""
@@ -176,12 +183,15 @@ def read_tasks(file):
     tasks = [[] for i in range(len(f.sheet_names))]
     k = 0  # count task
     for sheetname in f.sheet_names:
-        attr = pd.read_excel(file, usecols=[i for i in range(FLAGS.dim_input)], sheet_name=sheetname, header=None).values.astype(np.float32)
-        label = pd.read_excel(file, usecols=[FLAGS.dim_input], sheet_name=sheetname, header=None).values.reshape((-1,)).astype(np.float32)
+        attr = pd.read_excel(file, usecols=[i for i in range(FLAGS.dim_input)], sheet_name=sheetname,
+                             header=None).values.astype(np.float32)
+        label = pd.read_excel(file, usecols=[FLAGS.dim_input], sheet_name=sheetname, header=None).values.reshape(
+            (-1,)).astype(np.float32)
         for j in range(np.shape(attr)[0]):
             tasks[k].append([attr[j], label[j]])
         k += 1
     return tasks
+
 
 def savepts_fortask(clusters, file):
     writer = pd.ExcelWriter(file)
@@ -191,10 +201,11 @@ def savepts_fortask(clusters, file):
         for pixel in cluster.pixels:
             pts.append(pixel)
         data_df = pd.DataFrame(pts)
-        data_df.to_excel(writer, 'task_'+str(count), float_format='%.5f', header=False, index=False)
-        count = count+1
+        data_df.to_excel(writer, 'task_' + str(count), float_format='%.5f', header=False, index=False)
+        count = count + 1
         writer.save()
     writer.close()
+
 
 def read_pts(file):
     """获取tasks"""
@@ -204,9 +215,3 @@ def read_pts(file):
         arr = pd.read_excel(file, sheet_name=sheetname).values.astype(np.float32)
         tasks.append(arr)
     return tasks
-
-
-
-
-
-

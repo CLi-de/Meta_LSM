@@ -1,27 +1,34 @@
 import numpy as np
 import tensorflow as tf
 
+
 #  transform
 def transform_softplus(inputX, weights, bias, activations=tf.nn.softplus):
     return activations(tf.transpose(a=tf.matmul(weights, tf.transpose(a=inputX))) + bias)
 
+
 def transform_relu(inputX, weights, bias, activations=tf.nn.relu):
     return activations(tf.transpose(a=tf.matmul(weights, tf.transpose(a=inputX))) + bias)
 
+
 def transform_sigmoid(inputX, weights, bias, activations=tf.nn.sigmoid):
     return activations(tf.transpose(a=tf.matmul(weights, tf.transpose(a=inputX))) + bias)
+
 
 #  initial weights of the unsupervised model
 def weights_append(weights_curent, weights_added):
     return weights_curent.append(weights_added)
 
+
 def weight_variable(func, shape, stddev, dtype=tf.float32):
     initial = func(shape, stddev=stddev, dtype=dtype)
     return tf.Variable(initial)
 
+
 def bias_variable(value, shape, dtype=tf.float32):
     initial = tf.constant(value, shape=shape, dtype=dtype)
     return tf.Variable(initial)
+
 
 def _initialize_softmax_weights(input_units, output_units):  # output_units: class_num
     weight = dict()
@@ -31,12 +38,14 @@ def _initialize_softmax_weights(input_units, output_units):  # output_units: cla
     return weight
     # self._activation_function_class = tf.nn.relu
 
+
 def _initialize_weights(input_units, output_units):  # output_units: class_num
     weight = dict()
     stddev = 0.1 / np.sqrt(input_units)
     weight['w'] = weight_variable(tf.random.truncated_normal, [input_units, output_units], stddev)
     weight['b'] = bias_variable(stddev, [output_units])
     return weight
+
 
 def build_and_train_SVmodel(X, Y, weights_initial, input_units, n_iter_backprop, batch_size, p):
     with tf.compat.v1.variable_scope('weights2merge'):
@@ -60,18 +69,18 @@ def build_and_train_SVmodel(X, Y, weights_initial, input_units, n_iter_backprop,
         softmax_input = int(transform_op.shape[1])  # 输入节点数
 
         # operations
-        softmax_weight =_initialize_softmax_weights(softmax_input, num_classes)  # 初始化softmax层权参
+        softmax_weight = _initialize_softmax_weights(softmax_input, num_classes)  # 初始化softmax层权参
         current_weights = tf.compat.v1.global_variables()  # just see if right exist the weights
 
-        #y = transpose(tf.matmul(tf.transpose(softmax_weight['w']), tf.transpose(transform_op))) + softmax_weight['b']  # 预测值
+        # y = transpose(tf.matmul(tf.transpose(softmax_weight['w']), tf.transpose(transform_op))) + softmax_weight['b']  # 预测值
         y = tf.matmul(transform_op, softmax_weight['w']) + softmax_weight['b']  # 预测值
         y_ = tf.compat.v1.placeholder(tf.float32, shape=[None, num_classes])  # 标记值
 
         output = tf.nn.softmax(y)
         cost_function = tf.reduce_mean(
             input_tensor=tf.nn.softmax_cross_entropy_with_logits(logits=output, labels=y_))
-        #tf.nn.softmax_cross_entropy_with_logits_v2(logits=y, labels=tf.stop_gradient(y_)))
-        cost=tf.compat.v1.summary.scalar('cost', cost_function)  # 用于显示
+        # tf.nn.softmax_cross_entropy_with_logits_v2(logits=y, labels=tf.stop_gradient(y_)))
+        cost = tf.compat.v1.summary.scalar('cost', cost_function)  # 用于显示
         train_step = tf.compat.v1.train.AdamOptimizer(learning_rate=0.0001).minimize(cost_function)  # 计算gradient并更新
         ############################################## train ##########################################################
         with tf.compat.v1.Session() as sess:
@@ -83,13 +92,13 @@ def build_and_train_SVmodel(X, Y, weights_initial, input_units, n_iter_backprop,
             step_cnt = 0
 
             init = tf.compat.v1.global_variables(scope='weights2merge')
-            sess.run(tf.compat.v1.initialize_variables(var_list= init))
+            sess.run(tf.compat.v1.initialize_variables(var_list=init))
             labels = _transform_labels_to_network_format(Y, num_classes)
             print("[START] Fine tuning step:")
             error = 1
             iteration = 0
             # for iteration in range(n_iter_backprop):
-            while (error > 0.53 or iteration<100):
+            while (error > 0.53 or iteration < 100):
                 for batch_data, batch_labels in batch_generator(batch_size, X, labels):
                     feed_dict = {visible_units_placeholder: batch_data,
                                  y_: batch_labels}
@@ -103,7 +112,7 @@ def build_and_train_SVmodel(X, Y, weights_initial, input_units, n_iter_backprop,
                 step_cnt += 1
                 iteration += 1
                 print(">> Epoch %d finished \tDAS training loss %f" % (iteration, error))
-                #rbm_weights = sess.run(weights_initial[0]['w'])
+                # rbm_weights = sess.run(weights_initial[0]['w'])
                 softmax_weights = sess.run(softmax_weight['w'])
                 k = 1
                 # 计算accuracy
@@ -123,6 +132,7 @@ def build_and_train_SVmodel(X, Y, weights_initial, input_units, n_iter_backprop,
                 temp_dict['b'] = sess.run(softmax_weight['b'])
                 SV_weights.append(temp_dict)
                 return SV_weights
+
 
 def build_and_train_SVmodel1(X, Y, weights_initial, input_units, n_iter_backprop, batch_size, p):
     with tf.compat.v1.variable_scope('weights2merge'):
@@ -146,18 +156,18 @@ def build_and_train_SVmodel1(X, Y, weights_initial, input_units, n_iter_backprop
         softmax_input = int(transform_op.shape[1])  # 输入节点数
 
         # operations
-        softmax_weight =_initialize_softmax_weights(softmax_input, num_classes)  # 初始化softmax层权参
+        softmax_weight = _initialize_softmax_weights(softmax_input, num_classes)  # 初始化softmax层权参
         current_weights = tf.compat.v1.global_variables()  # just see if right exist the weights
 
-        #y = transpose(tf.matmul(tf.transpose(softmax_weight['w']), tf.transpose(transform_op))) + softmax_weight['b']  # 预测值
+        # y = transpose(tf.matmul(tf.transpose(softmax_weight['w']), tf.transpose(transform_op))) + softmax_weight['b']  # 预测值
         y = tf.matmul(transform_op, softmax_weight['w']) + softmax_weight['b']  # 预测值
         y_ = tf.compat.v1.placeholder(tf.float32, shape=[None, num_classes])  # 标记值
 
         output = tf.nn.softmax(y)
         cost_function = tf.reduce_mean(
             input_tensor=tf.nn.softmax_cross_entropy_with_logits(logits=output, labels=y_))
-        #tf.nn.softmax_cross_entropy_with_logits_v2(logits=y, labels=tf.stop_gradient(y_)))
-        cost=tf.compat.v1.summary.scalar('cost', cost_function)  # 用于显示
+        # tf.nn.softmax_cross_entropy_with_logits_v2(logits=y, labels=tf.stop_gradient(y_)))
+        cost = tf.compat.v1.summary.scalar('cost', cost_function)  # 用于显示
         train_step = tf.compat.v1.train.AdamOptimizer(learning_rate=0.0001).minimize(cost_function)  # 计算gradient并更新
         ############################################## train ##########################################################
         with tf.compat.v1.Session() as sess:
@@ -169,7 +179,7 @@ def build_and_train_SVmodel1(X, Y, weights_initial, input_units, n_iter_backprop
             step_cnt = 0
 
             init = tf.compat.v1.global_variables(scope='weights2merge')
-            sess.run(tf.compat.v1.initialize_variables(var_list= init))
+            sess.run(tf.compat.v1.initialize_variables(var_list=init))
             labels = _transform_labels_to_network_format(Y, num_classes)
             print("[START] Fine tuning step:")
             for iteration in range(n_iter_backprop):
@@ -185,7 +195,7 @@ def build_and_train_SVmodel1(X, Y, weights_initial, input_units, n_iter_backprop
                 train_writer.add_summary(summary, step_cnt)
                 step_cnt += 1
                 print(">> Epoch %d finished \tDAS training loss %f" % (iteration, error))
-                #rbm_weights = sess.run(weights_initial[0]['w'])
+                # rbm_weights = sess.run(weights_initial[0]['w'])
                 softmax_weights = sess.run(softmax_weight['w'])
                 k = 1
                 # 计算accuracy
@@ -205,6 +215,7 @@ def build_and_train_SVmodel1(X, Y, weights_initial, input_units, n_iter_backprop
                 temp_dict['b'] = sess.run(softmax_weight['b'])
                 SV_weights.append(temp_dict)
                 return SV_weights
+
 
 def batch_generator(batch_size, data, labels=None):
     """
@@ -226,11 +237,14 @@ def batch_generator(batch_size, data, labels=None):
         else:
             yield data_shuffled[start:end, :]
 
+
 def get_Batch(data, label, batch_size):
     print(data.shape, label.shape)
-    input_queue = tf.compat.v1.train.slice_input_producer([data, label], num_epochs=1, shuffle=True, capacity=32 )
-    x_batch, y_batch = tf.compat.v1.train.batch(input_queue, batch_size=batch_size, num_threads=1, capacity=32, allow_smaller_final_batch=False)
+    input_queue = tf.compat.v1.train.slice_input_producer([data, label], num_epochs=1, shuffle=True, capacity=32)
+    x_batch, y_batch = tf.compat.v1.train.batch(input_queue, batch_size=batch_size, num_threads=1, capacity=32,
+                                                allow_smaller_final_batch=False)
     return x_batch, y_batch
+
 
 # compute Update_weight with batch
 # def _stochastic_gradient_descent(data, labels, n_iter_backprop, batch_size, ):
@@ -264,9 +278,10 @@ def to_categorical(labels, num_classes):
         #     label_to_idx_map[label] = idx
         #     idx_to_label_map[idx] = label
         #     idx += 1
-        #new_labels[i][label_to_idx_map[label]] = 1
+        # new_labels[i][label_to_idx_map[label]] = 1
         new_labels[i][label] = 1
     return new_labels, label_to_idx_map, idx_to_label_map
+
 
 def to_categorical1(labels, num_classes):
     """
@@ -276,22 +291,25 @@ def to_categorical1(labels, num_classes):
     :return:
     """
     lables_int = labels.astype(np.int)
-    new_labels = np.zeros([len(labels), num_classes],dtype=np.float)
-    #label_to_idx_map, idx_to_label_map = dict(), dict()
-    #idx = 0
+    new_labels = np.zeros([len(labels), num_classes], dtype=np.float)
+    # label_to_idx_map, idx_to_label_map = dict(), dict()
+    # idx = 0
     for i in range(len(lables_int)):
         j = lables_int[i]
-        new_labels[i][j] = 1 #(1,0)代表为非滑坡
-    #labels.astype(np.float)
+        new_labels[i][j] = 1  # (1,0)代表为非滑坡
+    # labels.astype(np.float)
     return new_labels
 
+
 def _transform_labels_to_network_format(labels, num_classes):
-    new_labels= to_categorical1(labels, num_classes)
+    new_labels = to_categorical1(labels, num_classes)
     return new_labels
+
 
 # 返回labels里类型数目
 def _determine_num_output_neurons(labels):
     return len(np.unique(labels))
+
 
 def relu(x):
     s = np.where(x < 0, 0, x)

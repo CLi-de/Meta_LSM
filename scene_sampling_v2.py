@@ -8,6 +8,7 @@ from tensorflow.python.platform import flags
 
 FLAGS = flags.FLAGS
 
+
 class Cluster(object):
     cluster_index = 1
 
@@ -31,6 +32,7 @@ class Cluster(object):
 
     def __repr__(self):
         return self.__str__()
+
 
 class SLICProcessor(object):
     @staticmethod
@@ -56,7 +58,7 @@ class SLICProcessor(object):
                        self.data[0][h][w],
                        self.data[1][h][w],
                        self.data[2][h][w],
-                       self.data[3][h][w],)
+                       self.data[3][h][w], )
 
     def __init__(self, filename, K, M):  # K:number of superpixels; M:衡量像素距离占距离测量的比重
         self.file = filename
@@ -122,7 +124,7 @@ class SLICProcessor(object):
                     _h = cluster.h + dh
                     _w = cluster.w + dw
                     if self.data[0][_h][_w] and self.data[1][_h][_w] and self.data[2][_h][_w] \
-                                            and self.data[3][_h][_w] != -9999:
+                            and self.data[3][_h][_w] != -9999:
                         new_gradient = self.get_gradient(_h, _w)
                         if new_gradient < cluster_gradient:  # 寻找 4 x 4 邻域内梯度最小的像素点(更聚集)，并且移动中心
                             cluster.update(_h, _w, self.data[0][_h][_w], self.data[1][_h][_w], self.data[2][_h][_w],
@@ -134,7 +136,7 @@ class SLICProcessor(object):
         for cluster in self.clusters:
             for h in range(cluster.h - self.S, cluster.h + self.S):
                 if h < 0 or h >= self.image_height: continue  # continue进入下一个循环
-                for w in range(cluster.w -self.S, cluster.w + self.S):
+                for w in range(cluster.w - self.S, cluster.w + self.S):
                     if w < 0 or w >= self.image_width: continue
                     if self.data[0][h][w] != -9999 and self.data[1][h][w] != -9999 \
                             and self.data[2][h][w] != -9999 and self.data[3][h][w] != -9999:
@@ -161,7 +163,6 @@ class SLICProcessor(object):
                         #     self.data[0][h][w], self.data[1][h][w], self.data[2][h][w],\
                         #     self.data[3][h][w] = [-9999, -9999, -9999, -9999]
 
-
     def update_cluster(self):  # 计算各SLIC聚类的中心
         for cluster in self.clusters:
             sum_h = sum_w = number = 0
@@ -184,7 +185,7 @@ class SLICProcessor(object):
 
         im_bands, im_height, im_width = im_data.shape
         path = 'seg_output\\' + path
-            # 创建文件
+        # 创建文件
         driver = gdal.GetDriverByName("GTiff")
         dataset = driver.Create(path, im_width, im_height, im_bands, datatype)
         if (dataset != None):
@@ -214,7 +215,7 @@ class SLICProcessor(object):
                     image_arr[i][h][w] = -9999
 
         c = 0;
-        interval = int(256/len(self.clusters))
+        interval = int(256 / len(self.clusters))
         for cluster in self.clusters:  # 可视化各聚类点
             c += 1
             r = g = b = d = interval * c - 1
@@ -234,11 +235,13 @@ class SLICProcessor(object):
         for i in trange(loop):
             self.assignment()
             self.update_cluster()
-            savename = FLAGS.str_region + '_Elegent_Girl_M{m}_K{k}_loop{loop}.tif'.format(loop=i, m=self.M, k=self.K)  # 生成可视tif
+            savename = FLAGS.str_region + '_Elegent_Girl_M{m}_K{k}_loop{loop}.tif'.format(loop=i, m=self.M,
+                                                                                          k=self.K)  # 生成可视tif
             self.save_current_image(self.file, savename)
 
     # def show_data(self):
     #     print(self.data[0][0][0])
+
 
 class TaskSampling(object):
     def __init__(self, clusters):
@@ -253,8 +256,8 @@ class TaskSampling(object):
 
     def readpts(self, filepath):
         data = pd.read_excel(filepath, index_col=0, dtype=np.float32)
-        data.to_csv('tmp/'+FLAGS.str_region+'data.csv', encoding='utf-8')
-        tmp = np.loadtxt('tmp/'+FLAGS.str_region+'data.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
+        data.to_csv('tmp/' + FLAGS.str_region + 'data.csv', encoding='utf-8')
+        tmp = np.loadtxt('tmp/' + FLAGS.str_region + 'data.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
         features = tmp[1:, :-3].astype(np.float32)
         features = features / features.max(axis=0)  # 特征归一化
         xy = tmp[1:, -3: -1].astype(np.float32)
