@@ -24,7 +24,7 @@ class MAML:
         self.dim_input = dim_input
         self.dim_output = dim_output
         self.update_lr = FLAGS.update_lr
-        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # trainable meta_lr
+        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # TODO: 1.lr decay (consider 2.learning of lr)
         self.test_num_updates = test_num_updates
         self.dim_hidden = [32, 32, 16]
         self.loss_func = xent
@@ -55,13 +55,13 @@ class MAML:
                 # Define the weights
                 self.weights = weights = self.construct_weights()  # 初始化FC权重参数
 
-            # outputbs[i] and lossesb[i] is the output and loss after i+1 gradient updates
-            lossesa, outputas, lossesb, outputbs = [], [], [], []
-            accuraciesa, accuraciesb = [], []
+            # # outputbs[i] and lossesb[i] is the output and loss after i+1 gradient updates
+            # lossesa, outputas, lossesb, outputbs = [], [], [], []
+            # accuraciesa, accuraciesb = [], []
             num_updates = max(self.test_num_updates, FLAGS.num_updates)  # training iteration in a task
-            outputbs = [[]] * num_updates
-            lossesb = [[]] * num_updates
-            accuraciesb = [[]] * num_updates
+            # outputbs = [[]] * num_updates
+            # lossesb = [[]] * num_updates
+            # accuraciesb = [[]] * num_updates
 
             def task_metalearn(inp, reuse=True):
                 """ Perform gradient descent for one task in the meta-batch. """
@@ -97,7 +97,7 @@ class MAML:
 
                 return [task_outputa, task_outputbs, task_lossa, task_lossesb]  # task_outpouta, task_lossa是仅
 
-            if FLAGS.norm is not 'None':  # 此处不能删，考虑到reuse
+            if FLAGS.norm != 'None':  # 此处不能删，考虑到reuse
                 '''to initialize the batch norm vars, might want to combine this, and not run idx 0 twice (use reuse=tf.AUTO_REUSE instead).'''
                 unused = task_metalearn((self.inputa[0], self.inputb[0], self.labela[0], self.labelb[0]), False)
 
@@ -106,7 +106,7 @@ class MAML:
             """输入各维度（for batch）进行task_metalearn的并行操作， 相较out_dtype多了batch_size的维度"""
 
             result = tf.map_fn(task_metalearn, elems=(self.inputa, self.inputb, self.labela, self.labelb),
-                               dtype=out_dtype, parallel_iterations=FLAGS.meta_batch_size)
+                               dtype=out_dtype, parallel_iterations=FLAGS.meta_batch_size)  # parallel calculation
 
             """ outputas:(num_tasks, num_samples, value)
                 outputbs[i]:i是迭代次数，不同迭代次数的预测值(num_tasks, num_samples, value)
@@ -161,7 +161,7 @@ class MAML:
         weights['b' + str(len(self.dim_hidden) + 1)] = tf.Variable(tf.zeros([self.dim_output]))
         return weights
 
-    # TODO: change forward to keras or solve tf.slim.batch_norm shape problem
+
     def forward_fc(self, inp, weights, reuse=False):
         hidden = normalize(tf.matmul(inp, weights['w1']) + weights['b1'], activation=tf.nn.relu, reuse=reuse, scope='0')
         for i in range(1, len(self.dim_hidden)):

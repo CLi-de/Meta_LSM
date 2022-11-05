@@ -62,8 +62,8 @@ flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during 
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
 
-flags.DEFINE_float('update_lr', 1e-1, 'learning rate in meta-learning task')
-flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta learning process')
+flags.DEFINE_float('update_lr', 1e-1, 'learning rate of single task objective (inner)')
+flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta objective (outer)')
 
 # flags.DEFINE_bool('train', False, 'True to train, False to test.')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
@@ -73,7 +73,7 @@ flags.DEFINE_bool('resume', True, 'resume training if there is a model available
 def train(model, saver, sess, exp_string, tasks, resume_itr):
     SUMMARY_INTERVAL = 100
     SAVE_INTERVAL = 1000
-    PRINT_INTERVAL = 1000
+    PRINT_INTERVAL = 100
     TEST_PRINT_INTERVAL = PRINT_INTERVAL * 5
 
     print('Done model initializing, starting training...')
@@ -110,6 +110,11 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
 
             result = sess.run(input_tensors, feed_dict)
 
+            # test weight update
+            with tf.compat.v1.variable_scope('model', reuse=True):
+                weights, meta_lr=sess.run([model.weights, model.meta_lr])
+
+
             if itr % SUMMARY_INTERVAL == 0:
                 prelosses.append(result[-2])
                 if FLAGS.log:
@@ -137,12 +142,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     # few-shot learn LSM model of each task
     # print('start evaluation...\n' + 'meta_lr:' + str(model.meta_lr) + 'update_lr:' + str(num_updates))
     print(exp_string)
-    total_Ytest = []
-    total_Ypred = []
-    total_Ytest1 = []
-    total_Ypred1 = []
-    sum_accuracies = []
-    sum_accuracies1 = []
+    total_Ytest, total_Ypred, total_Ytest1, total_Ypred1, sum_accuracies, sum_accuracies1 = [], [], [], [], [], []
     for i in range(len(elig_tasks)):
         batch_x, batch_y = sample_generator(elig_tasks[i], FLAGS.dim_input, FLAGS.dim_output)  # only one task samples
         if FLAGS.test_update_batch_size == -1:
@@ -267,40 +267,6 @@ def main():
 
     fj_tasks = tasks_load(taskspath_FJ, 'FJ')
     fl_tasks = tasks_load(taskspath_FL, 'FL')
-
-    # # fj_tasks, fl_tasks = [], []
-    # if os.path.exists(taskspath_FJ):
-    #     # read tasks csv
-    #     fj_tasks = read_tasks(taskspath_FJ)
-    #     print('Done reading FJ tasks from previous SLIC result')
-    # else:
-    #     print('start FJ tasks segmenting...')
-    #     str_region = 'FJ'
-    #     # FLAGS.landslide_pts = './src_data/samples_fj_rand.xlsx'
-    #     p = SLICProcessor('./src_data/'+str_region+'/composite.tif', FLAGS.K, FLAGS.M)
-    #     p.iterate_times(loop=FLAGS.loop)
-    #     t = TaskSampling(p.clusters)
-    #     fj_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
-    #     save_tasks(fj_tasks)
-    #     print('Start FJ task sampling...')
-    #     savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
-    #     print('Done saving FJ tasks to file!')
-    # if os.path.exists(taskspath_FL):
-    #     # read tasks csv
-    #     fl_tasks = read_tasks(taskspath_FL)
-    #     print('Done reading FL tasks from previous SLIC result')
-    # else:
-    #     print('start FL tasks segmenting...')
-    #     str_region = 'FL'
-    #     # FLAGS.landslide_pts = './src_data/samples_fl_rand.xlsx'
-    #     p = SLICProcessor('./src_data/'+str_region+'/composite.tif', 96, FLAGS.M)
-    #     p.iterate_times(loop=FLAGS.loop)
-    #     t = TaskSampling(p.clusters)
-    #     fl_tasks = t.sampling(p.im_geotrans)  # tasks[i]:第i个task，(x, y, features)
-    #     save_tasks(fl_tasks)
-    #     print('Start FL task sampling...')
-    #     savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
-    #     print('Done saving FL tasks to file!')
 
     # if FLAGS.train:
     #     test_num_updates = 5
