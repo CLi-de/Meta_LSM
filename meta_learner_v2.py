@@ -33,9 +33,6 @@ FLAGS = flags.FLAGS
 flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
 flags.DEFINE_integer('K', 256, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
-# flags.DEFINE_string('seg_path', './src_data/CompositeBands2.tif', 'path to segmentation result of tasks by SLIC')
-# flags.DEFINE_string('str_region', '', 'the region to be sampling tasks')
-# flags.DEFINE_string('landslide_pts', './src_data/samples_fj_rand.xlsx', 'path to (non)landslide samples')
 
 """for meta-train"""
 flags.DEFINE_integer('mode', 0, '0:meta train part of FJ, test the other part of FJ; \
@@ -61,11 +58,8 @@ flags.DEFINE_integer('metatrain_iterations', 5001, 'number of metatraining itera
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
-
 flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')
 flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')
-
-# flags.DEFINE_bool('train', False, 'True to train, False to test.')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
@@ -272,7 +266,7 @@ def main():
                           prefix='metatrain_')
     model.summ_op = tf.compat.v1.summary.merge_all()
 
-    saver = loader = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES),
+    saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES),
                                               max_to_keep=10)
 
     sess = tf.compat.v1.InteractiveSession()

@@ -3,14 +3,8 @@
 """
 from __future__ import print_function
 import numpy as np
-import sys
 import tensorflow as tf
 import os
-# try:
-#     import special_grads
-# except KeyError as e:
-#     print('WARN: Cannot define MaxPoolGrad, likely already defined for this version of tensorflow: %s' % e,
-#           file=sys.stderr)
 
 from tensorflow.python.platform import flags
 from utils_v2 import mse, xent, normalize
@@ -24,7 +18,8 @@ class MAML:
         self.dim_input = dim_input
         self.dim_output = dim_output
         self.update_lr = FLAGS.update_lr
-        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # TODO: 1.lr decay (consider 2.learning of lr)
+        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr,
+                                                             ())  # TODO: 1.lr decay (consider 2.learning of lr)
         self.test_num_updates = test_num_updates
         self.dim_hidden = [32, 32, 16]
         self.loss_func = xent
@@ -55,13 +50,7 @@ class MAML:
                 # Define the weights
                 self.weights = weights = self.construct_weights()  # 初始化FC权重参数
 
-            # # outputbs[i] and lossesb[i] is the output and loss after i+1 gradient updates
-            # lossesa, outputas, lossesb, outputbs = [], [], [], []
-            # accuraciesa, accuraciesb = [], []
             num_updates = max(self.test_num_updates, FLAGS.num_updates)  # training iteration in a task
-            # outputbs = [[]] * num_updates
-            # lossesb = [[]] * num_updates
-            # accuraciesb = [[]] * num_updates
 
             def task_metalearn(inp, reuse=True):
                 """ Perform gradient descent for one task in the meta-batch. """
@@ -99,7 +88,7 @@ class MAML:
 
             if FLAGS.norm != 'None':  # 此处不能删，考虑到reuse
                 '''to initialize the batch norm vars, might want to combine this, and not run idx 0 twice (use reuse=tf.AUTO_REUSE instead).'''
-                unused = task_metalearn((self.inputa[0], self.inputb[0], self.labela[0], self.labelb[0]), False)
+                task_metalearn((self.inputa[0], self.inputb[0], self.labela[0], self.labelb[0]), False)
 
             out_dtype = [tf.float32, [tf.float32] * num_updates, tf.float32, [tf.float32] * num_updates]
 
@@ -124,7 +113,7 @@ class MAML:
             w = self.cnt_sample / tf.cast(FLAGS.num_samples, dtype=tf.float32)
             self.total_losses2 = total_losses2 = [tf.reduce_sum(
                 input_tensor=tf.multiply(tf.nn.softmax(w), tf.reduce_sum(input_tensor=lossesb[j], axis=1)))
-                                                  for j in range(num_updates)]  # for proposed
+                for j in range(num_updates)]  # for proposed
 
             # after the map_fn
             self.outputas, self.outputbs = outputas, outputbs  # outputbs：25个task, 每个task迭代五次，value（25,5,1）
@@ -147,7 +136,6 @@ class MAML:
         for j in range(num_updates):
             tf.compat.v1.summary.scalar(prefix + 'Post-update loss, step ' + str(j + 1), total_losses2[j])
 
-    ### Network construction functions (fc networks and conv networks)
     def construct_fc_weights(self):
         weights = {}
         weights['w1'] = tf.Variable(tf.random.truncated_normal([self.dim_input, self.dim_hidden[0]], stddev=0.01))
@@ -160,7 +148,6 @@ class MAML:
             tf.random.truncated_normal([self.dim_hidden[-1], self.dim_output], stddev=0.01))
         weights['b' + str(len(self.dim_hidden) + 1)] = tf.Variable(tf.zeros([self.dim_output]))
         return weights
-
 
     def forward_fc(self, inp, weights, reuse=False):
         hidden = normalize(tf.matmul(inp, weights['w1']) + weights['b1'], activation=tf.nn.relu, reuse=reuse, scope='0')
