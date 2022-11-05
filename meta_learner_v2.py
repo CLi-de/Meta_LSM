@@ -62,8 +62,8 @@ flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during 
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
 
-flags.DEFINE_float('update_lr', 1e-1, 'learning rate of single task objective (inner)')
-flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta objective (outer)')
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')
+flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')
 
 # flags.DEFINE_bool('train', False, 'True to train, False to test.')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
@@ -111,9 +111,8 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
             result = sess.run(input_tensors, feed_dict)
 
             # test weight update
-            with tf.compat.v1.variable_scope('model', reuse=True):
-                weights, meta_lr=sess.run([model.weights, model.meta_lr])
-
+            # with tf.compat.v1.variable_scope('model', reuse=True):
+            #     weights, meta_lr=sess.run([model.weights, model.meta_lr])
 
             if itr % SUMMARY_INTERVAL == 0:
                 prelosses.append(result[-2])
@@ -140,7 +139,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
 
 def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     # few-shot learn LSM model of each task
-    # print('start evaluation...\n' + 'meta_lr:' + str(model.meta_lr) + 'update_lr:' + str(num_updates))
+    print('start evaluation...\n')
     print(exp_string)
     total_Ytest, total_Ypred, total_Ytest1, total_Ypred1, sum_accuracies, sum_accuracies1 = [], [], [], [], [], []
     for i in range(len(elig_tasks)):
@@ -262,19 +261,8 @@ def main():
             print('Done saving FJ tasks to file!')
         return tasks
 
-    taskspath_FJ = './seg_output/FJ_tasks.xlsx'
-    taskspath_FL = './seg_output/FL_tasks.xlsx'
-
-    fj_tasks = tasks_load(taskspath_FJ, 'FJ')
-    fl_tasks = tasks_load(taskspath_FL, 'FL')
-
-    # if FLAGS.train:
-    #     test_num_updates = 5
-    # else:
-    #     test_num_updates = 10
-    # if FLAGS.train == False:
-    #     # always use meta batch size of 1 when testing.
-    #     FLAGS.meta_batch_size = 1
+    fj_tasks = tasks_load('./seg_output/FJ_tasks.xlsx', 'FJ')
+    fl_tasks = tasks_load('./seg_output/FL_tasks.xlsx', 'FL')
 
     """meta_training"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
@@ -299,9 +287,7 @@ def main():
                  '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
 
     resume_itr = 0
-    model_file = None
-    tf.compat.v1.global_variables_initializer().run()  # 初始化全局变量
-    tf.compat.v1.train.start_queue_runners()  # ？
+
     # 续点训练
     if FLAGS.resume or not FLAGS.train:
         model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string)
