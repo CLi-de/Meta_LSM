@@ -2,26 +2,16 @@
 Usage Instructions:
 
 """
-import csv
 import numpy as np
-# import pickle
-import random
 import tensorflow as tf
-
 import pandas as pd
-
 from maml_v2 import MAML
 from scene_sampling_v2 import SLICProcessor, TaskSampling
-
 from tensorflow.python.platform import flags
-
 from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, save_tasks, read_tasks, \
     savepts_fortask
-
 from Unsupervised_Pretraining.DAS_pretraining_v2 import DAS
-
 from sklearn.metrics._classification import accuracy_score
-
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -267,7 +257,7 @@ def main():
     model.summ_op = tf.compat.v1.summary.merge_all()
 
     saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES),
-                                              max_to_keep=10)
+                                     max_to_keep=10)
 
     sess = tf.compat.v1.InteractiveSession()
 

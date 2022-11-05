@@ -5,7 +5,6 @@ from __future__ import print_function
 import numpy as np
 import tensorflow as tf
 import os
-
 from tensorflow.python.platform import flags
 from utils_v2 import mse, xent, normalize
 
