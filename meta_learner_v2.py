@@ -25,7 +25,7 @@ flags.DEFINE_integer('K', 256, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
 
 """for meta-train"""
-flags.DEFINE_integer('mode', 0, '0:meta train part of FJ, test the other part of FJ; \
+flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of FJ; \
                                  1:meta train FJ, test FL; \
                                  2:meta train part of FJ and FL, test the other part FJ; \
                                  3:meta train FJ and part of FL, test the other part FL')
@@ -58,7 +58,6 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
     SUMMARY_INTERVAL = 100
     SAVE_INTERVAL = 1000
     PRINT_INTERVAL = 100
-    TEST_PRINT_INTERVAL = PRINT_INTERVAL * 5
 
     print('Done model initializing, starting training...')
     prelosses, postlosses = [], []
@@ -123,7 +122,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
 
 def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     # few-shot learn LSM model of each task
-    print('start evaluation...\n')
+    print('start evaluation...')
     print(exp_string)
     total_Ytest, total_Ypred, total_Ytest1, total_Ypred1, sum_accuracies, sum_accuracies1 = [], [], [], [], [], []
     for i in range(len(elig_tasks)):
