@@ -23,6 +23,8 @@ FLAGS = flags.FLAGS
 flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
 flags.DEFINE_integer('K', 256, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
+flags.DEFINE_string('str_region', 'HK', 'the study area')
+flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non)landslide samples')
 
 """for meta-train"""
 flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of FJ; \
@@ -217,7 +219,7 @@ def main():
             tasks = read_tasks(taskspath)
             print('Done reading ' + str_region + ' tasks from previous SLIC result')
         else:
-            print('start tasks sampling by using SLIC algorithm:')
+            print('start meta-task sampling using SLIC algorithm:')
             # str_region = 'HK'  # TODO: to be changed
             p = SLICProcessor('./src_data/' + str_region + '/composite.tif', FLAGS.K, FLAGS.M)
             p.iterate_times(loop=FLAGS.loop)
@@ -229,9 +231,9 @@ def main():
             print('Done saving FJ tasks to file!')
         return tasks
 
-    fj_tasks = tasks_load('./seg_output/FJ_tasks.xlsx', 'FJ')
-    fl_tasks = tasks_load('./seg_output/FL_tasks.xlsx', 'FL')
-
+    # fj_tasks = tasks_load('./seg_output/FJ_tasks.xlsx', 'FJ')
+    # fl_tasks = tasks_load('./seg_output/FL_tasks.xlsx', 'FL')
+    HK_tasks = tasks_load('./seg_output/HK_tasks.xlsx', FLAGS.str_region)
     """meta_training"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
     input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
