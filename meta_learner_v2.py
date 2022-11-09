@@ -8,8 +8,8 @@ import pandas as pd
 from maml_v2 import MAML
 from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
-from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, save_tasks, read_tasks, \
-    savepts_fortask
+from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, meta_train_test1, save_tasks, \
+    read_tasks, savepts_fortask
 from Unsupervised_Pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics._classification import accuracy_score
 import os
@@ -42,7 +42,7 @@ flags.DEFINE_integer('num_classes', 2,
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
-flags.DEFINE_integer('num_samples_each_task', 12,
+flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', -1,
                      'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot); -1: M.')
@@ -252,7 +252,10 @@ def main():
     # print(sess.run(tf.report_uninitialized_variables()))
     sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-    exp_string = 'mode' + str(FLAGS.mode) + '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
+    # exp_string = 'mode' + str(FLAGS.mode) + '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
+    #              str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
+    #              '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
+    exp_string1 = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
                  str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
                  '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
 
@@ -260,18 +263,19 @@ def main():
 
     # 续点训练
     if FLAGS.resume or not FLAGS.train:
-        model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string)
+        model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string1)
         if model_file:
             ind1 = model_file.index('model')
             resume_itr = int(model_file[ind1 + 5:])
             print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
 
-    tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
+    # tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
+    tasks_train, tasks_test = meta_train_test1(HK_tasks)
 
-    train(model, saver, sess, exp_string, tasks_train, resume_itr)
+    train(model, saver, sess, exp_string1, tasks_train, resume_itr)
 
-    test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
+    test(model, saver, sess, exp_string1, tasks_test, num_updates=FLAGS.num_updates)
 
 # TODO: use tf.estimator
 if __name__ == "__main__":

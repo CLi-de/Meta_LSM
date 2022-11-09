@@ -113,7 +113,7 @@ def sample_generator_(tasks, dim_input, dim_output):
 
 
 def meta_train_test(fj_tasks, fl_tasks, mode=0):
-    test1_fj_tasks, test1_fl_tasks, resd_tasks, one_test_tasks = [], [], [], []
+    test1_fj_tasks, test1_fl_tasks, read_tasks, one_test_tasks = [], [], [], []
     _train, _test = [], []
     # np.random.shuffle(tasks)
     if mode == 0:
@@ -124,11 +124,11 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
             elif len(fj_tasks[i]) > 10:  # set 10 to test K=10-shot learning
                 test1_fj_tasks.append(fj_tasks[i])
             else:
-                resd_tasks.append(fj_tasks[i])
+                read_tasks.append(fj_tasks[i])
         _train = elig_tasks[:int(len(elig_tasks) / 4 * 3)]
         _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test1_fj_tasks
-        for i in range(len(resd_tasks)):  # resd_tasks暂时不用
-            one_test_tasks.extend(resd_tasks[i])
+        for i in range(len(read_tasks)):  # read_tasks暂时不用
+            one_test_tasks.extend(read_tasks[i])
         return _train, _test
 
     if mode == 1:
@@ -161,6 +161,22 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
             _test = elig_fl_tasks[int(len(elig_fl_tasks) / 2):] + test1_fl_tasks
             return _train, _test
     # _test.extend(resid_tasks)
+
+
+def meta_train_test1(HK_tasks):
+    test1_fj_tasks, one_test_tasks, read_tasks, elig_tasks = [], [], [], []
+    for i in range(len(HK_tasks)):
+        if len(HK_tasks[i]) > FLAGS.num_samples_each_task:
+            elig_tasks.append(HK_tasks[i])
+        elif len(HK_tasks[i]) > 10:  # set 10 to test K=10-shot learning
+            test1_fj_tasks.append(HK_tasks[i])
+        else:
+            read_tasks.append(HK_tasks[i])
+    _train = elig_tasks[:int(len(elig_tasks) / 4 * 3)]
+    _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test1_fj_tasks
+    for i in range(len(read_tasks)):  # read_tasks暂时不用
+        one_test_tasks.extend(read_tasks[i])
+    return _train, _test
 
 
 def save_tasks(tasks):
