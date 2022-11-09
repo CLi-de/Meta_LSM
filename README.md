@@ -1,4 +1,4 @@
-# meta_LSM
+# meta_LSM （Migrated from tensorflow1 to tensorflow2 in branch tf_v2_only）
 # Few-shot Prediction of Landslide Susceptibility in a Meta-learning Way.
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
@@ -26,17 +26,15 @@ Predicting a landslide susceptibility map (LSM) is essential for risk recognitio
 ## Dependencies
 
 This code is implemented with the anaconda environment:
-* python 3.6.8
-* tensorflow-gpu v1.9.0
-* gdal 3.0.4
-* numpy 1.19.5
-* openpyxl 3.0.7
-* pandas 0.25.2
-* scipy 1.3.0
-* scikit--image 0.17.2
-* scikit-learn 0.21.2
-* sklearn 0.0
-* tqdm 4.55.0
+* cudatoolkit 11.2.2
+* cudnn 8.1.0.77
+* gdal 3.2.3
+* numpy 1.23.3
+* pandas 1.5.0
+* python 3.9.13
+* scikit-learn 1.1.2
+* tensorflow 2.10.0
+* tqdm 4.64.1
 
 ## Data
 
