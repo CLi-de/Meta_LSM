@@ -139,7 +139,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             labelb = batch_y[:, FLAGS.test_update_batch_size:, :]
 
         # feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela, model.labelb: labelb}
-        """few-steps tuning"""
+        """few-steps tuning （不用op跑是因为采用的batch_size（input shape）不一致）"""
         with tf.compat.v1.variable_scope('model', reuse=True):  # np.normalize()里Variable重用
             task_output = model.forward(inputa[0], model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela[0])
@@ -156,63 +156,53 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
                 fast_weights = dict(zip(fast_weights.keys(),
                                         [fast_weights[key] - model.update_lr * gradients[key] for key in
                                          fast_weights.keys()]))
-            """后续考虑用跑op"""
-            # for j in range(num_update):
-            #     sess.run(model.pretrain_op, feed_dict=feed_dict)  # num_update次迭代 # 存储各task模型
-            # saver.save(sess, './checkpoint_dir/task' + str(i) + 'model')
+            """Single task test accuracy"""
+            Y_array = sess.run(tf.nn.softmax(model.forward(inputb[0], fast_weights, reuse=True)))
+            total_Ypred1.extend(Y_array)  # prediction
+            total_Ytest1.extend(labelb[0])  # label
 
-            """Test Evaluation"""
-            output = model.forward(inputb[0], fast_weights, reuse=True)  # 注意测试model.weight是否为更新后值
-            Y_array = sess.run(tf.nn.softmax(output))  # , feed_dict=feed_dict
-            total_Ypred1.extend(Y_array)
-            total_Ytest1.extend(labelb[0])  # save
+            def task_test_acc():
+                Y_test = []
+                for j in range(len(labelb[0])):
+                    Y_test.append(labelb[0][j][0])
+                    total_Ytest.append(labelb[0][j][0])
+                Y_pred = []
+                for j in range(len(labelb[0])):
+                    if Y_array[j][0] > Y_array[j][1]:
+                        Y_pred.append(1)
+                        total_Ypred.append(1)
+                    else:
+                        Y_pred.append(0)
+                        total_Ypred.append(0)
+                accuracy = accuracy_score(Y_test, Y_pred)
+                sum_accuracies.append(accuracy)
+                print('Test_Accuracy: %f' % accuracy)
 
-            Y_test = []
-            for j in range(len(labelb[0])):
-                Y_test.append(labelb[0][j][0])
-                total_Ytest.append(labelb[0][j][0])
-            Y_pred = []
-            for j in range(len(labelb[0])):
-                if Y_array[j][0] > Y_array[j][1]:
-                    Y_pred.append(1)
-                    total_Ypred.append(1)
-                else:
-                    Y_pred.append(0)
-                    total_Ypred.append(0)
-            accuracy = accuracy_score(Y_test, Y_pred)
-            sum_accuracies.append(accuracy)
-            # print('Test_Accuracy: %f' % accuracy)
+            task_test_acc()  # test accuracy of each task
 
-    # save prediction
+    """Overall evaluation"""
     total_Ypred1 = np.array(total_Ypred1)
     total_Ytest1 = np.array(total_Ytest1)
     arr = np.hstack((total_Ypred1, total_Ytest1))
     writer = pd.ExcelWriter('mode' + str(FLAGS.mode) + 'predict.xlsx')
-    data_df = pd.DataFrame(arr)
-    data_df.to_excel(writer)
-    writer.save()
-    # measure performance
+    pd.DataFrame(arr).to_excel(writer)
+    writer.close()
+
+    # accuracy
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)
-    total_accr = accuracy_score(total_Ytest, total_Ypred)
-    print('Total_Accuracy: %f' % total_accr)
-
-    """TP,TP,FN,FP"""
+    total_acc = accuracy_score(total_Ytest, total_Ypred)
+    print('Total_Accuracy: %f' % total_acc)
+    # TP,TP,FN,FP
     TP = ((total_Ypred == 1) * (total_Ytest == 1)).astype(int).sum()
     FP = ((total_Ypred == 1) * (total_Ytest == 0)).astype(int).sum()
     FN = ((total_Ypred == 0) * (total_Ytest == 1)).astype(int).sum()
-    TN = ((total_Ypred == 0) * (total_Ytest == 0)).astype(int).sum()
-
+    # TN = ((total_Ypred == 0) * (total_Ytest == 0)).astype(int).sum()
     Precision = TP / (TP + FP)
     Recall = TP / (TP + FN)
     F_measures = 2 * Precision * Recall / (Precision + Recall)
+    print('Precision: %f\n' % Precision, 'Recall: %f\n' % Recall, 'F_measures: %f\n' % F_measures)
 
-    print('Precision: %f' % Precision)
-    print('Recall: %f' % Recall)
-    print('F_measures: %f' % F_measures)
-
-    # print('Mean_Accuracy: %f' % np.mean(np.array(sum_accuracies), axis=0))
-    # # print('Mean_Accuracy_pre: %f' % np.mean(np.array(sum_accuracies1), axis=0))
     sess.close()
 
 
@@ -225,8 +215,7 @@ def main():
         np.random.shuffle(tmp_feature)  # shuffle
         DAS(tmp_feature)
 
-    r"""任务采样"""
-
+    """meta task sampling"""
     def tasks_load(taskspath, str_region):
         if os.path.exists(taskspath):
             tasks = read_tasks(taskspath)
