@@ -29,6 +29,8 @@ class MAML:
             if os.path.exists('./DAS_logs/savedmodel.npz'):
                 # print('Done unsupervised initialization')
                 self.construct_weights = self.construct_DAS_weights  # DAS初始化
+            else:
+                raise ValueError('No pretrained model found!')
         else:
             raise ValueError('Unrecognized base model, please specify a base model such as "MLP", "DAS"...')
 

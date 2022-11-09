@@ -1,19 +1,14 @@
 # Author: C.L
 # Network: RBMs + DAE + classifier
 
-from sklearn.metrics._classification import accuracy_score
-import pandas as pd
-
 from .denoising_AE_v2 import *
 from .utils_v2 import *
 from .dbn.tensorflow import SupervisedDBNClassification
 
 # define proposed algorithm
 """仅做无监督"""
-
-
-def DAS(tmp_feature):
-    label_attr = tmp_feature[:, -1].astype(np.float32)  # 加载类别标签部分
+def Unsupervise_pretrain(tmp_feature):
+    # label_attr = tmp_feature[:, -1].astype(np.float32)  # 加载类别标签部分
     data_atrr = tmp_feature[:, :-1].astype(np.float32)  # 加载i行数据部分
     data_atrr = data_atrr / data_atrr.max(axis=0)
 
@@ -23,10 +18,10 @@ def DAS(tmp_feature):
     with tf.compat.v1.variable_scope('deepBM'):
         classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],  # rbm隐藏层列表
                                                  learning_rate_rbm=0.001,
-                                                 learning_rate=0.01,
-                                                 n_epochs_rbm=20,
+                                                 learning_rate=0.001,
+                                                 n_epochs_rbm=10,
                                                  n_iter_backprop=100,
-                                                 batch_size=32,
+                                                 batch_size=64,
                                                  activation_function='relu',  # 多层rbm时relu比sigmoid合适
                                                  dropout_p=0.1)
         # RBM fit
@@ -44,7 +39,7 @@ def DAS(tmp_feature):
     structure = [16]
     n_samples = int(X_train_dae.shape[0])
     training_epochs = 20
-    batch_size = 16
+    batch_size = 64
     display_step = 1
     dae_weights = []  # 存储dae预训练权重参数
     dae_bias = []  # 存储dae预训练偏置参数

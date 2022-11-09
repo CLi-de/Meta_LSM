@@ -10,7 +10,7 @@ from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
 from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, save_tasks, read_tasks, \
     savepts_fortask
-from Unsupervised_Pretraining.DAS_pretraining_v2 import DAS
+from Unsupervised_Pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics._classification import accuracy_score
 import os
 
@@ -37,7 +37,7 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 
 flags.DEFINE_integer('num_classes', 2,
                      'number of classes used in classification (e.g. 2-way classification， landslide and nonlandslide).')
-flags.DEFINE_integer('dim_input', 16, 'dim of input data')
+flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 12,
@@ -206,10 +206,10 @@ def main():
     """unsupervised pretraining"""
     if not os.path.exists('./DAS_logs/savedmodel.npz'):
         print("start unsupervised pretraining")
-        tmp = np.loadtxt('src_data/FJ_FL.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
+        tmp = np.loadtxt('src_data/samples_HK.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
         tmp_feature = tmp[1:, :]
         np.random.shuffle(tmp_feature)  # shuffle
-        DAS(tmp_feature)
+        Unsupervise_pretrain(tmp_feature)
 
     """meta task sampling"""
     def tasks_load(taskspath, str_region):
@@ -271,7 +271,7 @@ def main():
 
     test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
 
-
+# TODO: use tf.estimator
 if __name__ == "__main__":
     # device=tf.config.list_physical_devices('GPU')
     tf.compat.v1.disable_eager_execution()
