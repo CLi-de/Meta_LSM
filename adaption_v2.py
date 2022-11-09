@@ -19,7 +19,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('dim_input', 16, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_float('update_lr', 1e-1, 'learning rate in meta-learning task')
-flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta learning process')
+flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta learning process')
 flags.DEFINE_string('basemodel', 'MLP', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
@@ -33,10 +33,11 @@ flags.DEFINE_integer('test_update_batch_size', 5,
                      'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
 
 if __name__ == "__main__":
-    exp_string = "mode2.mbs16.ubs_12.numstep5.updatelr0.1.meta_lr0.0001"  # if FJ, mode 2; if FL, mode 3
+    exp_string = "mode2.mbs16.ubs_12.numstep5.updatelr0.1.meta_lr0.001"  # if FJ, mode 2; if FL, mode 3
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
-    input_tensors = None
-    model.construct_model(input_tensors=input_tensors, prefix='metatrain_')
+    input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
+    input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
+    model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label, prefix='metatrain_')
 
     var_list = tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES)
     # saver = tf.train.import_meta_graph('./checkpoint_dir/' + exp_string + '/model4999.meta')

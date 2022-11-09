@@ -18,7 +18,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 FLAGS = flags.FLAGS
 
-"""hyperparameter setting"""
+"""global setting"""
 """for task sampling"""
 flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
 flags.DEFINE_integer('K', 256, 'number of superpixels')
@@ -220,7 +220,7 @@ def main():
             print('Done reading ' + str_region + ' tasks from previous SLIC result')
         else:
             print('start meta-task sampling using SLIC algorithm:')
-            # str_region = 'HK'  # TODO: to be changed
+
             p = SLICProcessor('./src_data/' + str_region + '/composite.tif', FLAGS.K, FLAGS.M)
             p.iterate_times(loop=FLAGS.loop)
             t = TaskSampling(p.clusters)
