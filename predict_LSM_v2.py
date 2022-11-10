@@ -58,9 +58,10 @@ def getclusters(gridpts_xy, taskpts, tifformat_path):
 def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
     """restore model from checkpoint"""
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
-    input_tensors = None
-    model.construct_model(input_tensors=input_tensors, prefix='metatrain_')
-    exp_string = "mode3.mbs16.ubs_12.numstep5.updatelr0.1.meta_lr0.0001"
+    input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
+    input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
+    model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label, prefix='metatrain_')
+    exp_string = ".mbs16.ubs_16.numstep5.updatelr0.01.meta_lr0.001"
     saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES))
     sess = tf.compat.v1.InteractiveSession()
     init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
