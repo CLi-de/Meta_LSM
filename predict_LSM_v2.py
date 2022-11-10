@@ -119,6 +119,7 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
     writer.save()
 
     print('save LSM successfully')
+    sess.close()
 
 
 if __name__ == "__main__":
