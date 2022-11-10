@@ -1,5 +1,7 @@
 # root
 /*.xlsx
+/*.xls
+/*.txt
 
 # pycache
 .idea/

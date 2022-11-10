@@ -33,7 +33,7 @@ flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of
                                  3:meta train FJ and part of FL, test the other part FL')
 flags.DEFINE_string('path', 'tasks', 'folder path of tasks file(excel)')
 flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
-flags.DEFINE_string('norm', 'layer_norm', 'batch_norm, layer_norm, or None')
+flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 

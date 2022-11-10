@@ -14,14 +14,14 @@ from tensorflow.python.platform import flags
 
 FLAGS = flags.FLAGS
 
-flags.DEFINE_integer('dim_input', 16, 'dim of input data')
+flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_float('update_lr', 1e-3, 'learning rate in meta-learning task')
-flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta learning process')
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate in meta-learning task')
+flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta learning process')
 flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
-flags.DEFINE_integer('num_samples_each_task', 12,
+flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
@@ -57,6 +57,7 @@ def getclusters(gridpts_xy, taskpts, tifformat_path):
 
 def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
     """restore model from checkpoint"""
+    tf.compat.v1.disable_eager_execution()
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
     input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
     input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
@@ -109,7 +110,7 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
                 savearr = np.vstack((savearr, tmp))
             """save model parameters to npz file"""
             adapted_weights = sess.run(fast_weights)
-            np.savez('models_of_blocks/FL/model' + str(i), adapted_weights['w1'], adapted_weights['b1'],
+            np.savez('models_of_blocks/HK/model' + str(i), adapted_weights['w1'], adapted_weights['b1'],
                      adapted_weights['w2'], adapted_weights['b2'],
                      adapted_weights['w3'], adapted_weights['b3'],
                      adapted_weights['w4'], adapted_weights['b4'])
@@ -124,24 +125,29 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
 
 
 if __name__ == "__main__":
-    fj_tasks = read_tasks('./seg_output/FJ_tasks.xlsx')  # task里的samplles
-    fl_tasks = read_tasks('./seg_output/FL_tasks.xlsx')
+    # fj_tasks = read_tasks('./seg_output/fj_tasks.xlsx')  # task里的samplles
+    # fl_tasks = read_tasks('./seg_output/fl_tasks.xlsx')
+    HK_tasks = read_tasks('./seg_output/HK_tasks.xlsx')
     print('done read tasks')
-    FJ_taskpts = read_pts('./seg_output/FJpts_tasks.xlsx')  # task里的grid pts
-    FL_taskpts = read_pts('./seg_output/FLpts_tasks.xlsx')
+    # FJ_taskpts = read_pts('./seg_output/FJpts_tasks.xlsx')  # task里的grid pts
+    # FL_taskpts = read_pts('./seg_output/FLpts_tasks.xlsx')
+    HK_taskpts = read_pts('./seg_output/HKpts_tasks.xlsx')
     print('done read pts')
-    FJ_gridpts_feature, FJ_gridpts_xy = readpts('./src_data/grid_samples_fj.csv')  # study area的grid pts
-    FL_gridpts_feature, FL_gridpts_xy = readpts('./src_data/grid_samples_fl.csv')
+    # FJ_gridpts_feature, FJ_gridpts_xy = readpts('./src_data/grid_samples_fj.csv')  # study area的grid pts
+    # FL_gridpts_feature, FL_gridpts_xy = readpts('./src_data/grid_samples_fl.csv')
+    HK_gridpts_feature, HK_gridpts_xy = readpts('./src_data/grid_samples_HK.csv')
     print('done read grid pts features and xy')
 
     # clusters of grid points (points from excel)
-    FJ_gridcluster = getclusters(FJ_gridpts_xy, FJ_taskpts, './seg_output/FJ_Elegent_Girl_M250.0_K256_loop0.tif')
-    FL_gridcluster = getclusters(FL_gridpts_xy, FL_taskpts, './seg_output/FL_Elegent_Girl_M250.0_K96_loop0.tif')
+    # FJ_gridcluster = getclusters(FJ_gridpts_xy, FJ_taskpts, './seg_output/FJ_Elegent_Girl_M250.0_K256_loop0.tif')
+    # FL_gridcluster = getclusters(FL_gridpts_xy, FL_taskpts, './seg_output/FL_Elegent_Girl_M250.0_K96_loop0.tif')
+    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/HK_Elegent_Girl_M250.0_K256_loop0.tif')
 
     # please note that 'FJ_LSpred.xlsx' and 'FL_LSpred.xlsx' should be predicted separately.
     print('start predicting FJ LSM...')
     # predict_LSM(fj_tasks, FJ_gridpts_feature, FJ_gridpts_xy, FJ_gridcluster, 'FJ_LSpred.xlsx')
     # print('start predicting FL LSM...')
-    predict_LSM(fl_tasks, FL_gridpts_feature, FL_gridpts_xy, FL_gridcluster, 'FL_LSpred.xlsx')
+
+    predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'HK_LSpred.xlsx')
 
     # for each task， predict LS of each pt
