@@ -50,7 +50,7 @@ flags.DEFINE_integer('metatrain_iterations', 5001, 'number of metatraining itera
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
-flags.DEFINE_float('update_lr', 1e-1, 'learning rate of single task objective (inner)')
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')
 flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
