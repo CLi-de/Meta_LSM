@@ -11,6 +11,7 @@ from sklearn.metrics._classification import accuracy_score
 
 import matplotlib.pyplot as plt
 
+
 def cal_measure(pred, y_test):
     TP = ((pred == 1) * (y_test == 1)).astype(int).sum()
     FP = ((pred == 1) * (y_test == 0)).astype(int).sum()
@@ -42,12 +43,14 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
+    xy = grid_f[1:, -2:].astype(np.float32)
     samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results2 = clf.predict_proba(samples_f)
 
     # save the prediction result
-    data_df = pd.DataFrame(predict_results2)
+    data = np.hstack((xy, predict_results2))
+    data_df = pd.DataFrame(data)
     writer = pd.ExcelWriter('./tmp/SVM_prediction_HK.xlsx')
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
@@ -72,12 +75,14 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
+    xy = grid_f[1:, -2:].astype(np.float32)
     samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results = model.predict_proba(samples_f)
 
     # save the prediction result
-    data_df = pd.DataFrame(predict_results)
+    data = np.hstack((xy, predict_results))
+    data_df = pd.DataFrame(data)
     writer = pd.ExcelWriter('./tmp/MLP_prediction_HK.xlsx')
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
@@ -88,7 +93,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start RF evaluation...')
     clf = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2,
-                                  bootstrap=True)
+                                 bootstrap=True)
 
     clf.fit(x_train, y_train)
     pred_train = clf.predict(x_train)
@@ -104,15 +109,18 @@ def RF_compare(x_train, y_train, x_test, y_test):
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
+    xy = grid_f[1:, -2:].astype(np.float32)
     samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results = clf.predict_proba(samples_f)
     # save the prediction result
-    data_df = pd.DataFrame(predict_results)
+    data = np.hstack((xy, predict_results))
+    data_df = pd.DataFrame(data)
     writer = pd.ExcelWriter('./tmp/RF_prediction_HK.xlsx')
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
     print('done RF LSM prediction! \n')
+
 
 """SVM"""
 # Input data
