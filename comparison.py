@@ -8,22 +8,12 @@ from sklearn.neural_network import MLPClassifier
 import matplotlib.pyplot as plt
 from sklearn.metrics._classification import accuracy_score
 
-"""SVM"""
-# Input data
-pd.read_excel('./src_data/samples_HK.xlsx', 'Sheet1', index_col=0) \
-    .to_csv('./tmp/data.csv', encoding='utf-8')
-tmp = np.loadtxt('./tmp/data.csv', dtype=str, delimiter=",", encoding='UTF-8')
-tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
-np.random.shuffle(tmp_)  # shuffle
-
-# 训练集
-x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
-y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
-x_train = x_train / x_train.max(axis=0)
-# 测试集
-x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
-y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
-x_test = x_test / x_test.max(axis=0)
+import matplotlib as mpl
+from sklearn.model_selection import cross_val_score
+from sklearn.datasets import make_blobs
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.tree import DecisionTreeClassifier
 
 def cal_measure(pred, y_test):
     TP = ((pred == 1) * (y_test == 1)).astype(int).sum()
@@ -35,6 +25,7 @@ def cal_measure(pred, y_test):
     Recall = TP / (TP + FN)
     F_measures = 2 * Precision * Recall / (Precision + Recall)
     print('Precision: %f' % Precision, '\nRecall: %f' % Recall, '\nF_measures: %f' % F_measures)
+
 
 def SVM_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
@@ -58,7 +49,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     # fpr, tpr, threshold = metrics.roc_curve(y_test, predict_results, pos_label=1)
     # print(metrics.auc(fpr, tpr))
 
-    """For LSM"""
+    """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
@@ -72,6 +63,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
     print('done SVM LSM prediction!')
+
 
 def ANN_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
@@ -125,9 +117,57 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     writer = pd.ExcelWriter('./tmp/MLP_prediction_HK.xlsx')
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
+    print('done RF LSM prediction!')
+
+
+def RF_compare(x_train, y_train, x_test, y_test):
+    """predict and test"""
+    print('start RF evaluation...')
+    clf = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2,
+                                  bootstrap=True)
+
+    clf.fit(x_train, y_train)
+    pred_train = clf.predict(x_train)
+    pred_test = clf.predict(x_test)
+    # 训练精度
+    print('Done.\ntrain_Accuracy: %f' % accuracy_score(y_train, pred_train))
+    # 测试精度
+    print('Done.\ntest_Accuracy: %f' % accuracy_score(y_test, pred_test))  # 0.71 - 0.77
+    # pred1 = clf2.predict_proba() # 预测类别概率
+    cal_measure(pred_test, y_test)
+
+    """"LSM prediction"""
+    grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
+                        encoding='UTF-8')
+    samples_f = grid_f[1:, :-2].astype(np.float32)
+    samples_f = samples_f / samples_f.max(axis=0)
+
+    predict_results = clf.predict_proba(samples_f)
+    # save the prediction result
+    data_df = pd.DataFrame(predict_results)
+    writer = pd.ExcelWriter('./tmp/RF_prediction_HK.xlsx')
+    data_df.to_excel(writer, 'page_1', float_format='%.5f')
+    writer.close()
     print('done MLP LSM prediction!')
 
+"""SVM"""
+# Input data
+pd.read_excel('./src_data/samples_HK.xlsx', 'Sheet1', index_col=0) \
+    .to_csv('./tmp/data.csv', encoding='utf-8')
+tmp = np.loadtxt('./tmp/data.csv', dtype=str, delimiter=",", encoding='UTF-8')
+tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
+np.random.shuffle(tmp_)  # shuffle
+# 训练集
+x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
+y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
+x_train = x_train / x_train.max(axis=0)
+# 测试集
+x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
+y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
+x_test = x_test / x_test.max(axis=0)
 
 # SVM_compare(x_train, y_train, x_test, y_test)
 
-ANN_compare(x_train, y_train, x_test, y_test)
+# ANN_compare(x_train, y_train, x_test, y_test)
+
+RF_compare(x_train, y_train, x_test, y_test)
