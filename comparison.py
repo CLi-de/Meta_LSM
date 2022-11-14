@@ -31,20 +31,20 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     # clf = svm.SVC(C=0.1, kernel='linear', decision_function_shape='ovr')
     clf.fit(x_train, y_train)
     # train accuracy
-    predict_results1 = clf.predict(x_train)
-    print('train accuracy:' + str(metrics.accuracy_score(predict_results1, y_train)))  # 0.69-0.71
+    predict_results = clf.predict(x_train)
+    print('train accuracy:' + str(metrics.accuracy_score(predict_results, y_train)))  # 0.69-0.71
     # test accuracy
-    predict_results = clf.predict(x_test)
-    print('test accuracy:' + str(metrics.accuracy_score(y_test, predict_results)))  # 0.69-0.71
+    predict_results1 = clf.predict(x_test)
+    print('test accuracy:' + str(metrics.accuracy_score(predict_results1, y_test)))  # 0.69-0.71
     # Precision, Recall, F1-score
-    cal_measure(predict_results, y_test)
+    cal_measure(predict_results1, y_test)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
-    samples_f = samples_f / samples_f.max(axis=0)
+    # samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results2 = clf.predict_proba(samples_f)
 
@@ -61,7 +61,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start ANN evaluation...')
     model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.0001,
-                          batch_size=32, max_iter=1000)
+                          batch_size=128, max_iter=1000)
     model.fit(x_train, y_train)
     predict1 = model.predict(x_train)
     print('Train Accuracy: %f' % accuracy_score(y_train, predict1))  # 奉节，在0.82 - 0.90；
@@ -76,7 +76,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
-    samples_f = samples_f / samples_f.max(axis=0)
+    # samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results = model.predict_proba(samples_f)
 
@@ -110,7 +110,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
-    samples_f = samples_f / samples_f.max(axis=0)
+    # samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results = clf.predict_proba(samples_f)
     # save the prediction result
@@ -132,11 +132,11 @@ np.random.shuffle(tmp_)  # shuffle
 # 训练集
 x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
 y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
-x_train = x_train / x_train.max(axis=0)
+# x_train = x_train / x_train.max(axis=0)
 # 测试集
 x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
 y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
-x_test = x_test / x_test.max(axis=0)
+# x_test = x_test / x_test.max(axis=0)
 
 SVM_compare(x_train, y_train, x_test, y_test)
 
