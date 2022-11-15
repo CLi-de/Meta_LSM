@@ -27,13 +27,10 @@ models_of_blocks/**/*.npz
 seg_output/*.tif
 seg_output/*.xlsx
 
-# src_data
-src_data/
-
 # src_data_
 
 # tmp 
-tmp/*.csv
+tmp/
 
 # Unsupervised_Pretraining
 
