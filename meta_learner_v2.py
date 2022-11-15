@@ -27,18 +27,18 @@ flags.DEFINE_string('str_region', 'HK', 'the study area')
 flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non)landslide samples')
 
 """for meta-train"""
-flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of FJ; \
-                                 1:meta train FJ, test FL; \
-                                 2:meta train part of FJ and FL, test the other part FJ; \
-                                 3:meta train FJ and part of FL, test the other part FL')
-flags.DEFINE_string('path', 'tasks', 'folder path of tasks file(excel)')
+# flags.DEFINE_integer('mode', 3, '0:meta train part of FJ, test the other part of FJ; \
+#                                  1:meta train FJ, test FL; \
+#                                  2:meta train part of FJ and FL, test the other part FJ; \
+#                                  3:meta train FJ and part of FL, test the other part FL')
+# flags.DEFINE_string('path', 'tasks', 'folder path of tasks file(excel)')
 flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 
-flags.DEFINE_integer('num_classes', 2,
-                     'number of classes used in classification (e.g. 2-way classification， landslide and nonlandslide).')
+# flags.DEFINE_integer('num_classes', 2,
+#                      'number of classes used in classification (e.g. 2-way classification， landslide and nonlandslide).')
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
@@ -49,7 +49,8 @@ flags.DEFINE_integer('test_update_batch_size', -1,
 flags.DEFINE_integer('metatrain_iterations', 5001, 'number of metatraining iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
-flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
+# flags.DEFINE_integer('num_samples', 2637, 'total number of samples in FJ and FL.')
+flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK.')
 flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')
 flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
@@ -212,29 +213,36 @@ def main():
         tmp_feature = tmp[1:, :]
         np.random.shuffle(tmp_feature)  # shuffle
         Unsupervise_pretrain(tmp_feature)
+    print('Done unsupervised pretraining')
 
     """meta task sampling"""
     def tasks_load(taskspath, str_region):
         if os.path.exists(taskspath):
             tasks = read_tasks(taskspath)
-            print('Done reading ' + str_region + ' tasks from previous SLIC result')
+            print('     Done reading ' + str_region + ' tasks from previous SLIC result')
         else:
-            print('start meta-task sampling using SLIC algorithm:')
+            print('     start meta-task sampling using SLIC algorithm:')
 
             p = SLICProcessor('./src_data/' + str_region + '/composite.tif', FLAGS.K, FLAGS.M)
             p.iterate_times(loop=FLAGS.loop)
             t = TaskSampling(p.clusters)
             tasks = t.sampling(p.im_geotrans)
             save_tasks(tasks)
-            print('Start task sampling...')
+            print('     Start task sampling...')
             savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
-            print('Done saving FJ tasks to file!')
+            print('     Done saving FJ tasks to file!')
         return tasks
 
     # fj_tasks = tasks_load('./seg_output/FJ_tasks.xlsx', 'FJ')
     # fl_tasks = tasks_load('./seg_output/FL_tasks.xlsx', 'FL')
     HK_tasks = tasks_load('./seg_output/HK_tasks.xlsx', FLAGS.str_region)
+
+    # tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
+    tasks_train, tasks_test = meta_train_test1(HK_tasks)  # for HK
+    print('Done meta-tasks sampling')
+
     """meta_training"""
+    print('model construction...')
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
     input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
     input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
@@ -262,16 +270,14 @@ def main():
     resume_itr = 0
 
     # 续点训练
-    if FLAGS.resume or not FLAGS.train:
+    # if FLAGS.resume or not FLAGS.train:
+    if FLAGS.resume:
         model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string1)
         if model_file:
             ind1 = model_file.index('model')
             resume_itr = int(model_file[ind1 + 5:])
             print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
-
-    # tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
-    tasks_train, tasks_test = meta_train_test1(HK_tasks)
 
     train(model, saver, sess, exp_string1, tasks_train, resume_itr)
 
@@ -282,3 +288,4 @@ if __name__ == "__main__":
     # device=tf.config.list_physical_devices('GPU')
     tf.compat.v1.disable_eager_execution()
     main()
+    print('finished!')

@@ -27,7 +27,6 @@ class MAML:
             self.construct_weights = self.construct_fc_weights  # 参数初始化(random)
         elif FLAGS.basemodel == 'DAS':
             if os.path.exists('./DAS_logs/savedmodel.npz'):
-                print('Done unsupervised initialization')
                 self.construct_weights = self.construct_DAS_weights  # DAS初始化
             else:
                 raise ValueError('No pretrained model found!')

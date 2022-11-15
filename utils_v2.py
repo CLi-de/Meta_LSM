@@ -97,7 +97,7 @@ def sample_generator(one_task, dim_input, dim_output):
 # for each region (e.g., FJ&FL)
 def sample_generator_(tasks, dim_input, dim_output):
     all_samples = np.array(tasks[0])
-    num_samples = 5
+    num_samples = int(FLAGS.num_samples_each_task/2)
     for i in range(len(tasks) - 1):
         if len(tasks[i + 1]) > 0:
             all_samples = np.vstack((all_samples, np.array(tasks[i + 1])))
@@ -164,16 +164,17 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
 
 
 def meta_train_test1(HK_tasks):
-    test1_fj_tasks, one_test_tasks, read_tasks, elig_tasks = [], [], [], []
+    test_hk_tasks, one_test_tasks, read_tasks, elig_tasks = [], [], [], []
     for i in range(len(HK_tasks)):
         if len(HK_tasks[i]) > FLAGS.num_samples_each_task:
             elig_tasks.append(HK_tasks[i])
         elif len(HK_tasks[i]) > 10:  # set 10 to test K=10-shot learning
-            test1_fj_tasks.append(HK_tasks[i])
+            test_hk_tasks.append(HK_tasks[i])
         else:
             read_tasks.append(HK_tasks[i])
+    np.random.shuffle(elig_tasks)
     _train = elig_tasks[:int(len(elig_tasks) / 4 * 3)]
-    _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test1_fj_tasks
+    _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test_hk_tasks
     for i in range(len(read_tasks)):  # read_tasks暂时不用
         one_test_tasks.extend(read_tasks[i])
     return _train, _test
