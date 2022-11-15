@@ -1,9 +1,5 @@
-# meta_LSM （Migrated from tensorflow1 to tensorflow2 in branch tf_v2_only）
-# Few-shot Prediction of Landslide Susceptibility in a Meta-learning Way.
-
-[![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-
-this repo contains code accompanying the paper, [Meta-learning an Intermediate Representation for Few-shot block-wise Prediction of Landslide Susceptibility in Large Areas](https://www.sciencedirect.com/science/article/pii/S1569843222000097). It contains the code of 1) unsupervised pretraining; 2) scene segmentation and task sampling; 3) the meta learner and the few-shot adaption for LSM prediction. Also, it provides the drawing of most experimental figures.
+# meta_LSM （Migrated from tf1 t0 tf2）
+# Hong Kong Landslide Susceptibility in a Meta-learning Way.
 
 ##Table of Contents
 
@@ -15,13 +11,11 @@ this repo contains code accompanying the paper, [Meta-learning an Intermediate R
 
 
 ## Background
-Predicting a landslide susceptibility map (LSM) is essential for risk recognition and potential disaster prevention. Despite the successful adoption of existing data-driven prediction approaches, current statistical methods generally apply a single global model to predict the LSM for the whole target region. However, we argue that, in complex circumstances, especially in large-scale area, each part of the region holds different landslide inducing environment, and therefore should be predicted individually with specific models. In this study, the target scenarios are segmented into blocks for individual analysis using topographical factors. Apparently, simply conducting \textit{block-wise} training and testing independently using limited samples is hardly possible for a successful prediction. To achieve this objective, we first train an intermediate representation with the meta-learning paradigm, which is superior for capturing imformation from LSM tasks so as to generalize that information proficiently.  We choose it in the hypothesis that there are more general concepts among LSM tasks that are sensitive to varies in input features.  Thus using the intermediate representation, we can then easily adapt the model to different blocks or even unseen tasks by few exemplar samples.
+to be continued...
 
-<img src="figs/global_vs_local.jpg" width="800px" hight="800px"/> 
-​         Fig. 1: Global vs block-wise prediction
+<img src="figs/overflow.png" width="800px" hight="800px"/> 
+​         Fig. 1: Overflow
 
-<img src="figs/overview.jpg" width="800px" hight="800px"/> 
-		Fig. 2: Overview
 
 ## Dependencies
 
@@ -38,10 +32,7 @@ This code is implemented with the anaconda environment:
 
 ## Data
 
-* Composited thematic maps of Fengjie County (FJ) and Fuling District (FL) formatted as `composite.tif` with `composite.twf`, are stored in folders `./src_data/FJ` and `./src_data/FJ`. 
-* `src_data` folder also contains: `samples_fj_rand.xlsx`, `samples_fl_rand.xlsx` and `FJ_FL.xlsx`, respectively storing sample vectors in FJ, FL, and FJ&FL;
-together with `grid_samples_fj.xlsx` and `grid_samples_fl.xlsx`, which consists of rasterized sample vectors to be predicted.
-* Here we only provide materials for formating these files, detailed data are available on the website: https://zenodo.org/record/5900776#.Ye-4xf5BwuV
+The source and experiment data will be opened...
 
 
 ## Usage
