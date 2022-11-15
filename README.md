@@ -13,7 +13,7 @@
 ## Background
 to be continued...
 
-<img src="figs/overflow.png" width="800px" hight="800px"/> 
+<img src="figs/overflow.jpg" width="800px" hight="800px"/> 
 ​         Fig. 1: Overflow
 
 
