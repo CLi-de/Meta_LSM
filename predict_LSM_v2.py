@@ -79,8 +79,10 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
         # TODO: 1.考虑few-shot样本数量； 2. 考虑少于6个样本地区的LSM预测
         batch_x, batch_y = sample_generator(tasks_samples[i], FLAGS.dim_input,
                                             FLAGS.dim_output)  # only one task samples
-        inputa = batch_x[:, :FLAGS.test_update_batch_size, :]  # setting K-shot K here
-        labela = batch_y[:, :FLAGS.test_update_batch_size, :]
+        # inputa = batch_x[:, :FLAGS.test_update_batch_size, :]  # setting K-shot K here
+        # labela = batch_y[:, :FLAGS.test_update_batch_size, :]
+        inputa = batch_x[:, :int(len(batch_x[0]) / 2), :]  # 'a' is used for adaption
+        labela = batch_y[:, :int(len(batch_y[0]) / 2), :]
         with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
             task_output = model.forward(inputa[0], model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela)
@@ -122,13 +124,10 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
 
 
 if __name__ == "__main__":
+    print('grid points assignment...')
     HK_tasks = read_tasks('./seg_output/HK_tasks.xlsx')
-    print('done read tasks')
     HK_taskpts = read_pts('./seg_output/HKpts_tasks.xlsx')
-    print('done read pts')
     HK_gridpts_feature, HK_gridpts_xy = readpts('./src_data/grid_samples_HK.csv')
-    print('done read grid pts features and xy')
     HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/HK_Elegent_Girl_M250.0_K256_loop0.tif')
-    print('start predicting FJ LSM...')
-
+    print('adapt and predict...')
     predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'HK_LSpred.xlsx')

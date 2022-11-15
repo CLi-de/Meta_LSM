@@ -37,6 +37,8 @@ tmp/*.csv
 
 # Unsupervised_Pretraining
 
+# file
+adaption_v2.py
 
 *~
 
