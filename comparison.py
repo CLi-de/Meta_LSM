@@ -9,19 +9,10 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics._classification import accuracy_score
 
-import matplotlib.pyplot as plt
+from utils_v2 import cal_measure
 
 
-def cal_measure(pred, y_test):
-    TP = ((pred == 1) * (y_test == 1)).astype(int).sum()
-    FP = ((pred == 1) * (y_test == 0)).astype(int).sum()
-    FN = ((pred == 0) * (y_test == 1)).astype(int).sum()
-    TN = ((pred == 0) * (y_test == 0)).astype(int).sum()
-    # statistical measure
-    Precision = TP / (TP + FP)
-    Recall = TP / (TP + FN)
-    F_measures = 2 * Precision * Recall / (Precision + Recall)
-    print('Precision: %f' % Precision, '\nRecall: %f' % Recall, '\nF_measures: %f' % F_measures)
+# import matplotlib.pyplot as plt
 
 
 def SVM_compare(x_train, y_train, x_test, y_test):
@@ -32,10 +23,10 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     clf.fit(x_train, y_train)
     # train accuracy
     predict_results = clf.predict(x_train)
-    print('train accuracy:' + str(metrics.accuracy_score(predict_results, y_train)))  # 0.69-0.71
+    print('train accuracy:' + str(metrics.accuracy_score(y_train, predict_results)))  # 0.69-0.71
     # test accuracy
     predict_results1 = clf.predict(x_test)
-    print('test accuracy:' + str(metrics.accuracy_score(predict_results1, y_test)))  # 0.69-0.71
+    print('test accuracy:' + str(metrics.accuracy_score(y_test, predict_results1)))  # 0.69-0.71
     # Precision, Recall, F1-score
     cal_measure(predict_results1, y_test)
 
@@ -44,7 +35,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
+    samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results2 = clf.predict_proba(samples_f)
 
@@ -61,7 +52,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start ANN evaluation...')
     model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.0001,
-                          batch_size=128, max_iter=1000)
+                          batch_size=64, max_iter=1000)
     model.fit(x_train, y_train)
     predict1 = model.predict(x_train)
     print('Train Accuracy: %f' % accuracy_score(y_train, predict1))  # 奉节，在0.82 - 0.90；
@@ -76,7 +67,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
+    samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results = model.predict_proba(samples_f)
 
@@ -110,7 +101,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
                         encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
+    samples_f = samples_f / samples_f.max(axis=0)
 
     predict_results = clf.predict_proba(samples_f)
     # save the prediction result
@@ -132,11 +123,11 @@ np.random.shuffle(tmp_)  # shuffle
 # 训练集
 x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
 y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
-# x_train = x_train / x_train.max(axis=0)
+x_train = x_train / x_train.max(axis=0)
 # 测试集
 x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
 y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
-# x_test = x_test / x_test.max(axis=0)
+x_test = x_test / x_test.max(axis=0)
 
 SVM_compare(x_train, y_train, x_test, y_test)
 

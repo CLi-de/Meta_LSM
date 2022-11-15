@@ -9,7 +9,7 @@ from maml_v2 import MAML
 from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
 from utils_v2 import tasksbatch_generator, sample_generator, meta_train_test, meta_train_test1, save_tasks, \
-    read_tasks, savepts_fortask
+    read_tasks, savepts_fortask, cal_measure
 from Unsupervised_Pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics._classification import accuracy_score
 import os
@@ -51,7 +51,7 @@ flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during 
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 # flags.DEFINE_integer('num_samples', 2637, 'total number of samples in FJ and FL.')
 flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK.')
-flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')
+flags.DEFINE_float('update_lr', 1e-1, 'learning rate of single task objective (inner)')
 flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
@@ -175,15 +175,13 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
                         total_Ypred.append(0)
                 accuracy = accuracy_score(Y_test, Y_pred)
                 sum_accuracies.append(accuracy)
-                print('Test_Accuracy: %f' % accuracy)
+                # print('Test_Accuracy: %f' % accuracy)
 
             task_test_acc()  # test accuracy of each task
 
     """Overall evaluation"""
-    total_Ypred1 = np.array(total_Ypred1)
-    total_Ytest1 = np.array(total_Ytest1)
-    arr = np.hstack((total_Ypred1, total_Ytest1))
-    writer = pd.ExcelWriter('mode' + str(FLAGS.mode) + 'predict.xlsx')
+    arr = np.hstack((np.array(total_Ypred1), np.array(total_Ytest1)))
+    writer = pd.ExcelWriter('predict.xlsx')
     pd.DataFrame(arr).to_excel(writer)
     writer.close()
 
@@ -193,14 +191,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     total_acc = accuracy_score(total_Ytest, total_Ypred)
     print('Total_Accuracy: %f' % total_acc)
     # TP,TP,FN,FP
-    TP = ((total_Ypred == 1) * (total_Ytest == 1)).astype(int).sum()
-    FP = ((total_Ypred == 1) * (total_Ytest == 0)).astype(int).sum()
-    FN = ((total_Ypred == 0) * (total_Ytest == 1)).astype(int).sum()
-    # TN = ((total_Ypred == 0) * (total_Ytest == 0)).astype(int).sum()
-    Precision = TP / (TP + FP)
-    Recall = TP / (TP + FN)
-    F_measures = 2 * Precision * Recall / (Precision + Recall)
-    print('Precision: %f\n' % Precision, 'Recall: %f\n' % Recall, 'F_measures: %f\n' % F_measures)
+    cal_measure(total_Ypred, total_Ytest)
 
     sess.close()
 
@@ -216,6 +207,7 @@ def main():
     print('Done unsupervised pretraining')
 
     """meta task sampling"""
+
     def tasks_load(taskspath, str_region):
         if os.path.exists(taskspath):
             tasks = read_tasks(taskspath)
@@ -264,8 +256,8 @@ def main():
     #              str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
     #              '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
     exp_string1 = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
-                 str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
-                 '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
+                  str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
+                  '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
 
     resume_itr = 0
 
@@ -282,6 +274,7 @@ def main():
     train(model, saver, sess, exp_string1, tasks_train, resume_itr)
 
     test(model, saver, sess, exp_string1, tasks_test, num_updates=FLAGS.num_updates)
+
 
 # TODO: use tf.estimator
 if __name__ == "__main__":

@@ -97,7 +97,7 @@ def sample_generator(one_task, dim_input, dim_output):
 # for each region (e.g., FJ&FL)
 def sample_generator_(tasks, dim_input, dim_output):
     all_samples = np.array(tasks[0])
-    num_samples = int(FLAGS.num_samples_each_task/2)
+    num_samples = int(FLAGS.num_samples_each_task / 2)
     for i in range(len(tasks) - 1):
         if len(tasks[i + 1]) > 0:
             all_samples = np.vstack((all_samples, np.array(tasks[i + 1])))
@@ -232,3 +232,15 @@ def read_pts(file):
         arr = pd.read_excel(file, sheet_name=sheetname).values.astype(np.float32)
         tasks.append(arr)
     return tasks
+
+
+def cal_measure(pred, y_test):
+    TP = ((pred == 1) * (y_test == 1)).astype(int).sum()
+    FP = ((pred == 1) * (y_test == 0)).astype(int).sum()
+    FN = ((pred == 0) * (y_test == 1)).astype(int).sum()
+    TN = ((pred == 0) * (y_test == 0)).astype(int).sum()
+    # statistical measure
+    Precision = TP / (TP + FP)
+    Recall = TP / (TP + FN)
+    F_measures = 2 * Precision * Recall / (Precision + Recall)
+    print('Precision: %f' % Precision, '\nRecall: %f' % Recall, '\nF_measures: %f' % F_measures)
