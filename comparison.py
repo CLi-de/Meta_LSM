@@ -27,7 +27,7 @@ def cal_measure(pred, y_test):
 def SVM_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start SVM evaluation...')
-    clf = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
+    clf = svm.SVC(C=5, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
     # clf = svm.SVC(C=0.1, kernel='linear', decision_function_shape='ovr')
     clf.fit(x_train, y_train)
     # train accuracy
