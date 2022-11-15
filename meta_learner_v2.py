@@ -206,7 +206,6 @@ def main():
     print('Done unsupervised pretraining')
 
     """meta task sampling"""
-
     def tasks_load(taskspath, str_region):
         if os.path.exists(taskspath):
             tasks = read_tasks(taskspath)
@@ -224,11 +223,8 @@ def main():
             print('     Done saving FJ tasks to file!')
         return tasks
 
-    # fj_tasks = tasks_load('./seg_output/FJ_tasks.xlsx', 'FJ')
-    # fl_tasks = tasks_load('./seg_output/FL_tasks.xlsx', 'FL')
     HK_tasks = tasks_load('./seg_output/HK_tasks.xlsx', FLAGS.str_region)
 
-    # tasks_train, tasks_test = meta_train_test(fj_tasks, fl_tasks, mode=FLAGS.mode)
     tasks_train, tasks_test = meta_train_test1(HK_tasks)  # for HK
     print('Done meta-tasks sampling')
 
@@ -245,15 +241,9 @@ def main():
                                      max_to_keep=10)
 
     sess = tf.compat.v1.InteractiveSession()
-
-    # init1 = tf.global_variables(scope='model')
     init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
-    # print(sess.run(tf.report_uninitialized_variables()))
     sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-    # exp_string = 'mode' + str(FLAGS.mode) + '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
-    #              str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
-    #              '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
     exp_string1 = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
                   str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
                   '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)

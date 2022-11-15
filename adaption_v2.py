@@ -1,3 +1,5 @@
+# This file will be deprecated in the future
+
 # -*- coding:utf-8 -*-
 
 import tensorflow as tf

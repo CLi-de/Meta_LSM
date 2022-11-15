@@ -81,8 +81,8 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
                                             FLAGS.dim_output)  # only one task samples
         # inputa = batch_x[:, :FLAGS.test_update_batch_size, :]  # setting K-shot K here
         # labela = batch_y[:, :FLAGS.test_update_batch_size, :]
-        inputa = batch_x[:, :int(len(batch_x[0]) / 2), :]  # 'a' is used for adaption
-        labela = batch_y[:, :int(len(batch_y[0]) / 2), :]
+        inputa = batch_x[:, :int(len(batch_x[0])), :]  # 'a' is used for adaption
+        labela = batch_y[:, :int(len(batch_y[0])), :]
         with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
             task_output = model.forward(inputa[0], model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela)
