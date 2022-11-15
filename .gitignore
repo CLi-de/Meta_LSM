@@ -11,7 +11,7 @@ __pycache__/
 checkpoint_dir/
 
 #figs, tmp
-figs/
+# figs/
 tmp/
 
 # DAS_logs
