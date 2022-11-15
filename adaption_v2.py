@@ -1,18 +1,10 @@
 # -*- coding:utf-8 -*-
+
 import tensorflow as tf
-
 from maml_v2 import MAML
-
-from utils_v2 import sample_generator, read_pts
-
-from scene_sampling_v2 import SLICProcessor
-
-import pandas as pd
 import numpy as np
-from osgeo import gdal
 
 from utils_v2 import read_pts, sample_generator_
-
 from tensorflow.python.platform import flags
 
 FLAGS = flags.FLAGS
@@ -28,7 +20,7 @@ flags.DEFINE_integer('num_samples_each_task', 16,
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
-flags.DEFINE_integer('num_samples', 2637, 'total number of number of samples in FJ and FL.')
+flags.DEFINE_integer('num_samples', 18469, 'total number of number of samples in FJ and FL.')
 flags.DEFINE_integer('test_update_batch_size', 5,
                      'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
 
@@ -92,8 +84,6 @@ if __name__ == "__main__":
         pass
 
 
-    # FJ_taskfile = './seg_output/FJ_tasks.xlsx'
-    # FL_taskfile = './seg_output/FL_tasks.xlsx'
     HK_taskfile = './seg_output/HK_tasks.xlsx'
 
     overall_adapting(HK_taskfile)

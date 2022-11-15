@@ -1,5 +1,5 @@
 # meta_LSM （Migrated from tf1 t0 tf2）
-# Hong Kong Landslide Susceptibility in a Meta-learning Way.
+# Hong Kong Landslide Susceptibility Mapping in a Meta-learning Way.
 
 ##Table of Contents
 

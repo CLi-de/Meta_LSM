@@ -31,7 +31,6 @@ flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non
 #                                  1:meta train FJ, test FL; \
 #                                  2:meta train part of FJ and FL, test the other part FJ; \
 #                                  3:meta train FJ and part of FL, test the other part FL')
-# flags.DEFINE_string('path', 'tasks', 'folder path of tasks file(excel)')
 flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
@@ -180,10 +179,10 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             task_test_acc()  # test accuracy of each task
 
     """Overall evaluation"""
-    arr = np.hstack((np.array(total_Ypred1), np.array(total_Ytest1)))
-    writer = pd.ExcelWriter('predict.xlsx')
-    pd.DataFrame(arr).to_excel(writer)
-    writer.close()
+    # arr = np.hstack((np.array(total_Ypred1), np.array(total_Ytest1)))
+    # writer = pd.ExcelWriter('predict.xlsx')
+    # pd.DataFrame(arr).to_excel(writer)
+    # writer.close()
 
     # accuracy
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )

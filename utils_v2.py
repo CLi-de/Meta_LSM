@@ -1,27 +1,13 @@
 """ Utility functions. """
 import numpy as np
-import os
-import random
 import tensorflow as tf
 import pandas as pd
 
-# from tensorflow.contrib.layers.python import layers as tf_layers  // deprecated by tf2
 import tf_slim as slim
 from tensorflow.python.platform import flags
 
 FLAGS = flags.FLAGS
 
-
-# def normalize(inp, activation, reuse, scope):
-#     if FLAGS.norm == 'batch_norm':
-#         return tf_layers.batch_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
-#     elif FLAGS.norm == 'layer_norm':
-#         return tf_layers.layer_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
-#     elif FLAGS.norm == 'None':
-#         if activation is not None:
-#             return activation(inp)
-#         else:
-#             return inp
 
 def normalize(inp, activation, reuse, scope):
     if FLAGS.norm == 'batch_norm':
@@ -47,10 +33,6 @@ def xent(pred, label):
     return tf.nn.softmax_cross_entropy_with_logits(logits=pred, labels=label) / tf.cast(tf.shape(input=label)[0],
                                                                                         dtype=tf.float32)  # 注意归一
 
-
-# def xent(pred, label):
-#     # Note - with tf version <=0.12, this loss has incorrect 2nd derivatives
-#     return tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=pred, labels=label))
 
 def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
     """generate batch tasks"""
