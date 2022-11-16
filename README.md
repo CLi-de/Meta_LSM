@@ -1,4 +1,4 @@
-# meta_LSM
+# meta_LSM （implemented by tf_v1, migration to tf_v2 is in branch tf_v2_only）
 # Few-shot Prediction of Landslide Susceptibility in a Meta-learning Way.
 
 [![standard-readme compliant](https://img.shields.io/badge/readme%20style-standard-brightgreen.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
