@@ -80,12 +80,6 @@ if __name__ == "__main__":
                      adapted_weights['w4'], adapted_weights['b4'])
             print('overall model saved')
 
-
-    def blocks_adapting():  # TODO: move from predit_LSM here
-        "it's in predit_LSM"
-        pass
-
-
     HK_taskfile = './seg_output/HK_tasks.xlsx'
 
     overall_adapting(HK_taskfile)

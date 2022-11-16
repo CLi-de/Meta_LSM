@@ -4,11 +4,11 @@ Usage Instructions:
 """
 import numpy as np
 import tensorflow as tf
-import pandas as pd
+
 from maml_v2 import MAML
 from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
-from utils_v2 import tasksbatch_generator, batch_generator, meta_train_test, meta_train_test1, save_tasks, \
+from utils_v2 import tasksbatch_generator, batch_generator, meta_train_test1, save_tasks, \
     read_tasks, savepts_fortask, cal_measure
 from Unsupervised_Pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics._classification import accuracy_score
@@ -120,16 +120,8 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
         test_ = elig_tasks[i][int(len(elig_tasks[i]) / 2):]
         """few-steps tuning （不用op跑是因为采用的batch_size（input shape）不一致，且不想更新model.weight）"""
         with tf.compat.v1.variable_scope('model', reuse=True):  # np.normalize()里Variable重用
-            inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
-                                             FLAGS.test_update_batch_size)
-            task_output = model.forward(inputa, model.weights, reuse=True)
-            task_loss = model.loss_func(task_output, labela)
-            grads = tf.gradients(ys=task_loss, xs=list(model.weights.values()))
-            gradients = dict(zip(model.weights.keys(), grads))
-            fast_weights = dict(zip(model.weights.keys(), [model.weights[key] -
-                                                           model.update_lr * gradients[key] for key in
-                                                           model.weights.keys()]))
-            for j in range(num_updates - 1):
+            fast_weights = model.weights
+            for j in range(num_updates):
                 inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
                                                  FLAGS.test_update_batch_size)
                 loss = model.loss_func(model.forward(inputa, fast_weights, reuse=True),
@@ -145,24 +137,22 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             total_Ypred1.extend(Y_array)  # prediction
             total_Ytest1.extend(labelb)  # label
 
-            def task_test_acc():
-                Y_test = []
-                for j in range(len(labelb)):
-                    Y_test.append(labelb[j][0])
-                    total_Ytest.append(labelb[j][0])
-                Y_pred = []
-                for j in range(len(labelb)):
-                    if Y_array[j][0] > Y_array[j][1]:
-                        Y_pred.append(1)
-                        total_Ypred.append(1)
-                    else:
-                        Y_pred.append(0)
-                        total_Ypred.append(0)
-                accuracy = accuracy_score(Y_test, Y_pred)
-                sum_accuracies.append(accuracy)
-                # print('Test_Accuracy: %f' % accuracy)
+            Y_test = []
+            for j in range(len(labelb)):
+                Y_test.append(labelb[j][0])
+                total_Ytest.append(labelb[j][0])
+            Y_pred = []
+            for j in range(len(labelb)):
+                if Y_array[j][0] > Y_array[j][1]:
+                    Y_pred.append(1)
+                    total_Ypred.append(1)
+                else:
+                    Y_pred.append(0)
+                    total_Ypred.append(0)
+            accuracy = accuracy_score(Y_test, Y_pred)
+            sum_accuracies.append(accuracy)
+            # print('Test_Accuracy: %f' % accuracy)
 
-            task_test_acc()  # test accuracy of each task
     """Overall evaluation (test data)"""
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)

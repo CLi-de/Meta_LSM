@@ -76,31 +76,26 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
     savearr = np.arange(4, dtype=np.float32).reshape((1, 4))  # save predicting result
 
     for i in range(len(tasks_samples)):
-        # TODO: 1.考虑few-shot样本数量； 2. 考虑少于6个样本地区的LSM预测
         np.random.shuffle(tasks_samples[i])
-        train_ = tasks_samples[i][:int(len(tasks_samples[i]) / 2)]
-        # test_ = tasks_samples[i][int(len(tasks_samples[i]) / 2):]
-
         with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
-            inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
-                                             FLAGS.test_update_batch_size)
-            task_output = model.forward(inputa, model.weights, reuse=True)
-            task_loss = model.loss_func(task_output, labela)
-            grads = tf.gradients(ys=task_loss, xs=list(model.weights.values()))
-            gradients = dict(zip(model.weights.keys(), grads))
-            fast_weights = dict(zip(model.weights.keys(), [model.weights[key] -
-                                                           model.update_lr * gradients[key] for key in
-                                                           model.weights.keys()]))
-            for j in range(num_updates - 1):
+            if len(tasks_samples[i]) > FLAGS.num_samples_each_task:
+                train_ = tasks_samples[i][:int(len(tasks_samples[i]) / 2)]
+                batch_size = FLAGS.test_update_batch_size
+            else:
+                train_ = tasks_samples[i]
+                batch_size = int(len(train_) / 2)
+            fast_weights = model.weights
+            for j in range(num_updates):
                 inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
-                                                 FLAGS.test_update_batch_size)
+                                                 batch_size)
                 loss = model.loss_func(model.forward(inputa, fast_weights, reuse=True), labela)
                 grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
                 gradients = dict(zip(fast_weights.keys(), grads))
                 fast_weights = dict(zip(fast_weights.keys(),
                                         [fast_weights[key] - model.update_lr * gradients[key] for key in
                                          fast_weights.keys()]))
-            """predict LSM"""
+
+                """predict LSM"""
             if len(indexes[i]):
                 features_arr = np.array([features[index] for index in indexes[i]])
                 xy_arr = np.array([xy[index] for index in indexes[i]])
@@ -110,7 +105,7 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
                     (xy_arr[:, 0].reshape(xy_arr.shape[0], 1), xy_arr[:, 1].reshape(xy_arr.shape[0], 1), pred))
                 savearr = np.vstack((savearr, tmp))
             """save model parameters to npz file"""
-            adapted_weights = sess.run(fast_weights)
+            adapted_weights = sess.run(model.weights)
             np.savez('models_of_blocks/HK/model' + str(i), adapted_weights['w1'], adapted_weights['b1'],
                      adapted_weights['w2'], adapted_weights['b2'],
                      adapted_weights['w3'], adapted_weights['b3'],
