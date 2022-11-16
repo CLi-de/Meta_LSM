@@ -48,7 +48,7 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
         cnt_sample.append(len(batch_tasks[i]))
 
     for i in range(batch_size):
-        np.random.shuffle(batch_tasks[i])
+        np.random.shuffle(batch_tasks[i])  # shuffle samples in each task
         start_index1 = np.random.randint(0, len(batch_tasks[i]) - num_samples)
         task_samples = batch_tasks[i][start_index1:(start_index1 + num_samples)]
         for j in range(num_samples):
@@ -61,18 +61,32 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
 
 
 # for each task
-def sample_generator(one_task, dim_input, dim_output):
+# def sample_generator(one_task, dim_input, dim_output):
+#     """generate samples from one tasks"""
+#     np.random.shuffle(one_task)
+#     num_samples = len(one_task)
+#     init_inputs = np.zeros([1, num_samples, dim_input], dtype=np.float32)
+#     labels = np.zeros([1, num_samples, dim_output], dtype=np.float32)
+#     for i in range(num_samples):
+#         init_inputs[0][i] = one_task[i][0]
+#         if one_task[i][1] == 1:
+#             labels[0][i][0] = 1
+#         else:
+#             labels[0][i][1] = 1
+#     return init_inputs, labels
+
+def batch_generator(one_task, dim_input, dim_output, batch_size):
     """generate samples from one tasks"""
     np.random.shuffle(one_task)
-    num_samples = len(one_task)
-    init_inputs = np.zeros([1, num_samples, dim_input], dtype=np.float32)
-    labels = np.zeros([1, num_samples, dim_output], dtype=np.float32)
-    for i in range(num_samples):
-        init_inputs[0][i] = one_task[i][0]
-        if one_task[i][1] == 1:
-            labels[0][i][0] = 1
+    batch_ = one_task[:batch_size]
+    init_inputs = np.zeros([batch_size, dim_input], dtype=np.float32)
+    labels = np.zeros([batch_size, dim_output], dtype=np.float32)
+    for i in range(batch_size):
+        init_inputs[i] = batch_[i][0]
+        if batch_[i][1] == 1:
+            labels[i][0] = 1
         else:
-            labels[0][i][1] = 1
+            labels[i][1] = 1
     return init_inputs, labels
 
 
@@ -146,19 +160,20 @@ def meta_train_test(fj_tasks, fl_tasks, mode=0):
 
 
 def meta_train_test1(HK_tasks):
-    test_hk_tasks, one_test_tasks, read_tasks, elig_tasks = [], [], [], []
+    test_hk_tasks, one_test_tasks, remain_tasks, elig_tasks = [], [], [], []
     for i in range(len(HK_tasks)):
         if len(HK_tasks[i]) > FLAGS.num_samples_each_task:
             elig_tasks.append(HK_tasks[i])
-        elif len(HK_tasks[i]) > 10:  # set 10 to test K=10-shot learning
-            test_hk_tasks.append(HK_tasks[i])
+        # elif len(HK_tasks[i]) > 10:  # set 10 to test K=10-shot learning
+        #     test_hk_tasks.append(HK_tasks[i])
         else:
-            read_tasks.append(HK_tasks[i])
+            remain_tasks.append(HK_tasks[i])
     np.random.shuffle(elig_tasks)
     _train = elig_tasks[:int(len(elig_tasks) / 4 * 3)]
-    _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test_hk_tasks
-    for i in range(len(read_tasks)):  # read_tasks暂时不用
-        one_test_tasks.extend(read_tasks[i])
+    _test = elig_tasks[int(len(elig_tasks) / 4 * 3):]
+    # _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test_hk_tasks
+    # for i in range(len(remian_tasks)):  # read_tasks暂时不用
+    #     one_test_tasks.extend(read_tasks[i])
     return _train, _test
 
 
@@ -172,7 +187,7 @@ def save_tasks(tasks):
             task_sampels.append(attr_lb)
         data_df = pd.DataFrame(task_sampels)
         data_df.to_excel(writer, 'task_' + str(i), float_format='%.5f', header=False, index=False)
-        writer.close()
+        writer.save()
     writer.close()
 
 
@@ -202,7 +217,7 @@ def savepts_fortask(clusters, file):
         data_df = pd.DataFrame(pts)
         data_df.to_excel(writer, 'task_' + str(count), float_format='%.5f', header=False, index=False)
         count = count + 1
-        writer.close()
+        writer.save()
     writer.close()
 
 

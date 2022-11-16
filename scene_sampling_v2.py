@@ -64,7 +64,6 @@ class SLICProcessor(object):
         self.file = filename
         self.K = K
         self.M = M
-        # self.data = self.open_image(filename) # shape:(, , 3)
         self.data = self.readTif(filename)  # shape：(6, , )
         self.im_geotrans = gdal.Open(filename).GetGeoTransform()
         self.image_height = self.data.shape[1]
@@ -159,9 +158,6 @@ class SLICProcessor(object):
                                 self.label[(h, w)] = cluster
                                 cluster.pixels.append((h, w))
                             self.dis[h][w] = D
-                        # else:  # 由于分辨率不统一，所以边缘会有各波段不契合的情况，这里统一
-                        #     self.data[0][h][w], self.data[1][h][w], self.data[2][h][w],\
-                        #     self.data[3][h][w] = [-9999, -9999, -9999, -9999]
 
     def update_cluster(self):  # 计算各SLIC聚类的中心
         for cluster in self.clusters:
@@ -239,9 +235,6 @@ class SLICProcessor(object):
                                                                                           k=self.K)  # 生成可视tif
             self.save_current_image(self.file, savename)
 
-    # def show_data(self):
-    #     print(self.data[0][0][0])
-
 
 class TaskSampling(object):
     def __init__(self, clusters):
@@ -273,26 +266,14 @@ class TaskSampling(object):
             width = int((xy[i][0] - im_geotrans[0]) / im_geotrans[1])
             pts.append((height, width))
 
-        #  tasks[i].append(height, weight)
         pt_index = 0
         for pt in pts:
             k = 0  # count cluster
             for cluster in self.clusters:
                 if (pt[0], pt[1]) in cluster.pixels:
                     self.tasks[k].append([features[pt_index], label[pt_index]])
-                    # self.tasks[k].append([xy[pt_index][0], xy[pt_index][1],
-                    #                       features[pt_index], label[pt_index]])
                     break
                 else:
                     k += 1
             pt_index += 1
         return self.tasks
-
-# if __name__ == '__main__':
-#     for k in [192]:
-#         p = SLICProcessor("C:\\Users\hj\Desktop\\thematic_map\\CompositeBands2.tif", k, 250)
-#         # p.show_data()
-#         p.iterate_5times()
-#
-#         t = TaskSampling(p.clusters)
-#         t.sampling(p.im_geotrans)

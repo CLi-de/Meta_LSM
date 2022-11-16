@@ -2,7 +2,7 @@ import tensorflow as tf
 
 from maml_v2 import MAML
 
-from utils_v2 import sample_generator, read_pts, read_tasks
+from utils_v2 import batch_generator, read_pts, read_tasks
 
 import pandas as pd
 import numpy as np
@@ -24,8 +24,8 @@ flags.DEFINE_integer('num_samples_each_task', 16,
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
-flags.DEFINE_integer('num_samples', 18469, 'total number of number of samples in FJ and FL.')
-flags.DEFINE_integer('test_update_batch_size', 5,
+# flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK.')
+flags.DEFINE_integer('test_update_batch_size', 8,
                      'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
 
 
@@ -77,14 +77,14 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
 
     for i in range(len(tasks_samples)):
         # TODO: 1.考虑few-shot样本数量； 2. 考虑少于6个样本地区的LSM预测
-        batch_x, batch_y = sample_generator(tasks_samples[i], FLAGS.dim_input,
-                                            FLAGS.dim_output)  # only one task samples
-        # inputa = batch_x[:, :FLAGS.test_update_batch_size, :]  # setting K-shot K here
-        # labela = batch_y[:, :FLAGS.test_update_batch_size, :]
-        inputa = batch_x[:, :int(len(batch_x[0])), :]  # 'a' is used for adaption
-        labela = batch_y[:, :int(len(batch_y[0])), :]
+        np.random.shuffle(tasks_samples[i])
+        train_ = tasks_samples[i][:int(len(tasks_samples[i]) / 2)]
+        # test_ = tasks_samples[i][int(len(tasks_samples[i]) / 2):]
+
         with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
-            task_output = model.forward(inputa[0], model.weights, reuse=True)
+            inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
+                                             FLAGS.test_update_batch_size)
+            task_output = model.forward(inputa, model.weights, reuse=True)
             task_loss = model.loss_func(task_output, labela)
             grads = tf.gradients(ys=task_loss, xs=list(model.weights.values()))
             gradients = dict(zip(model.weights.keys(), grads))
@@ -92,7 +92,9 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
                                                            model.update_lr * gradients[key] for key in
                                                            model.weights.keys()]))
             for j in range(num_updates - 1):
-                loss = model.loss_func(model.forward(inputa[0], fast_weights, reuse=True), labela)
+                inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
+                                                 FLAGS.test_update_batch_size)
+                loss = model.loss_func(model.forward(inputa, fast_weights, reuse=True), labela)
                 grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
                 gradients = dict(zip(fast_weights.keys(), grads))
                 fast_weights = dict(zip(fast_weights.keys(),
@@ -128,6 +130,6 @@ if __name__ == "__main__":
     HK_tasks = read_tasks('./seg_output/HK_tasks.xlsx')
     HK_taskpts = read_pts('./seg_output/HKpts_tasks.xlsx')
     HK_gridpts_feature, HK_gridpts_xy = readpts('./src_data/grid_samples_HK.csv')
-    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/HK_Elegent_Girl_M250.0_K256_loop0.tif')
+    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/HK_Elegent_Girl_M250.0_K512_loop0.tif')
     print('adapt and predict...')
     predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'HK_LSpred.xlsx')
