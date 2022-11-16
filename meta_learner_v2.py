@@ -20,7 +20,7 @@ FLAGS = flags.FLAGS
 
 """for task sampling"""
 flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
-flags.DEFINE_integer('K', 512, 'number of superpixels')
+flags.DEFINE_integer('K', 216, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
 flags.DEFINE_string('str_region', 'HK', 'the study area')
 flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non)landslide samples')
