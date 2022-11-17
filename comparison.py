@@ -18,7 +18,7 @@ from utils_v2 import cal_measure
 def SVM_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start SVM evaluation...')
-    clf = svm.SVC(C=5, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
+    clf = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
     # clf = svm.SVC(C=0.1, kernel='linear', decision_function_shape='ovr')
     clf.fit(x_train, y_train)
     # train accuracy
@@ -51,8 +51,8 @@ def SVM_compare(x_train, y_train, x_test, y_test):
 def ANN_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start ANN evaluation...')
-    model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.0001,
-                          batch_size=64, max_iter=1000)
+    model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.001,
+                          batch_size=32, max_iter=1000)
     model.fit(x_train, y_train)
     predict1 = model.predict(x_train)
     print('Train Accuracy: %f' % accuracy_score(y_train, predict1))  # 奉节，在0.82 - 0.90；
@@ -83,8 +83,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
 def RF_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start RF evaluation...')
-    clf = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2,
-                                 bootstrap=True)
+    clf = RandomForestClassifier(n_estimators=100, max_depth=None)
 
     clf.fit(x_train, y_train)
     pred_train = clf.predict(x_train)
@@ -115,9 +114,9 @@ def RF_compare(x_train, y_train, x_test, y_test):
 
 """SVM"""
 # Input data
-pd.read_excel('./src_data/samples_HK.xlsx', 'Sheet1', index_col=0) \
-    .to_csv('./tmp/data.csv', encoding='utf-8')
-tmp = np.loadtxt('./tmp/data.csv', dtype=str, delimiter=",", encoding='UTF-8')
+# pd.read_excel('./src_data/samples_HK.xlsx', 'Sheet1', index_col=0) \
+#     .to_csv('./tmp/data.csv', encoding='utf-8')
+tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
 tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
 np.random.shuffle(tmp_)  # shuffle
 # 训练集
