@@ -35,7 +35,7 @@ tmp/
 # Unsupervised_Pretraining
 
 # file
-adaption_v2.py
+./adaption_v2.py
 
 *~
 

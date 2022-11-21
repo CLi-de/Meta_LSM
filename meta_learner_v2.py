@@ -20,7 +20,7 @@ FLAGS = flags.FLAGS
 
 """for task sampling"""
 flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
-flags.DEFINE_integer('K', 216, 'number of superpixels')
+flags.DEFINE_integer('K', 256, 'number of superpixels')  # TODO: test K=256, 512
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
 flags.DEFINE_string('str_region', 'HK', 'the study area')
 flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non)landslide samples')
@@ -42,8 +42,8 @@ flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iter
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 # flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK.')
-flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')
-flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
+flags.DEFINE_float('meta_lr', 1e-2, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
