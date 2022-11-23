@@ -9,7 +9,7 @@ from .dbn.tensorflow import SupervisedDBNClassification
 """仅做无监督"""
 def Unsupervise_pretrain(tmp_feature):
     # label_attr = tmp_feature[:, -1].astype(np.float32)  # 加载类别标签部分
-    data_atrr = tmp_feature[:, :-1].astype(np.float32)  # 加载i行数据部分
+    data_atrr = tmp_feature[:, :-3].astype(np.float32)  # 加载i行数据部分
     data_atrr = data_atrr / data_atrr.max(axis=0)
 
     # Pretrain(Graph 0)

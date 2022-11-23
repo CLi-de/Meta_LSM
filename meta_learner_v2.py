@@ -19,8 +19,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 FLAGS = flags.FLAGS
 
 """for task sampling"""
-flags.DEFINE_float('M', 250, 'determine how distance influence the segmentation')
-flags.DEFINE_integer('K', 256, 'number of superpixels')  # TODO: test K=256, 512
+flags.DEFINE_float('M', 100, 'determine how distance influence the segmentation')
+flags.DEFINE_integer('K', 512, 'number of superpixels')  # TODO: test K=256, 512
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
 flags.DEFINE_string('str_region', 'HK', 'the study area')
 flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non)landslide samples')
@@ -42,8 +42,8 @@ flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iter
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 # flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK.')
-flags.DEFINE_float('update_lr', 5e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
-flags.DEFINE_float('meta_lr', 5e-4, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
+flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
@@ -167,33 +167,42 @@ def main():
     """unsupervised pretraining"""
     if not os.path.exists('./DAS_logs/savedmodel.npz'):
         print("start unsupervised pretraining")
-        tmp = np.loadtxt('src_data/samples_HK.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
-        tmp_feature = tmp[1:, :]
+        tmp = np.loadtxt('src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
+        tmp_feature = tmp[1:, :].astype(np.float32)
         np.random.shuffle(tmp_feature)  # shuffle
         Unsupervise_pretrain(tmp_feature)
     print('Done unsupervised pretraining')
 
     """meta task sampling"""
 
-    def tasks_load(taskspath, str_region):
-        if os.path.exists(taskspath):
-            tasks = read_tasks(taskspath)
-            print('     Done reading ' + str_region + ' tasks from previous SLIC result')
-        else:
-            print('     start meta-task sampling using SLIC algorithm:')
-
-            p = SLICProcessor('./src_data/' + str_region + '/composite.tif', FLAGS.K, FLAGS.M)
-            p.iterate_times(loop=FLAGS.loop)
-            t = TaskSampling(p.clusters)
-            tasks = t.sampling(p.im_geotrans)
-            save_tasks(tasks)
-            savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
-        return tasks
-
-    HK_tasks = tasks_load('./seg_output/HK_tasks.xlsx', FLAGS.str_region)
-
-    tasks_train, tasks_test = meta_train_test1(HK_tasks)  # for HK
+    # def tasks_load(taskspath, str_region):
+    #     if os.path.exists(taskspath):
+    #         tasks = read_tasks(taskspath)
+    #         print('     Done reading ' + str_region + ' tasks from previous SLIC result')
+    #     else:
+    #         print('start meta-task sampling using SLIC algorithm:')
+    #         p = SLICProcessor('./src_data/' + str_region + '/composite.tif', FLAGS.K, FLAGS.M)
+    #         p.iterate_times(loop=FLAGS.loop)
+    #         t = TaskSampling(p.clusters)
+    #         tasks = t.sampling(p.im_geotrans)
+    #         save_tasks(tasks)
+    #         savepts_fortask(p.clusters, './seg_output/' + str_region + 'pts_tasks.xlsx')
+    #     return tasks
+    #
+    # HK_tasks = tasks_load('./seg_output/HK_tasks.xlsx', FLAGS.str_region)
+    # tasks_train, tasks_test = meta_train_test1(HK_tasks)  # for HK
+    if not os.path.exists('./seg_output/' + FLAGS.str_region + '_SLIC_M{m}_K{k}_loop{loop}.tif'
+            .format(loop=0, m=FLAGS.M, k=FLAGS.K)):
+        print('start meta-task sampling using SLIC algorithm:')
+        p = SLICProcessor('./src_data/' + FLAGS.str_region + '/composite.tif', FLAGS.K, FLAGS.M)
+        p.iterate_times(loop=FLAGS.loop)
+        t = TaskSampling(p.clusters)
+        tasks = t.sampling(p.im_geotrans)
+        save_tasks(tasks, str(FLAGS.K))
+        savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks_K' + str(FLAGS.K) + '.xlsx')
+    HK_tasks = read_tasks('./seg_output/' + FLAGS.str_region + '_tasks_K' + str(FLAGS.K) + '.xlsx')
     print('Done meta-tasks sampling')
+    tasks_train, tasks_test = meta_train_test1(HK_tasks)  # for HK
 
     """meta_training"""
     print('model construction...')

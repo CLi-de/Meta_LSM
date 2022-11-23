@@ -231,7 +231,7 @@ class SLICProcessor(object):
         for i in trange(loop):
             self.assignment()
             self.update_cluster()
-            savename = FLAGS.str_region + '_Elegent_Girl_M{m}_K{k}_loop{loop}.tif'.format(loop=i, m=self.M,
+            savename = FLAGS.str_region + '_SLIC_M{m}_K{k}_loop{loop}.tif'.format(loop=i, m=self.M,
                                                                                           k=self.K)  # 生成可视tif
             self.save_current_image(self.file, savename)
 

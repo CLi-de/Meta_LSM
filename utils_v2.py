@@ -177,9 +177,9 @@ def meta_train_test1(HK_tasks):
     return _train, _test
 
 
-def save_tasks(tasks):
+def save_tasks(tasks, K):
     """将tasks存到csv中"""
-    writer = pd.ExcelWriter('./seg_output/' + FLAGS.str_region + '_tasks.xlsx')
+    writer = pd.ExcelWriter('./seg_output/' + FLAGS.str_region + '_tasks_K'+K+'.xlsx')
     for i in range(len(tasks)):
         task_sampels = []
         for j in range(len(tasks[i])):
@@ -187,7 +187,7 @@ def save_tasks(tasks):
             task_sampels.append(attr_lb)
         data_df = pd.DataFrame(task_sampels)
         data_df.to_excel(writer, 'task_' + str(i), float_format='%.5f', header=False, index=False)
-        writer.save()
+    writer.save()
     writer.close()
 
 
@@ -217,7 +217,7 @@ def savepts_fortask(clusters, file):
         data_df = pd.DataFrame(pts)
         data_df.to_excel(writer, 'task_' + str(count), float_format='%.5f', header=False, index=False)
         count = count + 1
-        writer.save()
+    writer.save()
     writer.close()
 
 

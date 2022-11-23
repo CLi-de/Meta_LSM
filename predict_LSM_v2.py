@@ -122,9 +122,9 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
 
 if __name__ == "__main__":
     print('grid points assignment...')
-    HK_tasks = read_tasks('./seg_output/HK_tasks.xlsx')
-    HK_taskpts = read_pts('./seg_output/HKpts_tasks.xlsx')
+    HK_tasks = read_tasks('./seg_output/HK_tasks_K512.xlsx')
+    HK_taskpts = read_pts('./seg_output/HKpts_tasks_K512.xlsx')
     HK_gridpts_feature, HK_gridpts_xy = readpts('./src_data/grid_samples_HK.csv')
-    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/HK_Elegent_Girl_M250.0_K512_loop0.tif')
+    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/HK_SLIC_M100.0_K512_loop0.tif')
     print('adapt and predict...')
     predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'HK_LSpred.xlsx')
