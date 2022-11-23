@@ -3,7 +3,7 @@
 # -*- coding:utf-8 -*-
 
 import tensorflow as tf
-from maml_v2 import MAML
+from modeling import MAML
 import numpy as np
 
 from utils_v2 import read_pts, sample_generator_

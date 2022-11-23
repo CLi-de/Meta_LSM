@@ -1,6 +1,6 @@
 import tensorflow as tf
 
-from maml_v2 import MAML
+from modeling import MAML
 
 from utils_v2 import batch_generator, read_pts, read_tasks
 
