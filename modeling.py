@@ -17,8 +17,7 @@ class MAML:
         self.dim_input = dim_input
         self.dim_output = dim_output
         self.update_lr = FLAGS.update_lr
-        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr,
-                                                             ())  # TODO: 1.lr decay (consider 2.learning of lr)
+        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # TODO: learning of lr
         self.test_num_updates = test_num_updates
         self.dim_hidden = [32, 32, 16]
         self.loss_func = xent
