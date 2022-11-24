@@ -16,8 +16,8 @@ class MAML:
         """ must call construct_model() after initializing MAML! """
         self.dim_input = dim_input
         self.dim_output = dim_output
-        self.update_lr = FLAGS.update_lr
-        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # TODO: learning of lr
+        # self.update_lr = FLAGS.update_lr
+        # self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # TODO: learning of lr
         self.test_num_updates = test_num_updates
         self.dim_hidden = [32, 32, 16]
         self.loss_func = xent
@@ -42,6 +42,9 @@ class MAML:
         self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
         with tf.compat.v1.variable_scope('model', reuse=None) as training_scope:
+            # initialize the inner and outer parameters as tf.Variable within 'model' scope
+            self.update_lr = tf.Variable(FLAGS.update_lr)
+            self.meta_lr = tf.Variable(FLAGS.meta_lr)
             if 'weights' in dir(self):
                 training_scope.reuse_variables()
                 weights = self.weights
@@ -107,8 +110,9 @@ class MAML:
             self.total_loss1 = total_loss1 = tf.reduce_sum(input_tensor=lossesa) / tf.cast(FLAGS.meta_batch_size,
                                                                                            dtype=tf.float32)  # total loss的均值,finn论文中的pretrain（对比用）
 
-            self.total_losses2 = total_losses2 = [tf.reduce_sum(lossesb[j]) / tf.cast(FLAGS.meta_batch_size, dtype=tf.float32) \
-                                                  for j in range(num_updates)]  # for maml
+            self.total_losses2 = total_losses2 = [
+                tf.reduce_sum(lossesb[j]) / tf.cast(FLAGS.meta_batch_size, dtype=tf.float32) \
+                for j in range(num_updates)]  # for maml
 
             # w = self.cnt_sample / tf.cast(FLAGS.num_samples, dtype=tf.float32)
             # self.total_losses2 = total_losses2 = [tf.reduce_sum(
