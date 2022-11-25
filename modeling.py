@@ -16,8 +16,7 @@ class MAML:
         """ must call construct_model() after initializing MAML! """
         self.dim_input = dim_input
         self.dim_output = dim_output
-        # self.update_lr = FLAGS.update_lr
-        # self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())  # TODO: learning of lr
+        self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())
         self.test_num_updates = test_num_updates
         self.dim_hidden = [32, 32, 16]
         self.loss_func = xent
@@ -42,9 +41,8 @@ class MAML:
         self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
         with tf.compat.v1.variable_scope('model', reuse=None) as training_scope:
-            # initialize the inner and outer parameters as tf.Variable within 'model' scope
+            # initialize the inner learning rate as tf.Variable within 'model' scope
             self.update_lr = tf.Variable(FLAGS.update_lr)
-            self.meta_lr = tf.Variable(FLAGS.meta_lr)
             if 'weights' in dir(self):
                 training_scope.reuse_variables()
                 weights = self.weights
