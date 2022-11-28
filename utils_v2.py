@@ -21,7 +21,6 @@ def normalize(inp, activation, reuse, scope):
             return inp
 
 
-## Loss functions
 def mse(pred, label):
     pred = tf.reshape(pred, [-1])
     label = tf.reshape(label, [-1])
@@ -59,21 +58,6 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
                 labels[i][j][1] = 1  # 非滑坡
     return init_inputs, labels, np.array(cnt_sample).astype(np.float32)
 
-
-# for each task
-# def sample_generator(one_task, dim_input, dim_output):
-#     """generate samples from one tasks"""
-#     np.random.shuffle(one_task)
-#     num_samples = len(one_task)
-#     init_inputs = np.zeros([1, num_samples, dim_input], dtype=np.float32)
-#     labels = np.zeros([1, num_samples, dim_output], dtype=np.float32)
-#     for i in range(num_samples):
-#         init_inputs[0][i] = one_task[i][0]
-#         if one_task[i][1] == 1:
-#             labels[0][i][0] = 1
-#         else:
-#             labels[0][i][1] = 1
-#     return init_inputs, labels
 
 def batch_generator(one_task, dim_input, dim_output, batch_size):
     """generate samples from one tasks"""
