@@ -24,7 +24,7 @@ flags.DEFINE_integer('num_samples_each_task', 16,
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
-# flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK.')
+flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK (see samples_HK).')
 flags.DEFINE_integer('test_update_batch_size', 8,
                      'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
 
