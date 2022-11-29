@@ -21,7 +21,7 @@ class MAML:
         self.dim_hidden = [32, 32, 16]
         self.loss_func = xent
         self.forward = self.forward_fc
-        if FLAGS.basemodel == 'MLP':  # 11/20 change FLAG.datasource to FLAG.basemodel
+        if FLAGS.basemodel == 'MLP':
             self.construct_weights = self.construct_fc_weights  # 参数初始化(random)
         elif FLAGS.basemodel == 'DAS':
             if os.path.exists('./DAS_logs/savedmodel.npz'):
@@ -108,14 +108,14 @@ class MAML:
             self.total_loss1 = total_loss1 = tf.reduce_sum(input_tensor=lossesa) / tf.cast(FLAGS.meta_batch_size,
                                                                                            dtype=tf.float32)  # total loss的均值,finn论文中的pretrain（对比用）
 
-            # self.total_losses2 = total_losses2 = [
-            #     tf.reduce_sum(lossesb[j]) / tf.cast(FLAGS.meta_batch_size, dtype=tf.float32) \
-            #     for j in range(num_updates)]  # for maml
+            self.total_losses2 = total_losses2 = [
+                tf.reduce_sum(lossesb[j]) / tf.cast(FLAGS.meta_batch_size, dtype=tf.float32) \
+                for j in range(num_updates)]
 
-            w = self.cnt_sample / tf.cast(FLAGS.num_samples, dtype=tf.float32)
-            self.total_losses2 = total_losses2 = [tf.reduce_sum(
-                input_tensor=tf.multiply(tf.nn.softmax(w), tf.reduce_sum(input_tensor=lossesb[j], axis=1)))
-                for j in range(num_updates)]  # for proposed
+            # w = self.cnt_sample / tf.cast(FLAGS.num_samples, dtype=tf.float32)
+            # self.total_losses2 = total_losses2 = [tf.reduce_sum(
+            #     input_tensor=tf.multiply(tf.nn.softmax(w), tf.reduce_sum(input_tensor=lossesb[j], axis=1)))
+            #     for j in range(num_updates)]
 
             # after the map_fn
             self.outputas, self.outputbs = outputas, outputbs  # outputbs：25个task, 每个task迭代五次，value（25,5,1）

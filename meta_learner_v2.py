@@ -31,7 +31,7 @@ flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 
-flags.DEFINE_integer('dim_input', 13, 'dim of input data')
+flags.DEFINE_integer('dim_input', 14, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
@@ -41,7 +41,7 @@ flags.DEFINE_integer('test_update_batch_size', 8,
 flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
-flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK (see samples_HK).')
+# flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK (see samples_HK).')
 flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
 flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
