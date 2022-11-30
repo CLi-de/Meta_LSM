@@ -190,6 +190,7 @@ def main():
     """meta-training and -testing"""
     print('model construction...')
     model = MAML(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
+
     input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
     input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
     model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
