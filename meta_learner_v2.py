@@ -203,25 +203,25 @@ def main():
     init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
     sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-    exp_string1 = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
-                  str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
-                  '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
+    exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
+                 str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
+                 '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
 
     resume_itr = 0
 
     # 续点训练
     # if FLAGS.resume or not FLAGS.train:
     if FLAGS.resume:
-        model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string1)
+        model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string)
         if model_file:
             ind1 = model_file.index('model')
             resume_itr = int(model_file[ind1 + 5:])
             print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
 
-    train(model, saver, sess, exp_string1, tasks_train, resume_itr)
+    train(model, saver, sess, exp_string, tasks_train, resume_itr)
 
-    test(model, saver, sess, exp_string1, tasks_test, num_updates=FLAGS.num_updates)
+    test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
 
 
 # TODO: use tf.estimator

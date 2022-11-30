@@ -7,24 +7,8 @@ from modeling import MAML
 import numpy as np
 
 from utils_v2 import read_pts, sample_generator_
-from tensorflow.python.platform import flags
+from meta_learner_v2 import FLAGS
 
-FLAGS = flags.FLAGS
-flags.DEFINE_integer('dim_input', 13, 'dim of input data')
-flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_float('update_lr', 1e-2, 'learning rate in meta-learning task')
-flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta learning process')
-flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
-flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
-flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
-flags.DEFINE_integer('num_samples_each_task', 16,
-                     'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
-flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
-flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
-flags.DEFINE_integer('num_samples', 18469, 'total number of number of samples in FJ and FL.')
-flags.DEFINE_integer('test_update_batch_size', 5,
-                     'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
 
 if __name__ == "__main__":
     tf.compat.v1.disable_eager_execution()
@@ -80,7 +64,8 @@ if __name__ == "__main__":
                      adapted_weights['w4'], adapted_weights['b4'])
             print('overall model saved')
 
-    HK_taskfile = './seg_output/HK_tasks.xlsx'
+
+    HK_taskfile = './seg_output/HK_tasks_K512.xlsx'
 
     overall_adapting(HK_taskfile)
     sess.close()

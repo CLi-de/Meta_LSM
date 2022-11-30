@@ -8,25 +8,7 @@ import pandas as pd
 import numpy as np
 from osgeo import gdal
 
-from tensorflow.python.platform import flags
-
-FLAGS = flags.FLAGS
-
-flags.DEFINE_integer('dim_input', 13, 'dim of input data')
-flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_float('update_lr', 1e-2, 'learning rate in meta-learning task')
-flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta learning process')
-flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
-flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
-flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
-flags.DEFINE_integer('num_samples_each_task', 16,
-                     'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
-flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
-flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
-# flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK (see samples_HK).')
-flags.DEFINE_integer('test_update_batch_size', 8,
-                     'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot).')
+from meta_learner_v2 import FLAGS
 
 
 def readpts(filepath):
@@ -61,7 +43,9 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
     input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
     model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
                           prefix='metatrain_')
-    exp_string = ".mbs16.ubs_16.numstep5.updatelr0.01.meta_lr0.001"
+    exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
+                 str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
+                 '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
     saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES))
     sess = tf.compat.v1.InteractiveSession()
     init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
