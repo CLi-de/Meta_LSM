@@ -104,7 +104,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
 
                 # print(sess.run([model.A[k][k] for k in range(FLAGS.dim_input)]))  # 输出A对角元素
                 # D, V = np.linalg.eig(sess.run(model.A))  # 计算特征值（对角阵中即特征值）和 特征向量
-                print('diagonal matrix of A:', D)  # 输出对角阵（特征值）
+                # print('diagonal matrix of A:', D)  # 输出对角阵（特征值）
                 prelosses, postlosses = [], []
             #  save model
             if (itr != 0) and itr % SAVE_INTERVAL == 0:
