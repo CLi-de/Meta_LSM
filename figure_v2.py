@@ -71,7 +71,7 @@ def _PCA(X, y, figsavename):
     X_pca = pca.fit_transform(X)
 
     x_min, x_max = X_pca.min(0), X_pca.max(0)
-    X_norm = (X_pca - x_min) / (x_max - x_min)  # 归一化
+    X_norm = (X_pca - x_min) / (x_max - x_min)
 
     fig = plt.figure()
     ax = Axes3D(fig)
@@ -116,7 +116,7 @@ def ISOMAP(X, y, figsavename):
     X_isomap = isomap.fit_transform(X)
 
     x_min, x_max = X_isomap.min(0), X_isomap.max(0)
-    X_norm = (X_isomap - x_min) / (x_max - x_min)  # 归一化
+    X_norm = (X_isomap - x_min) / (x_max - x_min)
 
     fig = plt.figure()
     ax = Axes3D(fig)
@@ -161,7 +161,7 @@ def t_SNE(X, y, figsavename):
 
     """嵌入空间可视化"""
     x_min, x_max = X_tsne.min(0), X_tsne.max(0)
-    X_norm = (X_tsne - x_min) / (x_max - x_min)  # 归一化
+    X_norm = (X_tsne - x_min) / (x_max - x_min)
 
     fig = plt.figure()
     ax = Axes3D(fig)
@@ -205,7 +205,7 @@ def UMAP(X, y, figsavename):
     X_umap = reducer.fit_transform(X)
 
     x_min, x_max = X_umap.min(0), X_umap.max(0)
-    X_norm = (X_umap - x_min) / (x_max - x_min)  # 归一化
+    X_norm = (X_umap - x_min) / (x_max - x_min)
 
     fig = plt.figure()
     ax = Axes3D(fig)

@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 import numpy as np
 import tensorflow as tf
@@ -39,6 +38,8 @@ class MAML:
         self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
         with tf.compat.v1.variable_scope('model', reuse=None) as training_scope:
+            # Attention module
+            self.A = tf.Variable(tf.zeros([self.dim_input, self.dim_input]))
             # initialize the inner learning rate as tf.Variable within 'model' scope
             self.update_lr = tf.Variable(FLAGS.update_lr)
             if 'weights' in dir(self):
@@ -53,6 +54,8 @@ class MAML:
             def task_metalearn(inp, reuse=True):
                 """ Perform gradient descent for one task in the meta-batch. """
                 inputa, inputb, labela, labelb = inp  # inputa: Task(i)训练输入，batch_size = m(m个samples)
+                # inputa = tf.matmul(inputa, self.A)
+                # inputb = tf.matmul(inputb, self.A)
                 task_outputbs, task_lossesb = [], []
 
                 task_outputa = self.forward(inputa, weights, reuse=reuse)  # only reuse on the first iter

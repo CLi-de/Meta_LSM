@@ -72,6 +72,7 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
             for j in range(num_updates):
                 inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
                                                  batch_size)
+                # inputa = tf.matmul(inputa, model.A)
                 loss = model.loss_func(model.forward(inputa, fast_weights, reuse=True), labela)
                 grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
                 gradients = dict(zip(fast_weights.keys(), grads))

@@ -51,7 +51,7 @@ flags.DEFINE_bool('resume', True, 'resume training if there is a model available
 def train(model, saver, sess, exp_string, tasks, resume_itr):
     SUMMARY_INTERVAL = 100
     SAVE_INTERVAL = 1000
-    PRINT_INTERVAL = 100
+    PRINT_INTERVAL = 1000
 
     print('Done model initializing, starting training...')
     prelosses, postlosses = [], []
@@ -100,7 +100,11 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                     print_str = 'Iteration ' + str(itr - FLAGS.pretrain_iterations)
                 print_str += ': ' + str(np.mean(prelosses)) + ', ' + str(np.mean(postlosses))
                 print(print_str)
-                print(sess.run(model.update_lr))
+                print('inner lr:', sess.run(model.update_lr))
+
+                print(sess.run([model.A[k][k] for k in range(FLAGS.dim_input)]))  # 输出A对角元素
+                D, V = np.linalg.eig(sess.run(model.A))  # 计算特征值（对角阵中即特征值）和 特征向量
+                print('diagonal matrix of A:', D)  # 输出对角阵（特征值）
                 prelosses, postlosses = [], []
             #  save model
             if (itr != 0) and itr % SAVE_INTERVAL == 0:
@@ -123,6 +127,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             for j in range(num_updates):
                 inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
                                                  FLAGS.test_update_batch_size)
+                # inputa = tf.matmul(inputa, model.A)
                 loss = model.loss_func(model.forward(inputa, fast_weights, reuse=True),
                                        labela)  # fast_weight和grads（stopped）有关系，但不影响这里的梯度计算
                 grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
@@ -132,6 +137,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
                                          fast_weights.keys()]))
             """Single task test accuracy"""
             inputb, labelb = batch_generator(test_, FLAGS.dim_input, FLAGS.dim_output, len(test_))
+            # inputb = tf.matmul(inputb, model.A)
             Y_array = sess.run(tf.nn.softmax(model.forward(inputb, fast_weights, reuse=True)))
             total_Ypred1.extend(Y_array)  # prediction
             total_Ytest1.extend(labelb)  # label
@@ -152,6 +158,8 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             sum_accuracies.append(accuracy)
             # print('Test_Accuracy: %f' % accuracy)
 
+    D, V = np.linalg.eig(sess.run(model.A))  # 计算特征值（对角阵中即特征值）和 特征向量
+    print('diagonal matrix of A:', D)  # 输出对角阵（特征值）
     """Overall evaluation (test data)"""
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)

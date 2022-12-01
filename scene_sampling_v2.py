@@ -252,7 +252,7 @@ class TaskSampling(object):
         data.to_csv('tmp/' + FLAGS.str_region + 'data.csv', encoding='utf-8')
         tmp = np.loadtxt('tmp/' + FLAGS.str_region + 'data.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
         features = tmp[1:, :-3].astype(np.float32)
-        features = features / features.max(axis=0)  # 特征归一化
+        features = features / features.max(axis=0)  # 减小数值影响
         xy = tmp[1:, -3: -1].astype(np.float32)
         label = tmp[1:, -1].astype(np.float32)
         return features, xy, label
