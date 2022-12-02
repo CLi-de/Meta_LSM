@@ -1,7 +1,4 @@
-"""
-Usage Instructions:
 
-"""
 import numpy as np
 import tensorflow as tf
 
