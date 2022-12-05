@@ -55,8 +55,6 @@ class MAML:
             def task_metalearn(inp, reuse=True):
                 """ Perform gradient descent for one task in the meta-batch. """
                 inputa, inputb, labela, labelb = inp  # inputa: Task(i)训练输入，batch_size = m(m个samples)
-                # inputa = tf.matmul(inputa, self.A)
-                # inputb = tf.matmul(inputb, self.A)
                 task_outputbs, task_lossesb = [], []
 
                 task_outputa = self.forward(inputa, weights, reuse=reuse)  # only reuse on the first iter
