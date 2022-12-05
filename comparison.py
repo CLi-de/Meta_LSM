@@ -7,7 +7,8 @@ from sklearn import metrics
 from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics._classification import accuracy_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import cohen_kappa_score
 
 from utils_v2 import cal_measure
 
@@ -29,6 +30,8 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     print('test accuracy:' + str(metrics.accuracy_score(y_test, predict_results1)))  # 0.69-0.71
     # Precision, Recall, F1-score
     cal_measure(predict_results1, y_test)
+    kappa_value = cohen_kappa_score(predict_results1, y_test)
+    print('Test_Accuracy: %f' % kappa_value)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -61,6 +64,8 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     print('Test Accuracy: %f' % accuracy_score(y_test, predict))  # 奉节，在0.72 - 0.76间；涪陵，在0.76-0.81之间
     # Precision, Recall, F1-score
     cal_measure(predict, y_test)
+    kappa_value = cohen_kappa_score(predict, y_test)
+    print('Test_Accuracy: %f' % kappa_value)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -94,6 +99,9 @@ def RF_compare(x_train, y_train, x_test, y_test):
     print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))  # 0.71 - 0.77
     # pred1 = clf2.predict_proba() # 预测类别概率
     cal_measure(pred_test, y_test)
+    kappa_value = cohen_kappa_score(pred_test, y_test)
+    print('Test_Accuracy: %f' % kappa_value)
+
 
     """"LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",

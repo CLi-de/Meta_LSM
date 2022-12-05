@@ -8,7 +8,8 @@ from tensorflow.python.platform import flags
 from utils_v2 import tasksbatch_generator, batch_generator, meta_train_test1, save_tasks, \
     read_tasks, savepts_fortask, cal_measure
 from Unsupervised_Pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
-from sklearn.metrics._classification import accuracy_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import cohen_kappa_score
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -155,6 +156,8 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     total_acc = accuracy_score(total_Ytest, total_Ypred)
     print('Test_Accuracy: %f' % total_acc)
     cal_measure(total_Ypred, total_Ytest)
+    kappa_value = cohen_kappa_score(total_Ypred, total_Ytest)
+    print('Test_Accuracy: %f' % kappa_value)
 
     sess.close()
 
