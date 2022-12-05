@@ -157,7 +157,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     print('Test_Accuracy: %f' % total_acc)
     cal_measure(total_Ypred, total_Ytest)
     kappa_value = cohen_kappa_score(total_Ypred, total_Ytest)
-    print('Test_Accuracy: %f' % kappa_value)
+    print('Cohen_Kappa: %f' % kappa_value)
 
     sess.close()
 

@@ -31,7 +31,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     # Precision, Recall, F1-score
     cal_measure(predict_results1, y_test)
     kappa_value = cohen_kappa_score(predict_results1, y_test)
-    print('Test_Accuracy: %f' % kappa_value)
+    print('Cohen_Kappa: %f' % kappa_value)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -65,7 +65,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     # Precision, Recall, F1-score
     cal_measure(predict, y_test)
     kappa_value = cohen_kappa_score(predict, y_test)
-    print('Test_Accuracy: %f' % kappa_value)
+    print('Cohen_Kappa: %f' % kappa_value)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -100,7 +100,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
     # pred1 = clf2.predict_proba() # 预测类别概率
     cal_measure(pred_test, y_test)
     kappa_value = cohen_kappa_score(pred_test, y_test)
-    print('Test_Accuracy: %f' % kappa_value)
+    print('Cohen_Kappa: %f' % kappa_value)
 
 
     """"LSM prediction"""
