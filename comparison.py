@@ -24,10 +24,10 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     clf.fit(x_train, y_train)
     # train accuracy
     predict_results = clf.predict(x_train)
-    print('train accuracy:' + str(metrics.accuracy_score(y_train, predict_results)))  # 0.69-0.71
+    print('train accuracy:' + str(metrics.accuracy_score(y_train, predict_results)))
     # test accuracy
     predict_results1 = clf.predict(x_test)
-    print('test accuracy:' + str(metrics.accuracy_score(y_test, predict_results1)))  # 0.69-0.71
+    print('test accuracy:' + str(metrics.accuracy_score(y_test, predict_results1)))
     # Precision, Recall, F1-score
     cal_measure(predict_results1, y_test)
     kappa_value = cohen_kappa_score(predict_results1, y_test)
@@ -50,7 +50,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     writer.close()
     print('done SVM LSM prediction! \n')
 
-
+# can be deprecated
 def ANN_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start ANN evaluation...')
@@ -58,10 +58,10 @@ def ANN_compare(x_train, y_train, x_test, y_test):
                           batch_size=32, max_iter=1000)
     model.fit(x_train, y_train)
     predict1 = model.predict(x_train)
-    print('Train Accuracy: %f' % accuracy_score(y_train, predict1))  # 奉节，在0.82 - 0.90；
+    print('Train Accuracy: %f' % accuracy_score(y_train, predict1))
     # test
     predict = model.predict(x_test)
-    print('Test Accuracy: %f' % accuracy_score(y_test, predict))  # 奉节，在0.72 - 0.76间；涪陵，在0.76-0.81之间
+    print('Test Accuracy: %f' % accuracy_score(y_test, predict))
     # Precision, Recall, F1-score
     cal_measure(predict, y_test)
     kappa_value = cohen_kappa_score(predict, y_test)
@@ -96,7 +96,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
     # 训练精度
     print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
     # 测试精度
-    print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))  # 0.71 - 0.77
+    print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
     # pred1 = clf2.predict_proba() # 预测类别概率
     cal_measure(pred_test, y_test)
     kappa_value = cohen_kappa_score(pred_test, y_test)

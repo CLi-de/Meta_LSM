@@ -232,7 +232,7 @@ class SLICProcessor(object):
             self.assignment()
             self.update_cluster()
             savename = FLAGS.str_region + '_SLIC_M{m}_K{k}_loop{loop}.tif'.format(loop=i, m=self.M,
-                                                                                          k=self.K)  # 生成可视tif
+                                                                                  k=self.K)  # 生成可视tif
             self.save_current_image(self.file, savename)
 
 
@@ -258,7 +258,23 @@ class TaskSampling(object):
         return features, xy, label
 
     def sampling(self, im_geotrans):
-        features, xy, label = self.readpts(FLAGS.landslide_pts)
+        features, xy, label = self.readpts(FLAGS.sample_pts)
+        features_Ts_, xy_Ts, label_Ts = self.readpts(FLAGS.Ts_pts)
+        features = np.vstack((features, features_Ts_))
+        xy = np.vstack((xy, xy_Ts))
+        # labeling Ts pts according to dv value
+        for i in range(len(label_Ts)):
+            if label_Ts[i] <= 2:
+                label_Ts[i] = 0.6
+            if 2 < label_Ts[i] <= 5:
+                label_Ts[i] = 0.7
+            if 5 < label_Ts[i] <= 8:
+                label_Ts[i] = 0.8
+            if 8 < label_Ts[i] <= 10:
+                label_Ts[i] = 0.9
+            if label_Ts[i] > 10:
+                label_Ts[i] = 1.0
+        label = np.hstack((label, label_Ts))
         # 计算（row, col）
         pts = []
         for i in range(xy.shape[0]):

@@ -16,10 +16,9 @@ model = xgboost.XGBRegressor().fit(X, y)
 explainer = shap.Explainer(model)
 shap_values = explainer(X)
 
-# visualize the first prediction's explanation
-# shap.plots.waterfall(shap_values[0])
+# shap.plots.force(shap_values)
+# shap.plots.scatter(shap_values[:,"RM"], color=shap_values)
 
-# visualize the first prediction's explanation with a force plot
-# shap.plots.force(shap_values[0])
-
-shap.plots.force(shap_values)
+# summarize the effects of all the features
+# shap.plots.beeswarm(shap_values)
+shap.plots.bar(shap_values)

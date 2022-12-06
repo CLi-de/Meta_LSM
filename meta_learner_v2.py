@@ -21,7 +21,8 @@ flags.DEFINE_float('M', 100, 'determine how distance influence the segmentation'
 flags.DEFINE_integer('K', 512, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
 flags.DEFINE_string('str_region', 'HK', 'the study area')
-flags.DEFINE_string('landslide_pts', './src_data/samples_HK.xlsx', 'path to (non)landslide samples')
+flags.DEFINE_string('sample_pts', './src_data/samples_HK.xlsx', 'path to (non)/landslide samples')
+flags.DEFINE_string('Ts_pts', './src_data/Ts_HK.xlsx', 'path to Ts samples')
 
 """for meta-train"""
 flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
