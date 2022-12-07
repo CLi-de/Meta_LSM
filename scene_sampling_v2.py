@@ -266,12 +266,16 @@ class TaskSampling(object):
         for i in range(len(label_Ts)):
             if label_Ts[i] <= 2:
                 label_Ts[i] = 0.6
+                continue
             if 2 < label_Ts[i] <= 5:
                 label_Ts[i] = 0.7
+                continue
             if 5 < label_Ts[i] <= 8:
                 label_Ts[i] = 0.8
+                continue
             if 8 < label_Ts[i] <= 10:
                 label_Ts[i] = 0.9
+                continue
             if label_Ts[i] > 10:
                 label_Ts[i] = 1.0
         label = np.hstack((label, label_Ts))
