@@ -169,7 +169,7 @@ def main():
     #  TODO: if it's necessary to mimic batch normalization in Pretraining?
     if not os.path.exists('./unsupervised_pretraining/model_init/savedmodel.npz'):
         print("start unsupervised pretraining")
-        tmp = np.loadtxt('src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
+        tmp = np.loadtxt(FLAGS.sample_pts, dtype=str, delimiter=",", encoding='UTF-8')
         tmp_feature = tmp[1:, :].astype(np.float32)
         np.random.shuffle(tmp_feature)
         Unsupervise_pretrain(tmp_feature)
@@ -216,7 +216,6 @@ def main():
     resume_itr = 0
 
     # 续点训练
-    # if FLAGS.resume or not FLAGS.train:
     if FLAGS.resume:
         model_file = tf.train.latest_checkpoint(FLAGS.logdir + '/' + exp_string)
         if model_file:

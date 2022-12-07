@@ -281,7 +281,7 @@ def visualization():
     # ori_X, y = read_csv('src_data/FJ_FL.csv')
     #
     # tmp = np.loadtxt('src_data/FJ_FL.csv', dtype=np.str, delimiter=",",encoding='UTF-8')
-    # w = load_weights('DAS_logs/savedmodel.npz')
+    # w = load_weights('unsupervised_pretraining/model_init/savedmodel.npz')
     # unsupervised_X = forward(ori_X, w)
     def plot_points(ori_X, inf_X, Y, regionname):
         _PCA(ori_X, Y, './figs/' + regionname + '_ori_PCA.pdf')

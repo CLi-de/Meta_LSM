@@ -15,7 +15,7 @@ checkpoint_dir/
 tmp/
 
 # DAS_logs
-DAS_logs/*.npz
+unsupervised_pretraining/model_init/*.npz
 
 # figs
 figs/*.pdf

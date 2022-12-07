@@ -161,7 +161,7 @@ class MAML:
 
     def construct_DAS_weights(self):
         """读取DAS权参"""
-        npzfile = np.load('DAS_logs/savedmodel.npz')
+        npzfile = np.load('unsupervised_pretraining/model_init/savedmodel.npz')
         weights = {}
         weights['w1'] = tf.Variable(tf.transpose(a=npzfile['arr_0']))
         weights['b1'] = tf.Variable(npzfile['arr_1'])

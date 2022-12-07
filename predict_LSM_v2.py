@@ -21,7 +21,7 @@ def readpts(filepath):
 
 def getclusters(gridpts_xy, taskpts, tifformat_path):
     dataset = gdal.Open(tifformat_path)
-    if dataset == None:
+    if not dataset:
         print("can not open *.tif file!")
     im_geotrans = dataset.GetGeoTransform()
     gridcluster = [[] for i in range(len(taskpts))]
