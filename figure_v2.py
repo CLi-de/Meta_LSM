@@ -245,8 +245,8 @@ def UMAP(X, y, figsavename):
 
 
 def visualization():
-    fj_tasks = read_tasks('./seg_output/FJ_tasks.xlsx')  # task里的samplles
-    # fl_tasks = read_tasks('./seg_output/FL_tasks.xlsx')  # num_samples of FL is too scarce to visualize
+    fj_tasks = read_tasks('./metatask_sampling/FJ_tasks.xlsx')  # task里的samplles
+    # fl_tasks = read_tasks('./metatask_sampling/FL_tasks.xlsx')  # num_samples of FL is too scarce to visualize
 
     """select part of FJ and FL data for visualization"""
     # def get_oriandinf_Xs(tasks, regionname):

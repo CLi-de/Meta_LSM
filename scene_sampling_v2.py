@@ -180,7 +180,7 @@ class SLICProcessor(object):
             datatype = gdal.GDT_Float32
 
         im_bands, im_height, im_width = im_data.shape
-        path = 'seg_output\\' + path
+        path = 'metatask_sampling\\' + path
         # 创建文件
         driver = gdal.GetDriverByName("GTiff")
         dataset = driver.Create(path, im_width, im_height, im_bands, datatype)
@@ -248,8 +248,6 @@ class TaskSampling(object):
         return L
 
     def readpts(self, filepath):
-        # data = pd.read_excel(filepath, index_col=0, dtype=np.float32)
-        # data.to_csv('tmp/' + FLAGS.str_region + 'data.csv', encoding='utf-8')
         tmp = np.loadtxt(filepath, dtype=np.str, delimiter=",", encoding='UTF-8')
         features = tmp[1:, :-3].astype(np.float32)
         features = features / features.max(axis=0)  # 减小数值影响
@@ -265,19 +263,19 @@ class TaskSampling(object):
         # labeling Ts pts according to dv value
         for i in range(len(label_Ts)):
             if label_Ts[i] <= 2:
+                label_Ts[i] = 0.7
+                continue
+            if 2 < label_Ts[i] <= 4:
                 label_Ts[i] = 0.75
                 continue
-            if 2 < label_Ts[i] <= 5:
+            if 4 < label_Ts[i] <= 6:
                 label_Ts[i] = 0.8
                 continue
-            if 5 < label_Ts[i] <= 8:
+            if 6 < label_Ts[i] <= 8:
                 label_Ts[i] = 0.85
                 continue
-            if 8 < label_Ts[i] <= 10:
+            if label_Ts[i] > 8:
                 label_Ts[i] = 0.9
-                continue
-            if label_Ts[i] > 10:
-                label_Ts[i] = 0.95
         label = np.hstack((label, label_Ts))
         # 计算（row, col）
         pts = []

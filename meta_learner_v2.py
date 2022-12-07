@@ -1,4 +1,3 @@
-
 import numpy as np
 import tensorflow as tf
 
@@ -7,7 +6,7 @@ from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
 from utils_v2 import tasksbatch_generator, batch_generator, meta_train_test1, save_tasks, \
     read_tasks, savepts_fortask, cal_measure
-from Unsupervised_Pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
+from unsupervised_pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
 import os
@@ -165,28 +164,33 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
 
 def main():
     """1.Unsupervised pretraining; 2.segmentation and meta-task sampling; 3.meta-training and -testing"""
+
     """Unsupervised pretraining"""
-    if not os.path.exists('./DAS_logs/savedmodel.npz'):
+    #  TODO: if it's necessary to mimic batch normalization in Pretraining?
+    if not os.path.exists('./unsupervised_pretraining/model_init/savedmodel.npz'):
         print("start unsupervised pretraining")
         tmp = np.loadtxt('src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
         tmp_feature = tmp[1:, :].astype(np.float32)
-        np.random.shuffle(tmp_feature)  # shuffle
+        np.random.shuffle(tmp_feature)
         Unsupervise_pretrain(tmp_feature)
     print('Done unsupervised pretraining')
 
     """meta task sampling"""
-    if not os.path.exists('./seg_output/' + FLAGS.str_region + '_SLIC_M{m}_K{k}_loop{loop}.tif'
-            .format(loop=0, m=FLAGS.M, k=FLAGS.K)):
-        print('start meta-task sampling using SLIC algorithm:')
+    tasks_path = './metatask_sampling/' + FLAGS.str_region + '_tasks_K' + str(FLAGS.K) + '.xlsx'
+    if not os.path.exists(
+            './metatask_sampling/' + FLAGS.str_region + '_SLIC_M{m}_K{k}_loop{loop}.tif'.format(loop=0, m=FLAGS.M,
+                                                                                                k=FLAGS.K)):
+        print('start scene segmentation using SLIC algorithm:')
         p = SLICProcessor('./src_data/' + FLAGS.str_region + '/composite.tif', FLAGS.K, FLAGS.M)
         p.iterate_times(loop=FLAGS.loop)
+        print('start meta-task sampling:')
         t = TaskSampling(p.clusters)
         tasks = t.sampling(p.im_geotrans)
-        save_tasks(tasks, str(FLAGS.K))
-        savepts_fortask(p.clusters, './seg_output/' + FLAGS.str_region + 'pts_tasks_K' + str(FLAGS.K) + '.xlsx')
-    HK_tasks = read_tasks('./seg_output/' + FLAGS.str_region + '_tasks_K' + str(FLAGS.K) + '.xlsx')
-    print('Done meta-task sampling')
-    tasks_train, tasks_test = meta_train_test1(HK_tasks)  # for HK
+        save_tasks(tasks, tasks_path)  # save each meta-task samples into respective sheet in a .xlsx file
+        savepts_fortask(p.clusters, './metatask_sampling/' + FLAGS.str_region + 'pts_tasks_K' + str(FLAGS.K) + '.xlsx')
+    print('produce meta training and testing datasets')
+    HK_tasks = read_tasks(tasks_path)
+    tasks_train, tasks_test = meta_train_test1(HK_tasks)
 
     """meta-training and -testing"""
     print('model construction...')

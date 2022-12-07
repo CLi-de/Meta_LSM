@@ -23,9 +23,9 @@ figs/*.pdf
 # models_of_blocks
 models_of_blocks/**/*.npz
 
-# seg_output
-seg_output/*.tif
-seg_output/*.xlsx
+# metatask_sampling
+metatask_sampling/*.tif
+metatask_sampling/*.xlsx
 
 # src_data_
 

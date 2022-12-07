@@ -5,12 +5,11 @@ from .denoising_AE_v2 import *
 from .utils_v2 import *
 from .dbn.tensorflow import SupervisedDBNClassification
 
-# define proposed algorithm
-"""仅做无监督"""
+"""Unsupervised learning"""
+# RBMs + DAE
 def Unsupervise_pretrain(tmp_feature):
-    # label_attr = tmp_feature[:, -1].astype(np.float32)  # 加载类别标签部分
     data_atrr = tmp_feature[:, :-3].astype(np.float32)  # 加载i行数据部分
-    data_atrr = data_atrr / data_atrr.max(axis=0)
+    data_atrr = data_atrr / data_atrr.max(axis=0)  # 减轻数值影响
 
     # Pretrain(Graph 0)
     weights = []
@@ -40,9 +39,6 @@ def Unsupervise_pretrain(tmp_feature):
     n_samples = int(X_train_dae.shape[0])
     training_epochs = 20
     batch_size = 64
-    display_step = 1
-    dae_weights = []  # 存储dae预训练权重参数
-    dae_bias = []  # 存储dae预训练偏置参数
     activations = X_train_dae
     # build and train DAE
     for hidden_units in structure:
@@ -66,7 +62,7 @@ def Unsupervise_pretrain(tmp_feature):
 
         input_units = hidden_units
     # 保存权值信息
-    np.savez('./DAS_logs/savedmodel',
+    np.savez('unsupervised_pretraining/model_init/savedmodel',
              weights[0]['w'], weights[0]['b'],
              weights[1]['w'], weights[1]['b'],
              weights1['w'][0], weights1['b'][0])

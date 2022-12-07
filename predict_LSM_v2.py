@@ -14,7 +14,7 @@ from meta_learner_v2 import FLAGS
 def readpts(filepath):
     tmp = np.loadtxt(filepath, dtype=str, delimiter=",", encoding='UTF-8')
     features = tmp[1:, :-2].astype(np.float32)
-    features = features / features.max(axis=0)  # Normalization
+    features = features / features.max(axis=0)
     xy = tmp[1:, -2:].astype(np.float32)
     return features, xy
 
@@ -106,11 +106,11 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
 
 if __name__ == "__main__":
     print('grid points assignment...')
-    HK_tasks = read_tasks('./seg_output/HK_tasks_K{k}.xlsx'.format(k=FLAGS.K))
-    HK_taskpts = read_pts('./seg_output/HKpts_tasks_K{k}.xlsx'.format(k=FLAGS.K))
+    HK_tasks = read_tasks('./metatask_sampling/HK_tasks_K{k}.xlsx'.format(k=FLAGS.K))
+    HK_taskpts = read_pts('./metatask_sampling/HKpts_tasks_K{k}.xlsx'.format(k=FLAGS.K))
     HK_gridpts_feature, HK_gridpts_xy = readpts('./src_data/grid_samples_HK.csv')
-    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './seg_output/' + FLAGS.str_region + \
+    HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './metatask_sampling/' + FLAGS.str_region + \
                                  '_SLIC_M{m}_K{k}_loop{loop}.tif'.format(loop=0, m=FLAGS.M, k=FLAGS.K))
 
     print('adapt and predict...')
-    predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'pred_LS.xlsx')
+    predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'proposed_prediction.xlsx')

@@ -148,22 +148,17 @@ def meta_train_test1(HK_tasks):
     for i in range(len(HK_tasks)):
         if len(HK_tasks[i]) > FLAGS.num_samples_each_task:
             elig_tasks.append(HK_tasks[i])
-        # elif len(HK_tasks[i]) > 10:  # set 10 to test K=10-shot learning
-        #     test_hk_tasks.append(HK_tasks[i])
         else:
             remain_tasks.append(HK_tasks[i])
     np.random.shuffle(elig_tasks)
     _train = elig_tasks[:int(len(elig_tasks) / 4 * 3)]
     _test = elig_tasks[int(len(elig_tasks) / 4 * 3):]
-    # _test = elig_tasks[int(len(elig_tasks) / 4 * 3):] + test_hk_tasks
-    # for i in range(len(remian_tasks)):  # read_tasks暂时不用
-    #     one_test_tasks.extend(read_tasks[i])
     return _train, _test
 
 
-def save_tasks(tasks, K):
+def save_tasks(tasks, filename):
     """将tasks存到csv中"""
-    writer = pd.ExcelWriter('./seg_output/' + FLAGS.str_region + '_tasks_K'+K+'.xlsx')
+    writer = pd.ExcelWriter(filename)
     for i in range(len(tasks)):
         task_sampels = []
         for j in range(len(tasks[i])):
