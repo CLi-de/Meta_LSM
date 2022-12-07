@@ -16,9 +16,9 @@ model = xgboost.XGBRegressor().fit(X, y)
 explainer = shap.Explainer(model)
 shap_values = explainer(X)
 
-# shap.plots.force(shap_values)
+shap.plots.force(shap_values)
 # shap.plots.scatter(shap_values[:,"RM"], color=shap_values)
 
 # summarize the effects of all the features
 # shap.plots.beeswarm(shap_values)
-shap.plots.bar(shap_values)
+# shap.plots.bar(shap_values)

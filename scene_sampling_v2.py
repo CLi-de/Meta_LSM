@@ -257,26 +257,26 @@ class TaskSampling(object):
 
     def sampling(self, im_geotrans):
         features, xy, label = self.readpts(FLAGS.sample_pts)
-        features_Ts_, xy_Ts, label_Ts = self.readpts(FLAGS.Ts_pts)
-        features = np.vstack((features, features_Ts_))
-        xy = np.vstack((xy, xy_Ts))
-        # labeling Ts pts according to dv value
-        for i in range(len(label_Ts)):
-            if label_Ts[i] <= 2:
-                label_Ts[i] = 0.7
-                continue
-            if 2 < label_Ts[i] <= 4:
-                label_Ts[i] = 0.75
-                continue
-            if 4 < label_Ts[i] <= 6:
-                label_Ts[i] = 0.8
-                continue
-            if 6 < label_Ts[i] <= 8:
-                label_Ts[i] = 0.85
-                continue
-            if label_Ts[i] > 8:
-                label_Ts[i] = 0.9
-        label = np.hstack((label, label_Ts))
+        # features_Ts_, xy_Ts, label_Ts = self.readpts(FLAGS.Ts_pts)
+        # features = np.vstack((features, features_Ts_))
+        # xy = np.vstack((xy, xy_Ts))
+        # # labeling Ts pts according to dv value
+        # for i in range(len(label_Ts)):
+        #     if label_Ts[i] <= 2:
+        #         label_Ts[i] = 0.7
+        #         continue
+        #     if 2 < label_Ts[i] <= 4:
+        #         label_Ts[i] = 0.75
+        #         continue
+        #     if 4 < label_Ts[i] <= 6:
+        #         label_Ts[i] = 0.8
+        #         continue
+        #     if 6 < label_Ts[i] <= 8:
+        #         label_Ts[i] = 0.85
+        #         continue
+        #     if label_Ts[i] > 8:
+        #         label_Ts[i] = 0.9
+        # label = np.hstack((label, label_Ts))
         # 计算（row, col）
         pts = []
         for i in range(xy.shape[0]):

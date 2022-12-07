@@ -173,7 +173,6 @@ def main():
         tmp_feature = tmp[1:, :].astype(np.float32)
         np.random.shuffle(tmp_feature)
         Unsupervise_pretrain(tmp_feature)
-    print('Done unsupervised pretraining')
 
     """meta task sampling"""
     tasks_path = './metatask_sampling/' + FLAGS.str_region + '_tasks_K' + str(FLAGS.K) + '.xlsx'
@@ -188,7 +187,7 @@ def main():
         tasks = t.sampling(p.im_geotrans)
         save_tasks(tasks, tasks_path)  # save each meta-task samples into respective sheet in a .xlsx file
         savepts_fortask(p.clusters, './metatask_sampling/' + FLAGS.str_region + 'pts_tasks_K' + str(FLAGS.K) + '.xlsx')
-    print('produce meta training and testing datasets')
+    print('produce meta training and testing datasets...')
     HK_tasks = read_tasks(tasks_path)
     tasks_train, tasks_test = meta_train_test1(HK_tasks)
 

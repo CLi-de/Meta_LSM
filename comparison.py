@@ -11,27 +11,34 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
 
 from utils_v2 import cal_measure
+import shap
+import os
 
-
-# import matplotlib.pyplot as plt
-
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def SVM_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start SVM evaluation...')
-    clf = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
+    model = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
     # clf = svm.SVC(C=0.1, kernel='linear', decision_function_shape='ovr')
-    clf.fit(x_train, y_train)
+    model.fit(x_train, y_train)
     # train accuracy
-    predict_results = clf.predict(x_train)
+    predict_results = model.predict(x_train)
     print('train accuracy:' + str(metrics.accuracy_score(y_train, predict_results)))
     # test accuracy
-    predict_results1 = clf.predict(x_test)
+    predict_results1 = model.predict(x_test)
     print('test accuracy:' + str(metrics.accuracy_score(y_test, predict_results1)))
     # Precision, Recall, F1-score
     cal_measure(predict_results1, y_test)
     kappa_value = cohen_kappa_score(predict_results1, y_test)
     print('Cohen_Kappa: %f' % kappa_value)
+
+    # SHAP
+    print('SHAP...')
+
+    # explainer = shap.KernelExplainer(model.predict_proba, shap.sample(x_train, 100), link="logit")
+    # shap_values = explainer.shap_values(x_train, nsamples=100)
+    # shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_train.iloc[0, :], link="logit")
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -40,7 +47,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     xy = grid_f[1:, -2:].astype(np.float32)
     samples_f = samples_f / samples_f.max(axis=0)
 
-    predict_results2 = clf.predict_proba(samples_f)
+    predict_results2 = model.predict_proba(samples_f)
 
     # save the prediction result
     data = np.hstack((xy, predict_results2))
@@ -67,6 +74,12 @@ def ANN_compare(x_train, y_train, x_test, y_test):
     kappa_value = cohen_kappa_score(predict, y_test)
     print('Cohen_Kappa: %f' % kappa_value)
 
+    # SHAP
+    print('SHAP...')
+    # explainer = shap.KernelExplainer(model.predict_proba, shap.sample(x_train, 100), link="logit")
+    # shap_values = explainer.shap_values(x_train, nsamples=100)
+    # shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_train.iloc[0, :], link="logit")
+
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
                         encoding='UTF-8')
@@ -88,11 +101,11 @@ def ANN_compare(x_train, y_train, x_test, y_test):
 def RF_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start RF evaluation...')
-    clf = RandomForestClassifier(n_estimators=100, max_depth=None)
+    model = RandomForestClassifier(n_estimators=100, max_depth=None)
 
-    clf.fit(x_train, y_train)
-    pred_train = clf.predict(x_train)
-    pred_test = clf.predict(x_test)
+    model.fit(x_train, y_train)
+    pred_train = model.predict(x_train)
+    pred_test = model.predict(x_test)
     # 训练精度
     print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
     # 测试精度
@@ -102,6 +115,12 @@ def RF_compare(x_train, y_train, x_test, y_test):
     kappa_value = cohen_kappa_score(pred_test, y_test)
     print('Cohen_Kappa: %f' % kappa_value)
 
+    # SHAP
+    print('SHAP...')
+    explainer = shap.Explainer(model)
+    shap_values = explainer(shap.sample(x_train, 100))
+    shap.plots.force(explainer.expected_value[0], shap_values)
+
 
     """"LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -110,7 +129,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
     xy = grid_f[1:, -2:].astype(np.float32)
     samples_f = samples_f / samples_f.max(axis=0)
 
-    predict_results = clf.predict_proba(samples_f)
+    predict_results = model.predict_proba(samples_f)
     # save the prediction result
     data = np.hstack((xy, predict_results))
     data_df = pd.DataFrame(data)
@@ -128,8 +147,8 @@ tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding
 tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
 np.random.shuffle(tmp_)  # shuffle
 # 训练集
-x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
-y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
+x_train = tmp_[:int(tmp_.shape[0] / 200), :-1]  # 加载i行数据部分
+y_train = tmp_[:int(tmp_.shape[0] / 200), -1]  # 加载类别标签部分
 x_train = x_train / x_train.max(axis=0)
 # 测试集
 x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分

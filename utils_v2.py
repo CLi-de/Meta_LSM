@@ -166,7 +166,6 @@ def save_tasks(tasks, filename):
             task_sampels.append(attr_lb)
         data_df = pd.DataFrame(task_sampels)
         data_df.to_excel(writer, 'task_' + str(i), float_format='%.5f', header=False, index=False)
-    # writer.save()
     writer.close()
 
 
@@ -196,7 +195,6 @@ def savepts_fortask(clusters, file):
         data_df = pd.DataFrame(pts)
         data_df.to_excel(writer, 'task_' + str(count), float_format='%.5f', header=False, index=False)
         count = count + 1
-    # writer.save()
     writer.close()
 
 
