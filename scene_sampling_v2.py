@@ -248,9 +248,9 @@ class TaskSampling(object):
         return L
 
     def readpts(self, filepath):
-        data = pd.read_excel(filepath, index_col=0, dtype=np.float32)
-        data.to_csv('tmp/' + FLAGS.str_region + 'data.csv', encoding='utf-8')
-        tmp = np.loadtxt('tmp/' + FLAGS.str_region + 'data.csv', dtype=np.str, delimiter=",", encoding='UTF-8')
+        # data = pd.read_excel(filepath, index_col=0, dtype=np.float32)
+        # data.to_csv('tmp/' + FLAGS.str_region + 'data.csv', encoding='utf-8')
+        tmp = np.loadtxt(filepath, dtype=np.str, delimiter=",", encoding='UTF-8')
         features = tmp[1:, :-3].astype(np.float32)
         features = features / features.max(axis=0)  # 减小数值影响
         xy = tmp[1:, -3: -1].astype(np.float32)
@@ -265,19 +265,19 @@ class TaskSampling(object):
         # labeling Ts pts according to dv value
         for i in range(len(label_Ts)):
             if label_Ts[i] <= 2:
-                label_Ts[i] = 0.6
+                label_Ts[i] = 0.75
                 continue
             if 2 < label_Ts[i] <= 5:
-                label_Ts[i] = 0.7
+                label_Ts[i] = 0.8
                 continue
             if 5 < label_Ts[i] <= 8:
-                label_Ts[i] = 0.8
+                label_Ts[i] = 0.85
                 continue
             if 8 < label_Ts[i] <= 10:
                 label_Ts[i] = 0.9
                 continue
             if label_Ts[i] > 10:
-                label_Ts[i] = 1.0
+                label_Ts[i] = 0.95
         label = np.hstack((label, label_Ts))
         # 计算（row, col）
         pts = []

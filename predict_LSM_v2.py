@@ -1,4 +1,3 @@
-
 import tensorflow as tf
 
 from modeling import MAML
@@ -96,7 +95,7 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
                      adapted_weights['w3'], adapted_weights['b3'],
                      adapted_weights['w4'], adapted_weights['b4'])
 
-    writer = pd.ExcelWriter(savename)
+    writer = pd.ExcelWriter('tmp/' + savename)
     data_df = pd.DataFrame(savearr)
     data_df.to_excel(writer)
     writer.close()
@@ -114,4 +113,4 @@ if __name__ == "__main__":
                                  '_SLIC_M{m}_K{k}_loop{loop}.tif'.format(loop=0, m=FLAGS.M, k=FLAGS.K))
 
     print('adapt and predict...')
-    predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'HK_LSpred.xlsx')
+    predict_LSM(HK_tasks, HK_gridpts_feature, HK_gridpts_xy, HK_gridcluster, 'pred_LS.xlsx')
