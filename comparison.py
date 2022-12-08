@@ -12,9 +12,12 @@ from sklearn.metrics import cohen_kappa_score
 
 from utils_v2 import cal_measure
 import shap
-import os
+import matplotlib.pyplot as plt
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+import warnings
+
+warnings.filterwarnings("ignore")
+
 
 def SVM_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
@@ -35,10 +38,12 @@ def SVM_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
-
-    # explainer = shap.KernelExplainer(model.predict_proba, shap.sample(x_train, 100), link="logit")
-    # shap_values = explainer.shap_values(x_train, nsamples=100)
-    # shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_train.iloc[0, :], link="logit")
+    shap.initjs()
+    explainer = shap.KernelExplainer(model.predict_proba, shap.kmeans(x_train, 100), link="logit")
+    shap_values = explainer.shap_values(x_test[:10], nsamples=100)  # shap_values(_prob, n_samples, features)
+    # shap.plots.bar(shap_values[0]).savefig('SVM_bar.jpg')
+    shap.force_plot(explainer.expected_value[0], shap_values[0][0, :],
+                    x_test[0, :], show=True, matplotlib=True)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -56,6 +61,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
     print('done SVM LSM prediction! \n')
+
 
 # can be deprecated
 def ANN_compare(x_train, y_train, x_test, y_test):
@@ -76,9 +82,11 @@ def ANN_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
-    # explainer = shap.KernelExplainer(model.predict_proba, shap.sample(x_train, 100), link="logit")
-    # shap_values = explainer.shap_values(x_train, nsamples=100)
-    # shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_train.iloc[0, :], link="logit")
+    shap.initjs()
+    explainer = shap.KernelExplainer(model.predict_proba, shap.kmeans(x_train, 100), link="logit")
+    shap_values = explainer.shap_values(x_test[:100], nsamples=100)  # shap_values(_prob, n_samples, features)
+    shap.force_plot(explainer.expected_value[0], shap_values[0][0, :],
+                    x_test[0, :], show=False, matplotlib=True).savefig('MLP_force_plot.png')
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -117,10 +125,10 @@ def RF_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
+    shap.initjs()
     explainer = shap.Explainer(model)
-    shap_values = explainer(shap.sample(x_train, 100))
-    shap.plots.force(explainer.expected_value[0], shap_values)
-
+    shap_values = explainer(x_train)
+    shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
 
     """"LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -139,16 +147,13 @@ def RF_compare(x_train, y_train, x_test, y_test):
     print('done RF LSM prediction! \n')
 
 
-"""SVM"""
 # Input data
-# pd.read_excel('./src_data/samples_HK.xlsx', 'Sheet1', index_col=0) \
-#     .to_csv('./tmp/data.csv', encoding='utf-8')
-tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
+tmp = np.loadtxt('./src_data/samples_HK_noTS.csv', dtype=str, delimiter=",", encoding='UTF-8')
 tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
 np.random.shuffle(tmp_)  # shuffle
 # 训练集
-x_train = tmp_[:int(tmp_.shape[0] / 200), :-1]  # 加载i行数据部分
-y_train = tmp_[:int(tmp_.shape[0] / 200), -1]  # 加载类别标签部分
+x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
+y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
 x_train = x_train / x_train.max(axis=0)
 # 测试集
 x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
