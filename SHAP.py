@@ -46,16 +46,14 @@ feature_names = tmp[0, :-3].astype(np.str)
 tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
 np.random.shuffle(tmp_)  # shuffle
 # 训练集
-x_train = tmp_[:int(tmp_.shape[0] / 200), :-1]  # 加载i行数据部分
-y_train = tmp_[:int(tmp_.shape[0] / 200), -1]  # 加载类别标签部分
+x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
+y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
 x_train = x_train / x_train.max(axis=0)
 # 测试集
-x_test = tmp_[int(tmp_.shape[0] / 200):int(tmp_.shape[0] / 100), :-1]  # 加载i行数据部分
-y_test = tmp_[int(tmp_.shape[0] / 200):int(tmp_.shape[0] / 100), -1]  # 加载类别标签部分
+x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
+y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
 x_test = x_test / x_test.max(axis=0)
 
-model = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
-model.fit(x_train, y_train)
 model = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr', probability=True)
 model.fit(x_train, y_train)
 
@@ -66,9 +64,8 @@ x_test = pd.DataFrame(x_test)
 x_train.columns = feature_names  # 添加特征名称
 x_test.columns = feature_names
 
-explainer = shap.KernelExplainer(model.predict_proba, shap.kmeans(x_train, 90), link="logit",
-                                 feature_names=feature_names)
-shap_values = explainer.shap_values(x_test, nsamples=90)  # shap_values(_prob, n_samples, features)
+explainer = shap.KernelExplainer(model.predict_proba, shap.kmeans(x_train, 100))
+shap_values = explainer.shap_values(x_test, nsamples=100)  # shap_values(_prob, n_samples, features)
 shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_test.iloc[0, :], show=True, matplotlib=True)
 # shap.force_plot(explainer.expected_value[0], shap_values[0], x_test, show=False, matplotlib=True)
 shap.summary_plot(shap_values, x_test, plot_type="bar")
