@@ -18,6 +18,26 @@ import warnings
 
 warnings.filterwarnings("ignore")
 
+"""model-agnostic SHAP"""
+def SHAP_(predict_proba, x_train, x_test, f_name):
+    shap.initjs()
+    # SHAP demo are using dataframe instead of nparray
+    x_train = pd.DataFrame(x_train)  # 将numpy的array数组x_test转为dataframe格式。
+    x_test = pd.DataFrame(x_test)
+    x_train.columns = f_name  # 添加特征名称
+    x_test.columns = f_name
+
+    explainer = shap.KernelExplainer(predict_proba, shap.kmeans(x_train, 100))
+    shap_values = explainer.shap_values(x_test)  # shap_values(_prob, n_samples, features)
+    shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_test.iloc[0, :], show=True, matplotlib=True)
+    # shap.force_plot(explainer.expected_value[0], shap_values[0], x_test, show=False, matplotlib=True)
+    shap.summary_plot(shap_values, x_test, plot_type="bar")
+    shap.summary_plot(shap_values[0], x_test, plot_type="violin")
+    shap.summary_plot(shap_values[0], x_test, plot_type="compact_dot")
+    shap.dependence_plot('lithology', shap_values[0], x_test, interaction_index=None)
+    shap.dependence_plot('lithology', shap_values[0], x_test, interaction_index='DEM')
+    # shap.plots.beeswarm(shap_values[0])  # the beeswarm plot requires Explanation object as the `shap_values` argument
+
 
 def SVM_compare(x_train, y_train, x_test, y_test):
     """predict and test"""
@@ -38,12 +58,7 @@ def SVM_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
-    shap.initjs()
-    explainer = shap.KernelExplainer(model.predict_proba, shap.kmeans(x_train, 100), link="logit")
-    shap_values = explainer.shap_values(x_test[:10], nsamples=100)  # shap_values(_prob, n_samples, features)
-    # shap.plots.bar(shap_values[0]).savefig('SVM_bar.jpg')
-    shap.force_plot(explainer.expected_value[0], shap_values[0][0, :],
-                    x_test[0, :], show=True, matplotlib=True)
+    SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -82,11 +97,7 @@ def ANN_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
-    shap.initjs()
-    explainer = shap.KernelExplainer(model.predict_proba, shap.kmeans(x_train, 100), link="logit")
-    shap_values = explainer.shap_values(x_test[:100], nsamples=100)  # shap_values(_prob, n_samples, features)
-    shap.force_plot(explainer.expected_value[0], shap_values[0][0, :],
-                    x_test[0, :], show=False, matplotlib=True).savefig('MLP_force_plot.png')
+    SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     """LSM prediction"""
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
@@ -125,6 +136,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
+    # SHAP_(model.predict_proba, x_train, x_test, f_names)
     shap.initjs()
     explainer = shap.Explainer(model)
     shap_values = explainer(x_train)
@@ -149,6 +161,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
 
 # Input data
 tmp = np.loadtxt('./src_data/samples_HK_noTS.csv', dtype=str, delimiter=",", encoding='UTF-8')
+f_names = tmp[0, :-3].astype(np.str)
 tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
 np.random.shuffle(tmp_)  # shuffle
 # 训练集
@@ -160,8 +173,8 @@ x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
 y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
 x_test = x_test / x_test.max(axis=0)
 
-SVM_compare(x_train, y_train, x_test, y_test)
+# SVM_compare(x_train, y_train, x_test, y_test)
 
-ANN_compare(x_train, y_train, x_test, y_test)
+# ANN_compare(x_train, y_train, x_test, y_test)
 
 RF_compare(x_train, y_train, x_test, y_test)

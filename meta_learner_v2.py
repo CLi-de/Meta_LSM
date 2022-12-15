@@ -9,6 +9,8 @@ from utils_v2 import tasksbatch_generator, batch_generator, meta_train_test1, sa
 from unsupervised_pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
+
+from comparison import SHAP_
 import os
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
