@@ -137,6 +137,7 @@ def RF_compare(x_train, y_train, x_test, y_test):
 
     # SHAP
     print('SHAP...')
+    # TODO: SHAP for RF
     # SHAP_(model.predict_proba, x_train, x_test, f_names)
     shap.initjs()
     explainer = shap.Explainer(model)

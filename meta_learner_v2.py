@@ -154,7 +154,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             sum_accuracies.append(accuracy)
             # print('Test_Accuracy: %f' % accuracy)
         print('SHAP...')
-        # SHAP_()
+        # SHAP_()  # TODO: SHAP for proposed
     """Overall evaluation (test data)"""
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)
