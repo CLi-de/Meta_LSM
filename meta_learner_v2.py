@@ -10,6 +10,8 @@ from unsupervised_pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
 
+from sklearn.neural_network import MLPClassifier
+
 from comparison import SHAP_
 import os
 
@@ -151,7 +153,8 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             accuracy = accuracy_score(Y_test, Y_pred)
             sum_accuracies.append(accuracy)
             # print('Test_Accuracy: %f' % accuracy)
-
+        print('SHAP...')
+        # SHAP_()
     """Overall evaluation (test data)"""
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)

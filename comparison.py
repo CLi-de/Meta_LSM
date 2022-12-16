@@ -31,8 +31,7 @@ def SHAP_(predict_proba, x_train, x_test, f_name):
 
     explainer = shap.KernelExplainer(predict_proba, shap.kmeans(x_train, 100))
     shap_values = explainer.shap_values(x_test, nsamples=100)  # shap_values(_prob, n_samples, features)
-    shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)
-    # shap.force_plot(explainer.expected_value[0], shap_values[0], x_test, show=False, matplotlib=True)
+    # shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)  # single feature
     shap.summary_plot(shap_values, x_test, plot_type="bar")
     shap.summary_plot(shap_values[1], x_test, plot_type="violin")  # shap_values[k], k表类别，k=1（landslides）
     # shap.summary_plot(shap_values[1], x_test, plot_type="compact_dot")
