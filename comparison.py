@@ -19,6 +19,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 """model-agnostic SHAP"""
+
+
 def SHAP_(predict_proba, x_train, x_test, f_name):
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
@@ -28,14 +30,14 @@ def SHAP_(predict_proba, x_train, x_test, f_name):
     x_test.columns = f_name
 
     explainer = shap.KernelExplainer(predict_proba, shap.kmeans(x_train, 100))
-    shap_values = explainer.shap_values(x_test)  # shap_values(_prob, n_samples, features)
-    shap.force_plot(explainer.expected_value[0], shap_values[0][0, :], x_test.iloc[0, :], show=True, matplotlib=True)
+    shap_values = explainer.shap_values(x_test, nsamples=100)  # shap_values(_prob, n_samples, features)
+    shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)
     # shap.force_plot(explainer.expected_value[0], shap_values[0], x_test, show=False, matplotlib=True)
     shap.summary_plot(shap_values, x_test, plot_type="bar")
-    shap.summary_plot(shap_values[0], x_test, plot_type="violin")
-    shap.summary_plot(shap_values[0], x_test, plot_type="compact_dot")
-    shap.dependence_plot('lithology', shap_values[0], x_test, interaction_index=None)
-    shap.dependence_plot('lithology', shap_values[0], x_test, interaction_index='DEM')
+    shap.summary_plot(shap_values[1], x_test, plot_type="violin")  # shap_values[k], k表类别，k=1（landslides）
+    # shap.summary_plot(shap_values[1], x_test, plot_type="compact_dot")
+    shap.dependence_plot('lithology', shap_values[1], x_test, interaction_index=None)
+    shap.dependence_plot('SPI', shap_values[1], x_test, interaction_index='DV')
     # shap.plots.beeswarm(shap_values[0])  # the beeswarm plot requires Explanation object as the `shap_values` argument
 
 
@@ -159,22 +161,23 @@ def RF_compare(x_train, y_train, x_test, y_test):
     print('done RF LSM prediction! \n')
 
 
-# Input data
-tmp = np.loadtxt('./src_data/samples_HK_noTS.csv', dtype=str, delimiter=",", encoding='UTF-8')
-f_names = tmp[0, :-3].astype(np.str)
-tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
-np.random.shuffle(tmp_)  # shuffle
-# 训练集
-x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
-y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
-x_train = x_train / x_train.max(axis=0)
-# 测试集
-x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
-y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
-x_test = x_test / x_test.max(axis=0)
+if __name__ == "__main__":
+    # Input data
+    tmp = np.loadtxt('./src_data/samples_HK_noTS.csv', dtype=str, delimiter=",", encoding='UTF-8')
+    f_names = tmp[0, :-3].astype(np.str)
+    tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
+    np.random.shuffle(tmp_)  # shuffle
+    # 训练集
+    x_train = tmp_[:int(tmp_.shape[0] / 4 * 3), :-1]  # 加载i行数据部分
+    y_train = tmp_[:int(tmp_.shape[0] / 4 * 3), -1]  # 加载类别标签部分
+    x_train = x_train / x_train.max(axis=0)
+    # 测试集
+    x_test = tmp_[int(tmp_.shape[0] / 4 * 3):, :-1]  # 加载i行数据部分
+    y_test = tmp_[int(tmp_.shape[0] / 4 * 3):, -1]  # 加载类别标签部分
+    x_test = x_test / x_test.max(axis=0)
 
-# SVM_compare(x_train, y_train, x_test, y_test)
+    SVM_compare(x_train, y_train, x_test, y_test)
 
-# ANN_compare(x_train, y_train, x_test, y_test)
+    ANN_compare(x_train, y_train, x_test, y_test)
 
-RF_compare(x_train, y_train, x_test, y_test)
+    RF_compare(x_train, y_train, x_test, y_test)
