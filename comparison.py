@@ -7,7 +7,7 @@ from sklearn import metrics
 from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
-from unsupervised_pretraining.dbn.models_v2 import SupervisedDBNClassification
+from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
@@ -72,22 +72,6 @@ def SVM_(x_train, y_train, x_test, y_test):
     print('SHAP...')
     # SHAP_(model.predict_proba, x_train, x_test, f_names)
 
-    # """LSM prediction"""
-    # grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
-    #                     encoding='UTF-8')
-    # samples_f = grid_f[1:, :-2].astype(np.float32)
-    # xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
-    #
-    # predict_results2 = model.predict_proba(samples_f)
-    #
-    # # save the prediction result
-    # data = np.hstack((xy, predict_results2))
-    # data_df = pd.DataFrame(data)
-    # writer = pd.ExcelWriter('./tmp/SVM_prediction_HK.xlsx')
-    # data_df.to_excel(writer, 'page_1', float_format='%.5f')
-    # writer.close()
-    # print('done SVM LSM prediction! \n')
     return model
 
 
@@ -111,22 +95,35 @@ def ANN_(x_train, y_train, x_test, y_test):
     print('SHAP...')
     # SHAP_(model.predict_proba, x_train, x_test, f_names)
 
-    # """LSM prediction"""
-    # grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
-    #                     encoding='UTF-8')
-    # samples_f = grid_f[1:, :-2].astype(np.float32)
-    # xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
-    #
-    # predict_results = model.predict_proba(samples_f)
-    #
-    # # save the prediction result
-    # data = np.hstack((xy, predict_results))
-    # data_df = pd.DataFrame(data)
-    # writer = pd.ExcelWriter('./tmp/MLP_prediction_HK.xlsx')
-    # data_df.to_excel(writer, 'page_1', float_format='%.5f')
-    # writer.close()
-    # print('done MLP LSM prediction! \n')
+    return model
+
+
+def DBN_(x_train, y_train, x_test, y_test):
+    # Training
+    model = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
+                                        learning_rate_rbm=0.001,
+                                        learning_rate=0.1,
+                                        n_epochs_rbm=10,
+                                        n_iter_backprop=200,
+                                        batch_size=32,
+                                        activation_function='relu',
+                                        dropout_p=0.1)
+    model.fit(x_train, y_train)
+
+    pred_train = np.array(model.predict(x_train))
+    pred_test = np.array(model.predict(x_test))
+    # 训练精度
+    print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
+    # 测试精度
+    print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
+    # pred1 = clf2.predict_proba() # 预测类别概率
+    cal_measure(pred_test, y_test)
+    kappa_value = cohen_kappa_score(pred_test, y_test)
+    print('Cohen_Kappa: %f' % kappa_value)
+
+    # SHAP
+    print('SHAP...')
+    # SHAP_(model.predict_proba, x_train, x_test, f_names)
     return model
 
 
@@ -156,55 +153,11 @@ def RF_(x_train, y_train, x_test, y_test):
     # shap_values = explainer(x_train)
     # shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
 
-    # """"LSM prediction"""
-    # grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",",
-    #                     encoding='UTF-8')
-    # samples_f = grid_f[1:, :-2].astype(np.float32)
-    # xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
-    #
-    # predict_results = model.predict_proba(samples_f)
-    # # save the prediction result
-    # data = np.hstack((xy, predict_results))
-    # data_df = pd.DataFrame(data)
-    # writer = pd.ExcelWriter('./tmp/RF_prediction_HK.xlsx')
-    # data_df.to_excel(writer, 'page_1', float_format='%.5f')
-    # writer.close()
-    # print('done RF LSM prediction! \n')
-    return model
-
-
-def DBN_(x_train, y_train, x_test, y_test):
-    # Training
-    model = SupervisedDBNClassification(hidden_layers_structure=[256, 256],
-                                             learning_rate_rbm=0.05,
-                                             learning_rate=0.1,
-                                             n_epochs_rbm=10,
-                                             n_iter_backprop=100,
-                                             batch_size=32,
-                                             activation_function='relu',
-                                             dropout_p=0.2)
-    model.fit(x_train, y_train)
-
-    pred_train = model.predict(x_train)
-    pred_test = model.predict(x_test)
-    # 训练精度
-    print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
-    # 测试精度
-    print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
-    # pred1 = clf2.predict_proba() # 预测类别概率
-    cal_measure(pred_test, y_test)
-    kappa_value = cohen_kappa_score(pred_test, y_test)
-    print('Cohen_Kappa: %f' % kappa_value)
-
-    # SHAP
-    print('SHAP...')
-    # SHAP_(model.predict_proba, x_train, x_test, f_names)
     return model
 
 
 if __name__ == "__main__":
-    # Input data
+    """Input data"""
     tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
     f_names = tmp[0, :-3].astype(np.str)
     tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
@@ -217,29 +170,26 @@ if __name__ == "__main__":
     x_test = tmp_[int(tmp_.shape[0] / 4 * 3):, :-1]  # 加载i行数据部分
     y_test = tmp_[int(tmp_.shape[0] / 4 * 3):, -1]  # 加载类别标签部分
     x_test = x_test / x_test.max(axis=0)
-
-    model_svm = SVM_(x_train, y_train, x_test, y_test)
-
-    model_mlp = ANN_(x_train, y_train, x_test, y_test)
-
-    model_dbn = DBN_(x_train, y_train, x_test, y_test)
-
-    model_rf = RF_(x_train, y_train, x_test, y_test)
-
-    # predict and save LSM result
+    #
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
     samples_f = samples_f / samples_f.max(axis=0)
 
-    pred_LSM(model_svm, xy, samples_f)
-    print('done SVM-based LSM prediction! \n')
-
-    pred_LSM(model_mlp, xy, samples_f)
-    print('done MLP-based LSM prediction! \n')
-
+    """evaluate and save LSM result"""
+    # # SVM-based
+    # model_svm = SVM_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_svm, xy, samples_f)
+    # print('done SVM-based LSM prediction! \n')
+    # # MLP_based
+    # model_mlp = ANN_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_mlp, xy, samples_f)
+    # print('done MLP-based LSM prediction! \n')
+    # DBN-based
+    model_dbn = DBN_(x_train, y_train, x_test, y_test)
     pred_LSM(model_dbn, xy, samples_f)
     print('done DBN-based LSM prediction! \n')
-
-    pred_LSM(model_rf, xy, samples_f)
-    print('done RF-based LSM prediction! \n')
+    # #RF-based
+    # model_rf = RF_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_rf, xy, samples_f)
+    # print('done RF-based LSM prediction! \n')
