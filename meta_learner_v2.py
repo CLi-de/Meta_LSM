@@ -13,8 +13,10 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.neural_network import MLPClassifier
 
 from comparison import SHAP_
+import warnings
 import os
 
+warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 FLAGS = flags.FLAGS
@@ -153,7 +155,7 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
             accuracy = accuracy_score(Y_test, Y_pred)
             sum_accuracies.append(accuracy)
             # print('Test_Accuracy: %f' % accuracy)
-        print('SHAP...')
+        # print('SHAP...')
         # SHAP_()  # TODO: SHAP for proposed
     """Overall evaluation (test data)"""
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
@@ -189,7 +191,7 @@ def main():
         p.iterate_times(loop=FLAGS.loop)
         print('start meta-task sampling:')
         t = TaskSampling(p.clusters)
-        tasks = t.sampling(p.im_geotrans)
+        tasks = t.sampling(p.im_geotrans, FLAGS.sample_pts)
         save_tasks(tasks, tasks_path)  # save each meta-task samples into respective sheet in a .xlsx file
         savepts_fortask(p.clusters, './metatask_sampling/' + FLAGS.str_region + 'pts_tasks_K' + str(FLAGS.K) + '.xlsx')
     print('produce meta training and testing datasets...')
@@ -225,7 +227,7 @@ def main():
         if model_file:
             ind1 = model_file.index('model')
             resume_itr = int(model_file[ind1 + 5:])
-            print("Restoring model weights from " + model_file)
+            # print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
 
     train(model, saver, sess, exp_string, tasks_train, resume_itr)

@@ -255,8 +255,8 @@ class TaskSampling(object):
         label = tmp[1:, -1].astype(np.float32)
         return features, xy, label
 
-    def sampling(self, im_geotrans):
-        features, xy, label = self.readpts(FLAGS.sample_pts)
+    def sampling(self, im_geotrans, path):
+        features, xy, label = self.readpts(path)
         # features_Ts_, xy_Ts, label_Ts = self.readpts(FLAGS.Ts_pts)
         # features = np.vstack((features, features_Ts_))
         # xy = np.vstack((xy, xy_Ts))
