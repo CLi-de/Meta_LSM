@@ -466,7 +466,7 @@ class NumPyAbstractSupervisedDBN(AbstractSupervisedDBN):
 
             if self.verbose:
                 error = np.mean(np.sum(matrix_error, 1))
-                print(">> Epoch %d finished \tANN training loss %f" % (iteration, error))
+                # print(">> Epoch %d finished \tANN training loss %f" % (iteration, error))
 
     def _backpropagation(self, input_vector, label):
         """

@@ -79,7 +79,7 @@ def SVM_(x_train, y_train, x_test, y_test):
 def ANN_(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start ANN evaluation...')
-    model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.001,
+    model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.01,
                           batch_size=32, max_iter=1000)
     model.fit(x_train, y_train)
     pred_train = model.predict(x_train)
@@ -99,13 +99,14 @@ def ANN_(x_train, y_train, x_test, y_test):
 
 
 def DBN_(x_train, y_train, x_test, y_test):
+    print('start DBN evaluation...')
     # Training
     model = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
                                         learning_rate_rbm=0.001,
-                                        learning_rate=0.1,
+                                        learning_rate=0.5,
                                         n_epochs_rbm=10,
                                         n_iter_backprop=200,
-                                        batch_size=32,
+                                        batch_size=64,
                                         activation_function='relu',
                                         dropout_p=0.1)
     model.fit(x_train, y_train)
@@ -130,7 +131,7 @@ def DBN_(x_train, y_train, x_test, y_test):
 def RF_(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start RF evaluation...')
-    model = RandomForestClassifier(n_estimators=100, max_depth=None)
+    model = RandomForestClassifier(n_estimators=200, max_depth=None)
 
     model.fit(x_train, y_train)
     pred_train = model.predict(x_train)
@@ -177,19 +178,23 @@ if __name__ == "__main__":
     samples_f = samples_f / samples_f.max(axis=0)
 
     """evaluate and save LSM result"""
-    # # SVM-based
-    # model_svm = SVM_(x_train, y_train, x_test, y_test)
-    # pred_LSM(model_svm, xy, samples_f)
-    # print('done SVM-based LSM prediction! \n')
-    # # MLP_based
-    # model_mlp = ANN_(x_train, y_train, x_test, y_test)
-    # pred_LSM(model_mlp, xy, samples_f)
-    # print('done MLP-based LSM prediction! \n')
+    # SVM-based
+    model_svm = SVM_(x_train, y_train, x_test, y_test)
+    pred_LSM(model_svm, xy, samples_f)
+    print('done SVM-based LSM prediction! \n')
+    # MLP_based
+    model_mlp = ANN_(x_train, y_train, x_test, y_test)
+    pred_LSM(model_mlp, xy, samples_f)
+    print('done MLP-based LSM prediction! \n')
+
     # DBN-based
     model_dbn = DBN_(x_train, y_train, x_test, y_test)
     pred_LSM(model_dbn, xy, samples_f)
     print('done DBN-based LSM prediction! \n')
-    # #RF-based
-    # model_rf = RF_(x_train, y_train, x_test, y_test)
-    # pred_LSM(model_rf, xy, samples_f)
-    # print('done RF-based LSM prediction! \n')
+
+    #RF-based
+    model_rf = RF_(x_train, y_train, x_test, y_test)
+    pred_LSM(model_rf, xy, samples_f)
+    print('done RF-based LSM prediction! \n')
+
+

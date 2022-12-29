@@ -406,7 +406,7 @@ class TensorFlowAbstractSupervisedDBN(BaseAbstractSupervisedDBN, BaseTensorFlowM
                 feed_dict = {self.visible_units_placeholder: data, self.y_: labels}
                 feed_dict.update({placeholder: 1.0 for placeholder in self.keep_prob_placeholders})
                 error = sess.run(self.cost_function, feed_dict=feed_dict)  # 计算loss(error)
-                print(">> Epoch %d finished \tANN training loss %f" % (iteration, error))
+                # print(">> Epoch %d finished \tANN training loss %f" % (iteration, error))
 
     def transform(self, X):
         feed_dict = {self.visible_units_placeholder: X}
