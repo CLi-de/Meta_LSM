@@ -22,7 +22,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 FLAGS = flags.FLAGS
 
 """for task sampling"""
-flags.DEFINE_float('M', 100, 'determine how distance influence the segmentation')
+flags.DEFINE_float('M', 500, 'determine how distance influence the segmentation')
 flags.DEFINE_integer('K', 512, 'number of superpixels')
 flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
 flags.DEFINE_string('str_region', 'HK', 'the study area')
@@ -94,7 +94,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
             if itr % SUMMARY_INTERVAL == 0:
                 prelosses.append(result[-2])
                 if FLAGS.log:
-                    train_writer.add_summary(result[1], itr)  # add summ_op
+                    train_writer.add_summary(result[1], itr)  # add sum_op
                 postlosses.append(result[-1])
 
             if (itr != 0) and itr % PRINT_INTERVAL == 0:

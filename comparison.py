@@ -43,12 +43,12 @@ def SHAP_(predict_proba, x_train, x_test, f_name):
     # shap.plots.beeswarm(shap_values[0])  # the beeswarm plot requires Explanation object as the `shap_values` argument
 
 
-def pred_LSM(trained_model, xy, samples):
+def pred_LSM(trained_model, xy, samples, name):
     """LSM prediction"""
     pred = trained_model.predict_proba(samples)
     data = np.hstack((xy, pred))
     data_df = pd.DataFrame(data)
-    writer = pd.ExcelWriter('./tmp/SVM_prediction_HK.xlsx')
+    writer = pd.ExcelWriter('./tmp/'+name+'_prediction_HK.xlsx')
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
 
@@ -159,7 +159,7 @@ def RF_(x_train, y_train, x_test, y_test):
 
 if __name__ == "__main__":
     """Input data"""
-    tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
+    tmp = np.loadtxt('./src_data/samples_HK_noTS.csv', dtype=str, delimiter=",", encoding='UTF-8')
     f_names = tmp[0, :-3].astype(np.str)
     tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
     np.random.shuffle(tmp_)  # shuffle
@@ -180,21 +180,21 @@ if __name__ == "__main__":
     """evaluate and save LSM result"""
     # SVM-based
     model_svm = SVM_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_svm, xy, samples_f)
+    pred_LSM(model_svm, xy, samples_f, 'SVM')
     print('done SVM-based LSM prediction! \n')
     # MLP_based
     model_mlp = ANN_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_mlp, xy, samples_f)
+    pred_LSM(model_mlp, xy, samples_f, 'MLP')
     print('done MLP-based LSM prediction! \n')
 
     # DBN-based
     model_dbn = DBN_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_dbn, xy, samples_f)
+    pred_LSM(model_dbn, xy, samples_f, 'DBN')
     print('done DBN-based LSM prediction! \n')
 
     #RF-based
     model_rf = RF_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_rf, xy, samples_f)
+    pred_LSM(model_rf, xy, samples_f, 'RF')
     print('done RF-based LSM prediction! \n')
 
 
