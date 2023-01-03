@@ -391,6 +391,7 @@ def plot_candle(methodname, K, meanOA, maxOA, minOA, std):
     plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
 
 
+
 def plot_brokenline(K, meanOA):
     '''设置框图'''
     plt.figure("", facecolor="lightgray")  # 设置框图大小
@@ -533,12 +534,12 @@ def DBN_fit_pred(x_train, x_test, y_train, y_test):
                                              activation_function='relu',
                                              dropout_p=0.1)
     classifier.fit(x_train, y_train)
+    pred_prob = classifier.predict_proba(x_test)
 
-    # strange predict_proba()
-    if y_test[0] == 1.:
-        return classifier.predict_proba(x_test)
-    else:
-        return classifier.predict_proba(x_test).swapaxes(0, 1)
+    # if pred_prob[0][0] > 0.5:
+    #     pred_prob = np.vstack((pred_prob[:, 0], pred_prob[:, -1])).T  # swap 0, 1 prediction
+
+    return pred_prob
 
 
 def RF_fit_pred(x_train, x_test, y_train, y_test):
@@ -547,9 +548,9 @@ def RF_fit_pred(x_train, x_test, y_train, y_test):
     return classifier.predict_proba(x_test)
 
 
-def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_test):
+def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test, y_test_proposed):
     # Compute ROC curve and ROC area for each class
-    def cal_(y_score):
+    def cal_(y_score, y_test):
         fpr, tpr = [], []
         for i in range(n_times):
             fpr_, tpr_, thresholds = roc_curve(y_test[i], y_score[i][:, -1], pos_label=1)
@@ -569,26 +570,27 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_tes
         mean_auc = auc(all_fpr, mean_tpr)
         return all_fpr, mean_tpr, mean_auc, fpr, tpr
 
-    def plot_(y_score, color, method):
-        all_fpr, mean_tpr, mean_auc, fpr, tpr = cal_(y_score)
+    def plot_(y_score, y_test, color, method):
+        all_fpr, mean_tpr, mean_auc, fpr, tpr = cal_(y_score, y_test)
         # draw mean
         plt.plot(all_fpr, mean_tpr,
-                 label='mean_AUC (area = {0:0.3f})'
-                       ''.format(mean_auc),
+                 label=method + '_mean_AUC (area = {0:0.3f})'''.format(mean_auc),
                  color=color, linewidth=2)
         # draw each
         for i in range(n_times):
             plt.plot(fpr[i], tpr[i],
-                     color=color, linestyle=':', linewidth=1, alpha=.15)
+                     color=color, linewidth=1, alpha=.15)
         # plt.savefig(method + '.pdf')
 
-    # clear previous plot
-
     # Plot all ROC curves
-    plot_(y_score_SVM, color='red', method='SVM')
-    plot_(y_score_MLP, color='green', method='MLP')
-    plot_(y_score_DBN, color='blue', method='DBN')
-    plot_(y_score_RF, color='azure', method='RF')
+    ax = plt.axes()
+    ax.set_facecolor("WhiteSmoke")
+    plot_(y_score_SVM, y_test, color='cyan', method='SVM')
+    plot_(y_score_MLP, y_test, color=(0, 255, 0), method='MLP')
+    # plot_(y_score_DBN, y_test, color='orange', method='DBN')
+    plot_(y_score_RF, y_test, color=(255, 0, 255), method='RF')
+    plot_(y_score_proposed, y_test_proposed, color='red', method='Proposed')
+
     # format
     font1 = {'family': 'Times New Roman',
              'weight': 'normal',
@@ -644,24 +646,27 @@ if __name__ == "__main__":
         return features, label
 
 
-    """draw AUROC"""
-    # %%
+    """draw AUR"""
+    print('drawing ROC...')
     x, y = read_f_l_csv('src_data/samples_HK.csv')
-    y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_test_ = [], [], [], [], []
+    y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
     n_times = 5
     for i in range(n_times):
-        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.01, shuffle=True)
-        # fit and predict
+        x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
+        """fit and predict"""
+        # for other methods
         y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
         y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-        y_score_DBN.append(DBN_fit_pred(x_train, x_test, y_train, y_test))
+        # y_score_DBN.append(DBN_fit_pred(x_train, x_test, y_train, y_test))
         y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-        # tmp = pd.read_excel(mode + 'predict.xlsx').values.astype(np.float32)
-        # proposed_y_score, proposed_y_test = tmp[:, 1:3], tmp[:, 3:5]
         y_test_.append(y_test)
-    # draw auroc
-    # roc_aucs = [dict() for i in range(n_times)]
+        # for proposed
+        tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+        y_score_proposed.append(tmp[:, 1:3])
+        y_test_proposed.append(tmp[:, -1])
+    # draw roc
     plt.clf()
-    plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_test_)
-    # plt.savefig('ROC.pdf')
+    plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+    plt.savefig('ROC.pdf')
     plt.show()
+    print('finish')

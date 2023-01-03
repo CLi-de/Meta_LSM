@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-
+import pandas as pd
 from modeling import MAML
 from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
@@ -112,15 +112,15 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
         saver.save(sess, FLAGS.logdir + '/' + exp_string + '/model' + str(itr))
 
 
-def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
+def test(model, saver, sess, exp_string, tasks, num_updates=5):
     print('start evaluation...')
     print(exp_string)
     total_Ytest, total_Ypred, total_Ytest1, total_Ypred1, sum_accuracies, sum_accuracies1 = [], [], [], [], [], []
 
-    for i in range(len(elig_tasks)):
-        np.random.shuffle(elig_tasks[i])
-        train_ = elig_tasks[i][:int(len(elig_tasks[i]) / 2)]
-        test_ = elig_tasks[i][int(len(elig_tasks[i]) / 2):]
+    for i in range(len(tasks)):
+        np.random.shuffle(tasks[i])
+        train_ = tasks[i][:int(len(tasks[i]) / 2)]
+        test_ = tasks[i][int(len(tasks[i]) / 2):]  # test_ samples account 25%
         """few-steps tuning （不用op跑是因为采用的batch_size（input shape）不一致，且不想更新model.weight）"""
         with tf.compat.v1.variable_scope('model', reuse=True):  # np.normalize()里Variable重用
             fast_weights = model.weights
@@ -136,19 +136,19 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
                                          fast_weights.keys()]))
             """Single task test accuracy"""
             inputb, labelb = batch_generator(test_, FLAGS.dim_input, FLAGS.dim_output, len(test_))
-            Y_array = sess.run(tf.nn.softmax(model.forward(inputb, fast_weights, reuse=True)))
-            total_Ypred1.extend(Y_array)  # prediction
+            Y_array = sess.run(tf.nn.softmax(model.forward(inputb, fast_weights, reuse=True)))  # pred_prob
+            total_Ypred1.extend(Y_array)  # pred_prob_test
             total_Ytest1.extend(labelb)  # label
 
-            Y_test = []
+            Y_test = []  # for single task test
             for j in range(len(labelb)):
                 Y_test.append(labelb[j][0])
                 total_Ytest.append(labelb[j][0])
-            Y_pred = []
+            Y_pred = []  # for single task test
             for j in range(len(labelb)):
                 if Y_array[j][0] > Y_array[j][1]:
                     Y_pred.append(1)
-                    total_Ypred.append(1)
+                    total_Ypred.append(1)  # total_Ypred: 1d-array label
                 else:
                     Y_pred.append(0)
                     total_Ypred.append(0)
@@ -165,6 +165,15 @@ def test(model, saver, sess, exp_string, elig_tasks, num_updates=5):
     cal_measure(total_Ypred, total_Ytest)
     kappa_value = cohen_kappa_score(total_Ypred, total_Ytest)
     print('Cohen_Kappa: %f' % kappa_value)
+
+    # save prediction for test samples, which can be used in calculating statistical measure such as AUROC
+    pred_prob = np.array(total_Ypred1)
+    label_bi = np.array(total_Ytest1)
+    savearr = np.hstack((pred_prob, label_bi))
+    writer = pd.ExcelWriter('proposed_test.xlsx')
+    data_df = pd.DataFrame(savearr)
+    data_df.to_excel(writer)
+    writer.close()
 
     sess.close()
 
