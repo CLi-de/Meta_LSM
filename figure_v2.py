@@ -15,9 +15,10 @@ from sklearn.preprocessing import label_binarize
 
 from scipy import interp
 from sklearn.metrics import roc_auc_score
-
+from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
+from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 from sklearn.metrics._classification import accuracy_score
 
 """for visiualization"""
@@ -500,6 +501,7 @@ def plot_histogram(region, measures):
 
 
 def load_data(filepath, dim_input):
+    np.loadtxt(filepath, )
     data = pd.read_excel(filepath).values.astype(np.float32)
     attr = data[:, :dim_input]
     attr = attr / attr.max(axis=0)
@@ -507,88 +509,87 @@ def load_data(filepath, dim_input):
     return attr, label
 
 
-def MLP_fit_pred(X_train, X_test, y_train, y_test):
-    classifier = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.0001,
+def SVM_fit_pred(x_train, x_test, y_train, y_test):
+    classifier = svm.SVC(C=1, kernel='rbf', gamma=1 / (2 * x_train.var()), decision_function_shape='ovr',
+                         probability=True)
+    classifier.fit(x_train, y_train)
+    return classifier.predict_proba(x_test)
+
+
+def MLP_fit_pred(x_train, x_test, y_train, y_test):
+    classifier = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.01,
                                batch_size=32, max_iter=1000)
-    classifier.fit(X_train, y_train)
-    y_score = classifier.predict_proba(X_test)
-    pred_test = classifier.predict(X_test)
-    print('Done.\n MLP Test Accuracy: %f' % accuracy_score(y_test, pred_test))  # 奉节，在0.72 - 0.76间；涪陵，在0.76-0.81之间
-    return y_score
+    classifier.fit(x_train, y_train)
+    return classifier.predict_proba(x_test)
 
 
-def RF_fit_pred(X_train, X_test, y_train, y_test):
-    classifier = RandomForestClassifier(n_estimators=100, max_depth=None, min_samples_split=2,
-                                        bootstrap=True)
-    classifier.fit(X_train, y_train[:, 1])
-    y_score = classifier.predict_proba(X_test)
-    pred_test = classifier.predict(X_test)
-    print('Done.\n RF Test_Accuracy: %f' % accuracy_score(y_test[:, -1], pred_test))  # 0.71 - 0.77
-    return y_score
+def DBN_fit_pred(x_train, x_test, y_train, y_test):
+    classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
+                                             learning_rate_rbm=0.001,
+                                             learning_rate=0.5,
+                                             n_epochs_rbm=10,
+                                             n_iter_backprop=200,
+                                             batch_size=64,
+                                             activation_function='relu',
+                                             dropout_p=0.1)
+    classifier.fit(x_train, y_train)
+
+    # strange predict_proba()
+    if y_test[0] == 1.:
+        return classifier.predict_proba(x_test)
+    else:
+        return classifier.predict_proba(x_test).swapaxes(0, 1)
 
 
-def RL_fit_pred(X, y):
-    pass  # realized in other place, we read predictions and labels from csv file instead.
+def RF_fit_pred(x_train, x_test, y_train, y_test):
+    classifier = RandomForestClassifier(n_estimators=200, max_depth=None)
+    classifier.fit(x_train, y_train)
+    return classifier.predict_proba(x_test)
 
 
-def MAML_fit_pred(X, y, ):
-    pass  # realized in other place, we read predictions and labels from csv file instead.
-
-
-def proposed_fit_pred(X, y, ):
-    pass  # realized in other place, we read predictions and labels from csv file instead.
-
-
-def plot_auroc(n_classes, y_score, y_test, title):
+def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_test):
     # Compute ROC curve and ROC area for each class
-    fpr = dict()
-    tpr = dict()
-    roc_auc = dict()
-    for i in range(n_classes):
-        fpr[i], tpr[i], _ = roc_curve(y_test[:, i], y_score[:, i])
-        roc_auc[i] = auc(fpr[i], tpr[i])
+    def cal_(y_score):
+        fpr, tpr = [], []
+        for i in range(n_times):
+            fpr_, tpr_, thresholds = roc_curve(y_test[i], y_score[i][:, -1], pos_label=1)
+            fpr.append(fpr_)
+            tpr.append(tpr_)
 
-    # Compute micro-average ROC curve and ROC area
-    fpr["micro"], tpr["micro"], _ = roc_curve(y_test.ravel(), y_score.ravel())
-    roc_auc["micro"] = auc(fpr["micro"], tpr["micro"])
-    # %%
-    # Plot ROC curves for the multilabel problem
-    # ..........................................
-    # Compute macro-average ROC curve and ROC area
+        # First aggregate all false positive rates
+        all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_times)]))
 
-    # First aggregate all false positive rates
-    all_fpr = np.unique(np.concatenate([fpr[i] for i in range(n_classes)]))
+        # Then interpolate all ROC curves at this points
+        mean_tpr = np.zeros_like(all_fpr)
+        for i in range(n_times):
+            mean_tpr += np.interp(all_fpr, fpr[i], tpr[i])
 
-    # Then interpolate all ROC curves at this points
-    mean_tpr = np.zeros_like(all_fpr)
-    for i in range(n_classes):
-        mean_tpr += interp(all_fpr, fpr[i], tpr[i])
+        # Finally average it and compute AUC
+        mean_tpr /= n_times
+        mean_auc = auc(all_fpr, mean_tpr)
+        return all_fpr, mean_tpr, mean_auc, fpr, tpr
 
-    # Finally average it and compute AUC
-    mean_tpr /= n_classes
+    def plot_(y_score, color, method):
+        all_fpr, mean_tpr, mean_auc, fpr, tpr = cal_(y_score)
+        # draw mean
+        plt.plot(all_fpr, mean_tpr,
+                 label='mean_AUC (area = {0:0.3f})'
+                       ''.format(mean_auc),
+                 color=color, linewidth=2)
+        # draw each
+        for i in range(n_times):
+            plt.plot(fpr[i], tpr[i],
+                     color=color, linestyle=':', linewidth=1, alpha=.15)
+        # plt.savefig(method + '.pdf')
 
-    fpr["macro"] = all_fpr
-    tpr["macro"] = mean_tpr
-    roc_auc["macro"] = auc(fpr["macro"], tpr["macro"])
+    # clear previous plot
 
     # Plot all ROC curves
-    plt.figure()
-    plt.plot(fpr["micro"], tpr["micro"],
-             label='micro-average (area = {0:0.3f})'
-                   ''.format(roc_auc["micro"]),
-             color='deeppink', linestyle=':', linewidth=3)
-
-    plt.plot(fpr["macro"], tpr["macro"],
-             label='macro-average (area = {0:0.3f})'
-                   ''.format(roc_auc["macro"]),
-             color='navy', linestyle=':', linewidth=3)
-
-    colors = [(0, 1, 0), (0, 0, 1)]
-    for i, color in zip(range(n_classes), colors):
-        plt.plot(fpr[i], tpr[i], color=color, lw=2,
-                 label='ROC curve of class {0} (area = {1:0.3f})'
-                       ''.format(i, roc_auc[i]))
-
+    plot_(y_score_SVM, color='red', method='SVM')
+    plot_(y_score_MLP, color='green', method='MLP')
+    plot_(y_score_DBN, color='blue', method='DBN')
+    plot_(y_score_RF, color='azure', method='RF')
+    # format
     font1 = {'family': 'Times New Roman',
              'weight': 'normal',
              'size': 16,
@@ -597,14 +598,13 @@ def plot_auroc(n_classes, y_score, y_test, title):
              'weight': 'normal',
              'size': 12,
              }
-    plt.plot([0, 1], [0, 1], 'k--', lw=2, label='random')
+    plt.plot([0, 1], [0, 1], 'k--', lw=1, label='random')
     plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
+    plt.ylim([0.0, 1.0])
     plt.xlabel('False Positive Rate', fontdict=font1)
     plt.ylabel('True Positive Rate', fontdict=font1)
-    plt.title('ROC curve by ' + title, fontdict=font1)
+    plt.title('ROC curve by various methods', fontdict=font1)
     plt.legend(loc="lower right", prop=font2)
-    # plt.show()
 
 
 if __name__ == "__main__":
@@ -618,14 +618,16 @@ if __name__ == "__main__":
     #     plot_histogram(regions[i], measures[i])
 
     """draw candle"""
-    methods = ['MLP', 'RL', 'MAML', 'proposed']
-    for i in range(len(methods)):
-        K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\hj\\Desktop\\statistics.xlsx")
-        plot_candle(methods[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
-        plt.savefig("C:\\Users\\hj\\Desktop\\" + methods[i] + '_' + 'candle.pdf')
-        plt.show()
+    # methods = ['MLP', 'RL', 'MAML', 'proposed']
+    # for i in range(len(methods)):
+    #     K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\hj\\Desktop\\statistics.xlsx")
+    #     plot_candle(methods[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
+    #     plt.savefig("C:\\Users\\hj\\Desktop\\" + methods[i] + '_' + 'candle.pdf')
+    #     plt.show()
 
     """draw broken line"""
+
+
     # Experimentname = ['A', 'B', 'C', 'D']
     # for i in range(len(Experimentname)):
     #     filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
@@ -634,32 +636,32 @@ if __name__ == "__main__":
     #     plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
     #     plt.show()
 
+    def read_f_l_csv(file):
+        tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
+        features = tmp[1:, :-2].astype(np.float32)
+        features = features / features.max(axis=0)
+        label = tmp[1:, -1].astype(np.float32)
+        return features, label
+
+
     """draw AUROC"""
-    # mode = 'mode3'
-    # X, y = load_data('src_data/FJ_FL.xlsx', 16)
-    # X, y = X[:int(len(X)/8), :], y[:int(len(y)/8)]  # few samples for transfering-based methods
-    # # Binarize the output
-    # y = label_binarize(y, classes=[0, 1, 3])[:, :2]  # 0: nonlandside ; 1: landslide
-    # n_classes = y.shape[1]
-    # X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.8, shuffle=True)
-    # # fit and predict
-    # MLP_y_score = MLP_fit_pred(X_train, X_test, y_train, y_test)
-    # RF_y_score = RF_fit_pred(X_train, X_test, y_train, y_test)
-    # # RL_y_score, RL_y_test = pd.read_excel('').values.astype(np.float32)
-    # # MAML_y_score, MAML_y_test = pd.read_excel('').values.astype(np.float32)
-    # tmp = pd.read_excel(mode + 'predict.xlsx').values.astype(np.float32)
-    # proposed_y_score, proposed_y_test = tmp[:, 1:3], tmp[:, 3:5]
-    #
-    # # draw auroc
-    # roc_aucs = [dict() for i in range(5)]
-    # plot_auroc(n_classes, MLP_y_score, y_test, 'MLP')
-    # plt.savefig("C:\\Users\\hj\\Desktop\\" + mode +'_MLP.pdf')
-    # plt.show()
-    # plot_auroc(n_classes, RF_y_score, y_test, 'RF')
-    # plt.savefig("C:\\Users\\hj\\Desktop\\" + mode +'_RF.pdf')
-    # plt.show()
-    # # plot_auroc(n_classes, RL_y_score, RL_y_test)
-    # # plot_auroc(n_classes, MAML_y_score, MAML_y_test)
-    # plot_auroc(n_classes, proposed_y_score, proposed_y_test, 'proposed')
-    # plt.savefig("C:\\Users\\hj\\Desktop\\" + mode +'_proposed.pdf')
-    # plt.show()
+    # %%
+    x, y = read_f_l_csv('src_data/samples_HK.csv')
+    y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_test_ = [], [], [], [], []
+    n_times = 5
+    for i in range(n_times):
+        x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=.01, shuffle=True)
+        # fit and predict
+        y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+        y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+        y_score_DBN.append(DBN_fit_pred(x_train, x_test, y_train, y_test))
+        y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+        # tmp = pd.read_excel(mode + 'predict.xlsx').values.astype(np.float32)
+        # proposed_y_score, proposed_y_test = tmp[:, 1:3], tmp[:, 3:5]
+        y_test_.append(y_test)
+    # draw auroc
+    # roc_aucs = [dict() for i in range(n_times)]
+    plt.clf()
+    plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_test_)
+    # plt.savefig('ROC.pdf')
+    plt.show()

@@ -7,14 +7,12 @@ from meta_learner_v2 import FLAGS
 from modeling import MAML
 from utils_v2 import batch_generator, read_pts, read_tasks
 
-
-def readpts(filepath):
-    tmp = np.loadtxt(filepath, dtype=str, delimiter=",", encoding='UTF-8')
+def readfxy_csv(file):
+    tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
     features = tmp[1:, :-2].astype(np.float32)
     features = features / features.max(axis=0)
     xy = tmp[1:, -2:].astype(np.float32)
     return features, xy
-
 
 def getclusters(gridpts_xy, taskpts, tifformat_path):
     dataset = gdal.Open(tifformat_path)
@@ -105,7 +103,7 @@ if __name__ == "__main__":
     print('grid points assignment...')
     HK_tasks = read_tasks('./metatask_sampling/HK_tasks_K{k}.xlsx'.format(k=FLAGS.K))
     HK_taskpts = read_pts('./metatask_sampling/HKpts_tasks_K{k}.xlsx'.format(k=FLAGS.K))
-    HK_gridpts_feature, HK_gridpts_xy = readpts('./src_data/grid_samples_HK.csv')
+    HK_gridpts_feature, HK_gridpts_xy = readfxy_csv('./src_data/grid_samples_HK.csv')
     HK_gridcluster = getclusters(HK_gridpts_xy, HK_taskpts, './metatask_sampling/' + FLAGS.str_region + \
                                  '_SLIC_M{m}_K{k}_loop{loop}.tif'.format(loop=0, m=FLAGS.M, k=FLAGS.K))
 
