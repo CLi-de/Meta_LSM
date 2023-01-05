@@ -340,7 +340,7 @@ def read_statistic2(file):
     return measures
 
 
-def plot_candle(methodname, K, meanOA, maxOA, minOA, std):
+def plot_candle(scenes, K, meanOA, maxOA, minOA, std):
     # 设置框图
     plt.figure("", facecolor="lightgray")
     # plt.style.use('ggplot')
@@ -355,22 +355,21 @@ def plot_candle(methodname, K, meanOA, maxOA, minOA, std):
              }
 
     # legend = plt.legend(handles=[A,B],prop=font1)
-    plt.title(methodname, fontdict=font2)
-    plt.xlabel("Number of samples for adaption", fontdict=font1)
-    plt.ylabel("OA(%)", fontdict=font1)
+    # plt.title(scenes, fontdict=font2)
+    # plt.xlabel("Various methods", fontdict=font1)
+    plt.ylabel("OA(%)", fontdict=font2)
 
-    my_x_ticks = [1, 2, 3, 4, 5, 6]
-    my_x_ticklabels = ['1', '2', '3', '4', '5', 'M/2']
-    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels)
+    my_x_ticks = [1, 2, 3, 4, 5]
+    # my_x_ticklabels = ['SVM', 'MLP', 'DBN', 'RF', 'Proposed']
+    plt.xticks(ticks=my_x_ticks, labels='', fontsize=16)
 
-    plt.ylim((50, 90))
-    my_y_ticks = np.arange(50, 90, 5)
-    plt.yticks(my_y_ticks)
+    plt.ylim((60, 100))
+    my_y_ticks = np.arange(60, 100, 5)
+    plt.yticks(ticks=my_y_ticks, fontsize=16)
 
-    colors = np.zeros(5, dtype="U5")
-    colors[:] = 'white'
+    colors = ['dodgerblue', 'lawngreen', 'gold', 'magenta', 'red']
     edge_colors = np.zeros(5, dtype="U1")
-    edge_colors[:] = 'b'
+    edge_colors[:] = 'black'
 
     '''格网设置'''
     plt.grid(linestyle="--", zorder=-1)
@@ -380,16 +379,20 @@ def plot_candle(methodname, K, meanOA, maxOA, minOA, std):
     #         linewidth=1, label="open", zorder=1)
     # plt.plot(K[-2:], meanOA[-2:], color="b", linestyle="--",
     #          linewidth=1, label="open", zorder=1)
+
     # draw bar
     barwidth = 0.4
     plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=colors,
-            edgecolor=edge_colors, linewidth=1, zorder=20)
+            edgecolor=edge_colors, linewidth=1, zorder=20, label=['SVM', 'MLP', 'DBN', 'RF', 'Proposed'])
+
     # draw vertical line
     plt.vlines(K, minOA, maxOA, color='black', linestyle='solid', zorder=10)
-    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='r', linestyle='solid', zorder=30)
+    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='black', linestyle='solid', zorder=30)
     plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
     plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
 
+    # 设置图例
+    legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
 
 
 def plot_brokenline(K, meanOA):
@@ -583,12 +586,12 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
         # plt.savefig(method + '.pdf')
 
     # Plot all ROC curves
-    ax = plt.axes()
-    ax.set_facecolor("WhiteSmoke")
-    plot_(y_score_SVM, y_test, color='cyan', method='SVM')
-    plot_(y_score_MLP, y_test, color=(0, 255, 0), method='MLP')
-    # plot_(y_score_DBN, y_test, color='orange', method='DBN')
-    plot_(y_score_RF, y_test, color=(255, 0, 255), method='RF')
+    # ax = plt.axes()
+    # ax.set_facecolor("WhiteSmoke")  # background color
+    plot_(y_score_SVM, y_test, color='dodgerblue', method='SVM')
+    plot_(y_score_MLP, y_test, color='lawngreen', method='MLP')
+    plot_(y_score_DBN, y_test, color='gold', method='DBN')
+    plot_(y_score_RF, y_test, color='magenta', method='RF')
     plot_(y_score_proposed, y_test_proposed, color='red', method='Proposed')
 
     # format
@@ -609,64 +612,65 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
     plt.legend(loc="lower right", prop=font2)
 
 
-if __name__ == "__main__":
-    """space visualization"""
-    # visualization()
 
-    """draw histogram"""
-    # regions = ['FJ', 'FL']
-    # measures = read_statistic2("C:\\Users\\hj\\Desktop\\performance.xlsx")
-    # for i in range(len(regions)):
-    #     plot_histogram(regions[i], measures[i])
+"""space visualization"""
+# visualization()
 
-    """draw candle"""
-    # methods = ['MLP', 'RL', 'MAML', 'proposed']
-    # for i in range(len(methods)):
-    #     K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\hj\\Desktop\\statistics.xlsx")
-    #     plot_candle(methods[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
-    #     plt.savefig("C:\\Users\\hj\\Desktop\\" + methods[i] + '_' + 'candle.pdf')
-    #     plt.show()
-
-    """draw broken line"""
+"""draw histogram"""
+# regions = ['FJ', 'FL']
+# measures = read_statistic2("C:\\Users\\hj\\Desktop\\performance.xlsx")
+# for i in range(len(regions)):
+#     plot_histogram(regions[i], measures[i])
 
 
-    # Experimentname = ['A', 'B', 'C', 'D']
-    # for i in range(len(Experimentname)):
-    #     filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
-    #     K, meanOA = read_statistic1(filename)
-    #     plot_brokenline(K, meanOA)
-    #     plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
-    #     plt.show()
-
-    def read_f_l_csv(file):
-        tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
-        features = tmp[1:, :-2].astype(np.float32)
-        features = features / features.max(axis=0)
-        label = tmp[1:, -1].astype(np.float32)
-        return features, label
-
-
-    """draw AUR"""
-    print('drawing ROC...')
-    x, y = read_f_l_csv('src_data/samples_HK.csv')
-    y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
-    n_times = 5
-    for i in range(n_times):
-        x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
-        """fit and predict"""
-        # for other methods
-        y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-        y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-        # y_score_DBN.append(DBN_fit_pred(x_train, x_test, y_train, y_test))
-        y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-        y_test_.append(y_test)
-        # for proposed
-        tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-        y_score_proposed.append(tmp[:, 1:3])
-        y_test_proposed.append(tmp[:, -1])
-    # draw roc
-    plt.clf()
-    plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-    plt.savefig('ROC.pdf')
+"""draw candle"""
+scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
+for i in range(len(scenes)):
+    K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
+    plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
+    plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
     plt.show()
-    print('finish')
+
+
+"""draw broken line"""
+# Experimentname = ['A', 'B', 'C', 'D']
+# for i in range(len(Experimentname)):
+#     filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
+#     K, meanOA = read_statistic1(filename)
+#     plot_brokenline(K, meanOA)
+#     plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
+#     plt.show()
+
+
+# """draw AUR"""
+# def read_f_l_csv(file):
+#     tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
+#     features = tmp[1:, :-2].astype(np.float32)
+#     features = features / features.max(axis=0)
+#     label = tmp[1:, -1].astype(np.float32)
+#     return features, label
+#
+#
+# print('drawing ROC...')
+# x, y = read_f_l_csv('src_data/samples_HK.csv')
+# y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
+# n_times = 5
+# for i in range(n_times):
+#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
+#     """fit and predict"""
+#     # for other methods
+#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_DBN.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+#     y_test_.append(y_test)
+#     # for proposed
+#     tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+#     y_score_proposed.append(tmp[:, 1:3])
+#     y_test_proposed.append(tmp[:, -1])
+# # draw roc
+# plt.clf()
+# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+# plt.savefig('ROC.pdf')
+# plt.show()
+# print('finish')
