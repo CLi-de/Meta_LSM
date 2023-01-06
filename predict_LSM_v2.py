@@ -84,7 +84,7 @@ def predict_LSM(tasks_samples, features, xy, indexes, savename, num_updates=5):
                     (xy_arr[:, 0].reshape(xy_arr.shape[0], 1), xy_arr[:, 1].reshape(xy_arr.shape[0], 1), pred))
                 savearr = np.vstack((savearr, tmp))
             """save model parameters to npz file"""
-            adapted_weights = sess.run(model.weights)
+            adapted_weights = sess.run(fast_weights)
             np.savez('models_of_blocks/HK/model' + str(i), adapted_weights['w1'], adapted_weights['b1'],
                      adapted_weights['w2'], adapted_weights['b2'],
                      adapted_weights['w3'], adapted_weights['b3'],

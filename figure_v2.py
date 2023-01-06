@@ -623,23 +623,23 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
 #     plot_histogram(regions[i], measures[i])
 
 
-"""draw candle"""
-scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
-for i in range(len(scenes)):
-    K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
-    plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
-    plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
-    plt.show()
+# """draw candle"""
+# scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
+# for i in range(len(scenes)):
+#     K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
+#     plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
+#     plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
+#     plt.show()
 
 
 """draw broken line"""
-# Experimentname = ['A', 'B', 'C', 'D']
-# for i in range(len(Experimentname)):
-#     filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
-#     K, meanOA = read_statistic1(filename)
-#     plot_brokenline(K, meanOA)
-#     plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
-#     plt.show()
+Experimentname = ['A', 'B', 'C', 'D']
+for i in range(len(Experimentname)):
+    filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
+    K, meanOA = read_statistic1(filename)
+    plot_brokenline(K, meanOA)
+    plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
+    plt.show()
 
 
 # """draw AUR"""
