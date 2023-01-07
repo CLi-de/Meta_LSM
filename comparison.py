@@ -36,10 +36,13 @@ def SHAP_(predict_proba, x_train, x_test, f_name):
     shap_values = explainer.shap_values(x_, nsamples=100)  # shap_values(_prob, n_samples, features)
     # shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)  # single feature
     shap.summary_plot(shap_values, x_, plot_type="bar")
+    plt.savefig('tmp/bar_HK.pdf')
+    plt.close()
     shap.summary_plot(shap_values[1], x_, plot_type="violin")  # shap_values[k], k表类别，k=1（landslides）
+    plt.savefig('tmp/violin_HK.pdf')
+    plt.close()
     # shap.summary_plot(shap_values[1], x_test, plot_type="compact_dot")
-    shap.dependence_plot('lithology', shap_values[1], x_, interaction_index=None)
-    shap.dependence_plot('SPI', shap_values[1], x_, interaction_index='DV')
+
     # shap.plots.beeswarm(shap_values[0])  # the beeswarm plot requires Explanation object as the `shap_values` argument
 
 
@@ -70,7 +73,7 @@ def SVM_(x_train, y_train, x_test, y_test):
 
     # feature permutation
     print('SHAP...')
-    # SHAP_(model.predict_proba, x_train, x_test, f_names)
+    SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     return model
 
@@ -159,7 +162,7 @@ def RF_(x_train, y_train, x_test, y_test):
 
 if __name__ == "__main__":
     """Input data"""
-    tmp = np.loadtxt('./src_data/samples_HK_noTS.csv', dtype=str, delimiter=",", encoding='UTF-8')
+    tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
     f_names = tmp[0, :-3].astype(np.str)
     tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
     np.random.shuffle(tmp_)  # shuffle
@@ -182,19 +185,19 @@ if __name__ == "__main__":
     model_svm = SVM_(x_train, y_train, x_test, y_test)
     pred_LSM(model_svm, xy, samples_f, 'SVM')
     print('done SVM-based LSM prediction! \n')
-    # MLP_based
-    model_mlp = ANN_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_mlp, xy, samples_f, 'MLP')
-    print('done MLP-based LSM prediction! \n')
-
-    # DBN-based
-    model_dbn = DBN_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_dbn, xy, samples_f, 'DBN')
-    print('done DBN-based LSM prediction! \n')
-
-    #RF-based
-    model_rf = RF_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_rf, xy, samples_f, 'RF')
-    print('done RF-based LSM prediction! \n')
+    # # MLP_based
+    # model_mlp = ANN_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_mlp, xy, samples_f, 'MLP')
+    # print('done MLP-based LSM prediction! \n')
+    #
+    # # DBN-based
+    # model_dbn = DBN_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_dbn, xy, samples_f, 'DBN')
+    # print('done DBN-based LSM prediction! \n')
+    #
+    # #RF-based
+    # model_rf = RF_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_rf, xy, samples_f, 'RF')
+    # print('done RF-based LSM prediction! \n')
 
 

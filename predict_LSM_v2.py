@@ -7,12 +7,14 @@ from meta_learner_v2 import FLAGS
 from modeling import MAML
 from utils_v2 import batch_generator, read_pts, read_tasks
 
+
 def readfxy_csv(file):
     tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
     features = tmp[1:, :-2].astype(np.float32)
     features = features / features.max(axis=0)
     xy = tmp[1:, -2:].astype(np.float32)
     return features, xy
+
 
 def getclusters(gridpts_xy, taskpts, tifformat_path):
     dataset = gdal.Open(tifformat_path)

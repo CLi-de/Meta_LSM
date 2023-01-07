@@ -578,11 +578,11 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
         # draw mean
         plt.plot(all_fpr, mean_tpr,
                  label=method + '_mean_AUC (area = {0:0.3f})'''.format(mean_auc),
-                 color=color, linewidth=2)
+                 color=color, linewidth=1.5)
         # draw each
         for i in range(n_times):
             plt.plot(fpr[i], tpr[i],
-                     color=color, linewidth=1, alpha=.15)
+                     color=color, linewidth=1, alpha=.25)
         # plt.savefig(method + '.pdf')
 
     # Plot all ROC curves
@@ -633,44 +633,44 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
 
 
 """draw broken line"""
-Experimentname = ['A', 'B', 'C', 'D']
-for i in range(len(Experimentname)):
-    filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
-    K, meanOA = read_statistic1(filename)
-    plot_brokenline(K, meanOA)
-    plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
-    plt.show()
+# Experimentname = ['A', 'B', 'C', 'D']
+# for i in range(len(Experimentname)):
+#     filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
+#     K, meanOA = read_statistic1(filename)
+#     plot_brokenline(K, meanOA)
+#     plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
+#     plt.show()
 
 
-# """draw AUR"""
-# def read_f_l_csv(file):
-#     tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
-#     features = tmp[1:, :-2].astype(np.float32)
-#     features = features / features.max(axis=0)
-#     label = tmp[1:, -1].astype(np.float32)
-#     return features, label
-#
-#
-# print('drawing ROC...')
-# x, y = read_f_l_csv('src_data/samples_HK.csv')
-# y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
-# n_times = 5
-# for i in range(n_times):
-#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
-#     """fit and predict"""
-#     # for other methods
-#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_DBN.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-#     y_test_.append(y_test)
-#     # for proposed
-#     tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-#     y_score_proposed.append(tmp[:, 1:3])
-#     y_test_proposed.append(tmp[:, -1])
-# # draw roc
-# plt.clf()
-# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-# plt.savefig('ROC.pdf')
-# plt.show()
-# print('finish')
+"""draw AUR"""
+def read_f_l_csv(file):
+    tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
+    features = tmp[1:, :-2].astype(np.float32)
+    features = features / features.max(axis=0)
+    label = tmp[1:, -1].astype(np.float32)
+    return features, label
+
+
+print('drawing ROC...')
+x, y = read_f_l_csv('src_data/samples_HK_noTS.csv')
+y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
+n_times = 5
+for i in range(n_times):
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
+    """fit and predict"""
+    # for other methods
+    y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_DBN.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+    y_test_.append(y_test)
+    # for proposed-
+    tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+    y_score_proposed.append(tmp[:, 1:3])
+    y_test_proposed.append(tmp[:, -1])
+# draw roc
+plt.clf()
+plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+plt.savefig('ROC.pdf')
+plt.show()
+print('finish')
