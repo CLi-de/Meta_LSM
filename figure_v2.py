@@ -395,9 +395,9 @@ def plot_candle(scenes, K, meanOA, maxOA, minOA, std):
     legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
 
 
-def plot_brokenline(K, meanOA):
+def plot_scatter(arr):
     '''设置框图'''
-    plt.figure("", facecolor="lightgray")  # 设置框图大小
+    # plt.figure("", facecolor="lightgray")  # 设置框图大小
     font1 = {'family': 'Times New Roman',
              'weight': 'normal',
              'size': 16,
@@ -406,35 +406,57 @@ def plot_brokenline(K, meanOA):
              'weight': 'normal',
              'size': 12,
              }
-    plt.xlabel("Number of samples for adaption", fontdict=font1)
-    plt.ylabel("Accuracy(%)", fontdict=font1)
+    plt.xlabel("Subtasks", fontdict=font1)
+    plt.ylabel("Mean accuracy(%)", fontdict=font1)
 
     '''设置刻度'''
-    plt.ylim((60, 80))
-    my_y_ticks = np.arange(60, 80, 2)
+    plt.ylim((50, 100))
+    my_y_ticks = np.arange(50, 100, 5)
     plt.yticks(my_y_ticks)
-
-    my_x_ticks = [1, 2, 3, 4, 5, 6]
-    my_x_ticklabels = ['1', '2', '3', '4', '5', 'M/2']
-    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels)
-
+    my_x_ticks = [i for i in range(1, 204, 40)]
+    my_x_ticklabel = [str(i) + 'th' for i in range(1, 204, 40)]
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
     '''格网设置'''
     plt.grid(linestyle="--")
 
-    '''draw line'''
-    line_MLP = plt.plot(K[0], meanOA[0], color="r", linestyle="solid",
-                        linewidth=3, label="line_MLP", marker='^', markerfacecolor='white', ms=10)
-    line_RL = plt.plot(K[1], meanOA[1], color="b", linestyle="solid",
-                       linewidth=3, label="line_RL", marker='x', markerfacecolor='white', ms=10)
-    line_MAML = plt.plot(K[2], meanOA[2], color="orange", linestyle="solid",
-                         linewidth=3, label="line_MAML", marker='*', markerfacecolor='white', ms=12)
-    line_proposed = plt.plot(K[3], meanOA[3], color="black", linestyle="solid",
-                             linewidth=3, label="line_proposed", marker='s', markerfacecolor='white', ms=10)
+    x_ = [i for i in range(arr.shape[0])]
+    '''draw scatter'''
+    L1 = plt.scatter(x_, arr[:, 0], color="magenta", label="L=1", s=5)
+    L2 = plt.scatter(x_, arr[:, 1], color="cyan", label="L=2", s=5)
+    L3 = plt.scatter(x_, arr[:, 2], color="b", label="L=3", s=5)
+    L4 = plt.scatter(x_, arr[:, 3], color="g", label="L=4", s=5)
+    L5 = plt.scatter(x_, arr[:, 4], color="r", label="L=5", s=5)
+    # L6 = plt.scatter(x_, arr[:, 5], color="r", label="L=6", s=5)
+    # L7 = plt.scatter(x_, arr[:, 6], color="g", label="L=7", s=5)
+
+    # '''draw line'''
+    # L1 = plt.plot(x_, arr[:, 0], color="r", linestyle="solid",
+    #               linewidth=1, label="L=1", markerfacecolor='white', ms=10)
+    # L2 = plt.plot(x_, arr[:, 1], color="orange", linestyle="solid",
+    #               linewidth=1, label="L=2", markerfacecolor='white', ms=10)
+    # L3 = plt.plot(x_, arr[:, 2], color="gold", linestyle="solid",
+    #               linewidth=1, label="L=3", markerfacecolor='white', ms=10)
+    # L4 = plt.plot(x_, arr[:, 3], color="g", linestyle="solid",
+    #               linewidth=1, label="L=4", markerfacecolor='white', ms=10)
+    # L5 = plt.plot(x_, arr[:, 4], color="b", linestyle="solid",
+    #               linewidth=1, label="L=5", markerfacecolor='white', ms=10)
+    # L6 = plt.plot(x_, arr[:, 5], color="r", linestyle="solid",
+    #               linewidth=1, label="L=6", markerfacecolor='white', ms=10)
+    # L7 = plt.plot(x_, arr[:, 6], color="purple", linestyle="solid",
+    #               linewidth=1, label="L=7", markerfacecolor='white', ms=10)
 
     '''设置图例'''
-    legend = plt.legend(loc="upper left", prop=font2, ncol=2)
+    legend = plt.legend(loc="lower left", prop=font2, ncol=3)
     # plt.savefig("C:\\Users\\hj\\Desktop\\brokenline_A")
     # plt.show()
+
+
+"""draw broken line for fast adaption performance"""
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_scatter(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
+plt.show()
 
 
 def plot_histogram(region, measures):
@@ -612,11 +634,12 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
     plt.legend(loc="lower right", prop=font2)
 
 
-
 """space visualization"""
 # visualization()
 
 """draw histogram"""
+
+
 # regions = ['FJ', 'FL']
 # measures = read_statistic2("C:\\Users\\hj\\Desktop\\performance.xlsx")
 # for i in range(len(regions)):
@@ -632,17 +655,6 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
 #     plt.show()
 
 
-"""draw broken line"""
-# Experimentname = ['A', 'B', 'C', 'D']
-# for i in range(len(Experimentname)):
-#     filename = "C:\\Users\\hj\\Desktop\\" + 'statistics' + str(i+1) + '.xlsx'
-#     K, meanOA = read_statistic1(filename)
-#     plot_brokenline(K, meanOA)
-#     plt.savefig("C:\\Users\\hj\\Desktop\\"+Experimentname[i]+'_'+'broken.pdf')
-#     plt.show()
-
-
-"""draw AUR"""
 def read_f_l_csv(file):
     tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
     features = tmp[1:, :-2].astype(np.float32)
@@ -650,27 +662,27 @@ def read_f_l_csv(file):
     label = tmp[1:, -1].astype(np.float32)
     return features, label
 
-
-print('drawing ROC...')
-x, y = read_f_l_csv('src_data/samples_HK_noTS.csv')
-y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
-n_times = 5
-for i in range(n_times):
-    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
-    """fit and predict"""
-    # for other methods
-    y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_DBN.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-    y_test_.append(y_test)
-    # for proposed-
-    tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-    y_score_proposed.append(tmp[:, 1:3])
-    y_test_proposed.append(tmp[:, -1])
-# draw roc
-plt.clf()
-plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-plt.savefig('ROC.pdf')
-plt.show()
-print('finish')
+# """draw AUR"""
+# print('drawing ROC...')
+# x, y = read_f_l_csv('src_data/samples_HK_noTS.csv')
+# y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
+# n_times = 5
+# for i in range(n_times):
+#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
+#     """fit and predict"""
+#     # for other methods
+#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_DBN.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+#     y_test_.append(y_test)
+#     # for proposed-
+#     tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+#     y_score_proposed.append(tmp[:, 1:3])
+#     y_test_proposed.append(tmp[:, -1])
+# # draw roc
+# plt.clf()
+# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+# plt.savefig('ROC.pdf')
+# plt.show()
+# print('finish')

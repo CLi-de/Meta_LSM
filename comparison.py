@@ -35,10 +35,10 @@ def SHAP_(predict_proba, x_train, x_test, f_name):
     x_ = x_test
     shap_values = explainer.shap_values(x_, nsamples=100)  # shap_values(_prob, n_samples, features)
     # shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)  # single feature
-    shap.summary_plot(shap_values, x_, plot_type="bar")
+    shap.summary_plot(shap_values, x_, plot_type="bar", show=False)
     plt.savefig('tmp/bar_HK.pdf')
     plt.close()
-    shap.summary_plot(shap_values[1], x_, plot_type="violin")  # shap_values[k], k表类别，k=1（landslides）
+    shap.summary_plot(shap_values[1], x_, plot_type="violin", show=False)  # shap_values[k], k表类别，k=1（landslides）
     plt.savefig('tmp/violin_HK.pdf')
     plt.close()
     # shap.summary_plot(shap_values[1], x_test, plot_type="compact_dot")
@@ -73,7 +73,7 @@ def SVM_(x_train, y_train, x_test, y_test):
 
     # feature permutation
     print('SHAP...')
-    SHAP_(model.predict_proba, x_train, x_test, f_names)
+    # SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     return model
 
@@ -148,15 +148,14 @@ def RF_(x_train, y_train, x_test, y_test):
     kappa_value = cohen_kappa_score(pred_test, y_test)
     print('Cohen_Kappa: %f' % kappa_value)
 
-    # # SHAP
-    # print('SHAP...')
-    # # TODO: SHAP for RF
-    # # SHAP_(model.predict_proba, x_train, x_test, f_names)
-    # shap.initjs()
-    # explainer = shap.Explainer(model)
-    # shap_values = explainer(x_train)
-    # shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
-
+    # SHAP
+    print('SHAP...')
+    # TODO: SHAP for RF
+    # SHAP_(model.predict_proba, x_train, x_test, f_names)
+    shap.initjs()
+    explainer = shap.Explainer(model)
+    shap_values = explainer(x_train)
+    shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
     return model
 
 
@@ -182,9 +181,9 @@ if __name__ == "__main__":
 
     """evaluate and save LSM result"""
     # SVM-based
-    model_svm = SVM_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_svm, xy, samples_f, 'SVM')
-    print('done SVM-based LSM prediction! \n')
+    # model_svm = SVM_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_svm, xy, samples_f, 'SVM')
+    # print('done SVM-based LSM prediction! \n')
     # # MLP_based
     # model_mlp = ANN_(x_train, y_train, x_test, y_test)
     # pred_LSM(model_mlp, xy, samples_f, 'MLP')
@@ -194,10 +193,10 @@ if __name__ == "__main__":
     # model_dbn = DBN_(x_train, y_train, x_test, y_test)
     # pred_LSM(model_dbn, xy, samples_f, 'DBN')
     # print('done DBN-based LSM prediction! \n')
-    #
-    # #RF-based
-    # model_rf = RF_(x_train, y_train, x_test, y_test)
-    # pred_LSM(model_rf, xy, samples_f, 'RF')
-    # print('done RF-based LSM prediction! \n')
+
+    #RF-based
+    model_rf = RF_(x_train, y_train, x_test, y_test)
+    pred_LSM(model_rf, xy, samples_f, 'RF')
+    print('done RF-based LSM prediction! \n')
 
 
