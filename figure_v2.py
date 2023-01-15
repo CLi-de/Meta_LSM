@@ -455,7 +455,7 @@ def plot_lines(arr):
     my_y_ticks = np.arange(50, 100, 5)
     plt.yticks(my_y_ticks)
     my_x_ticks = [i for i in range(6)]
-    my_x_ticklabel = [str(i+1) + '/12 M' for i in range(6)]
+    my_x_ticklabel = [str(i + 1) + '/12 M' for i in range(6)]
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
     '''格网设置'''
     plt.grid(linestyle="--")
@@ -657,17 +657,18 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
 
 """draw histogram"""
 
-
 # regions = ['FJ', 'FL']
 # measures = read_statistic2("C:\\Users\\hj\\Desktop\\performance.xlsx")
 # for i in range(len(regions)):
 #     plot_histogram(regions[i], measures[i])
 
 
-# """draw candle"""
+"""draw candle"""
+
+
 # scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
+# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
 # for i in range(len(scenes)):
-#     K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
 #     plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
 #     plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
 #     plt.show()
@@ -679,6 +680,7 @@ def read_f_l_csv(file):
     features = features / features.max(axis=0)
     label = tmp[1:, -1].astype(np.float32)
     return features, label
+
 
 # """draw AUR"""
 # print('drawing ROC...')
@@ -719,4 +721,66 @@ def read_f_l_csv(file):
 # plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
 # plt.show()
 
+"""
+label: for legend
+pos_: -2, -1, 0, 1, 2
+"""
+
+
+def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
+    # 设置框图
+    plt.figure("", facecolor="lightgray")
+    # plt.style.use('ggplot')
+    # 设置图例并且设置图例的字体及大小
+    font1 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 16,
+             }
+    font2 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 18,
+             }
+
+    # legend = plt.legend(handles=[A,B],prop=font1)
+    # plt.title(scenes, fontdict=font2)
+    # plt.xlabel("Various methods", fontdict=font1)
+    plt.ylabel("OA(%)", fontdict=font2)
+
+    my_x_ticks = [1, 2, 3, 4, 5]
+    my_x_ticklabels = ['M/10', '2M/10', '3M/10', '4M/10', '5M/10']
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontsize=16, fontdict=font2)
+
+    plt.ylim((60, 100))
+    my_y_ticks = np.arange(60, 100, 5)
+    plt.yticks(ticks=my_y_ticks, fontsize=16)
+
+    '''格网设置'''
+    plt.grid(linestyle="--", zorder=-1)
+
+    colors = ['dodgerblue', 'lawngreen', 'gold', 'magenta', 'red']
+    edge_colors = np.zeros(5, dtype="U1")
+    edge_colors[:] = 'black'
+
+    # draw bar
+    barwidth = 0.15
+    K = K + barwidth * pos_
+    plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=color_,
+            edgecolor=edge_colors, linewidth=1, zorder=20, label=label_, alpha=0.7)
+    # draw vertical line
+    plt.vlines(K, minOA, maxOA, color='black', linestyle='solid', zorder=10)
+    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='black', linestyle='solid', zorder=30)
+    plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
+    plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
+    # 设置图例
+    legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
+
+
 """draw candles for fast adaption performance"""
+K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
+colors = ['magenta', 'cyan', 'b', 'g', 'r']
+labels = ['L=1', 'L=2', 'L=3', 'L=4', 'L=5']
+pos = [-2, -1, 0, 1, 2]
+for i in range(5):
+    plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
+plt.show()
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
