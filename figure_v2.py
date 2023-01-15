@@ -729,30 +729,30 @@ pos_: -2, -1, 0, 1, 2
 
 def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
     # 设置框图
-    plt.figure("", facecolor="lightgray")
+    # plt.figure("", facecolor="lightgray")
     # plt.style.use('ggplot')
     # 设置图例并且设置图例的字体及大小
     font1 = {'family': 'Times New Roman',
              'weight': 'normal',
-             'size': 16,
+             'size': 14,
              }
     font2 = {'family': 'Times New Roman',
              'weight': 'normal',
-             'size': 18,
+             'size': 16,
              }
 
     # legend = plt.legend(handles=[A,B],prop=font1)
     # plt.title(scenes, fontdict=font2)
-    # plt.xlabel("Various methods", fontdict=font1)
+    plt.xlabel("Number of samples", fontdict=font1)
     plt.ylabel("OA(%)", fontdict=font2)
 
     my_x_ticks = [1, 2, 3, 4, 5]
-    my_x_ticklabels = ['M/10', '2M/10', '3M/10', '4M/10', '5M/10']
-    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontsize=16, fontdict=font2)
+    my_x_ticklabels = ['1', '2', '3', '4', '5']
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontsize=14, fontdict=font2)
 
-    plt.ylim((60, 100))
-    my_y_ticks = np.arange(60, 100, 5)
-    plt.yticks(ticks=my_y_ticks, fontsize=16)
+    plt.ylim((50, 100))
+    my_y_ticks = np.arange(50, 100, 5)
+    plt.yticks(ticks=my_y_ticks, fontsize=14, font=font2)
 
     '''格网设置'''
     plt.grid(linestyle="--", zorder=-1)
@@ -765,10 +765,11 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
     barwidth = 0.15
     K = K + barwidth * pos_
     plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=color_,
-            edgecolor=edge_colors, linewidth=1, zorder=20, label=label_, alpha=0.7)
+            edgecolor=edge_colors, linewidth=1, zorder=20, label=label_, alpha=0.5)
     # draw vertical line
-    plt.vlines(K, minOA, maxOA, color='black', linestyle='solid', zorder=10)
-    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='black', linestyle='solid', zorder=30)
+    plt.vlines(K, minOA, meanOA - std, color='black', linestyle='solid', zorder=10)
+    plt.vlines(K, maxOA, meanOA + std, color='black', linestyle='solid', zorder=10)
+    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='blue', linestyle='solid', zorder=30)
     plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
     plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
     # 设置图例
@@ -776,7 +777,7 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
 
 
 """draw candles for fast adaption performance"""
-K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
+K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_candle.xlsx")
 colors = ['magenta', 'cyan', 'b', 'g', 'r']
 labels = ['L=1', 'L=2', 'L=3', 'L=4', 'L=5']
 pos = [-2, -1, 0, 1, 2]
