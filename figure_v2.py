@@ -19,6 +19,7 @@ from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
+from scipy.interpolate import make_interp_spline
 from sklearn.metrics._classification import accuracy_score
 
 """for visiualization"""
@@ -429,34 +430,51 @@ def plot_scatter(arr):
     # L6 = plt.scatter(x_, arr[:, 5], color="r", label="L=6", s=5)
     # L7 = plt.scatter(x_, arr[:, 6], color="g", label="L=7", s=5)
 
-    # '''draw line'''
-    # L1 = plt.plot(x_, arr[:, 0], color="r", linestyle="solid",
-    #               linewidth=1, label="L=1", markerfacecolor='white', ms=10)
-    # L2 = plt.plot(x_, arr[:, 1], color="orange", linestyle="solid",
-    #               linewidth=1, label="L=2", markerfacecolor='white', ms=10)
-    # L3 = plt.plot(x_, arr[:, 2], color="gold", linestyle="solid",
-    #               linewidth=1, label="L=3", markerfacecolor='white', ms=10)
-    # L4 = plt.plot(x_, arr[:, 3], color="g", linestyle="solid",
-    #               linewidth=1, label="L=4", markerfacecolor='white', ms=10)
-    # L5 = plt.plot(x_, arr[:, 4], color="b", linestyle="solid",
-    #               linewidth=1, label="L=5", markerfacecolor='white', ms=10)
-    # L6 = plt.plot(x_, arr[:, 5], color="r", linestyle="solid",
-    #               linewidth=1, label="L=6", markerfacecolor='white', ms=10)
-    # L7 = plt.plot(x_, arr[:, 6], color="purple", linestyle="solid",
-    #               linewidth=1, label="L=7", markerfacecolor='white', ms=10)
-
     '''设置图例'''
     legend = plt.legend(loc="lower left", prop=font2, ncol=3)
     # plt.savefig("C:\\Users\\hj\\Desktop\\brokenline_A")
     # plt.show()
 
 
-"""draw broken line for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
-plt.show()
+def plot_lines(arr):
+    '''设置框图'''
+    # plt.figure("", facecolor="lightgray")  # 设置框图大小
+    font1 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 16,
+             }
+    font2 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 12,
+             }
+    plt.xlabel("Subtasks", fontdict=font1)
+    plt.ylabel("Mean accuracy(%)", fontdict=font1)
+
+    '''设置刻度'''
+    plt.ylim((50, 100))
+    my_y_ticks = np.arange(50, 100, 5)
+    plt.yticks(my_y_ticks)
+    my_x_ticks = [i for i in range(6)]
+    my_x_ticklabel = [str(i+1) + '/12 M' for i in range(6)]
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+    '''格网设置'''
+    plt.grid(linestyle="--")
+
+    x_ = np.array([i for i in range(6)])
+    # smooth
+    # x_ = np.linspace(x_.min(), x_.max(), 400)
+    # arr = make_interp_spline(x_, arr)(x_)
+    '''draw line'''
+    L1 = plt.plot(x_, arr[:, 0], color="r", linestyle="solid",
+                  linewidth=1, label="L=1", markerfacecolor='white', ms=10)
+    L2 = plt.plot(x_, arr[:, 1], color="orange", linestyle="solid",
+                  linewidth=1, label="L=2", markerfacecolor='white', ms=10)
+    L3 = plt.plot(x_, arr[:, 2], color="gold", linestyle="solid",
+                  linewidth=1, label="L=3", markerfacecolor='white', ms=10)
+    L4 = plt.plot(x_, arr[:, 3], color="g", linestyle="solid",
+                  linewidth=1, label="L=4", markerfacecolor='white', ms=10)
+    L5 = plt.plot(x_, arr[:, 4], color="b", linestyle="solid",
+                  linewidth=1, label="L=5", markerfacecolor='white', ms=10)
 
 
 def plot_histogram(region, measures):
@@ -686,3 +704,19 @@ def read_f_l_csv(file):
 # plt.savefig('ROC.pdf')
 # plt.show()
 # print('finish')
+
+# """draw scatters for fast adaption performance"""
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
+
+# """draw lines for fast adaption performance"""
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_lines(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
+# plt.show()
+
+"""draw candles for fast adaption performance"""
