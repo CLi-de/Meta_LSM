@@ -11,15 +11,7 @@
 
 
 ## Background
-Landslide susceptibility assessment (LSA) is vital for landslide hazard mitigation and prevention. 
-In recent years, the increased availability of high-quality satellite data and landslide statistics has promoted a wide range of applications of data-driven LSA methods. 
-However, two issues are still concerned: (a) most landslide records from a landslide inventory (LI) are based on the interpretation of optical images and site investigation, leading data-driven model not sensitive to slope dynamics such as slow-moving landslides; 
-(b) The study area usually contains a variety of landslide-inducing environments (LIEs) and can hardly be well expressed by a single model. 
-Pointedly, we proposed to utilize InSAR techniques to sample from deformation slope for landslide inventory augmentation; and meta-learn intermediate model for fast adaption of multiple LIEs. 
-We conducted feature permutation for various LIEs to identify dominant landslide-inducing factors (LIFs) and provided guidance for targeted landslide prevention schemes. 
-The results in Hong Kong show that in some mountainous regions, the slow-moving slopes make up the majority of the recorded landslides. 
-The discussion shows that slope and SPI are the most influential LIFs in Hong Kong. 
-Compared to other data-driven LSA approaches, the highest statistical measure and fast adaption performance demonstrate the superiority and effectiveness of the proposed methods.
+LSA
 
 <img src="figs/Overview.jpg" width="800px" hight="800px"/> 
 
