@@ -1,12 +1,11 @@
-# meta_LSM （Migrated from tf1 to tf2）
-# Hong Kong Landslide Susceptibility Mapping in a Meta-learning Way.
+
+# Hong Kong Landslide Susceptibility Mapping in a Meta-learning Way (tf2).
+# Landslide Susceptibility Assessment in Multiple Landslide-inducing Environments with a Landslide Inventory Augmented by InSAR Techniques
 
 ##Table of Contents
 
 - [Background](#background)
 - [Dependencies](#dependencies)
-
-[//]: # (- [Data]&#40;#data&#41;)
 - [Usage](#usage)
 - [Contact](#contact)
 
@@ -22,7 +21,7 @@ The results in Hong Kong show that in some mountainous regions, the slow-moving 
 The discussion shows that slope and SPI are the most influential LIFs in Hong Kong. 
 Compared to other data-driven LSA approaches, the highest statistical measure and fast adaption performance demonstrate the superiority and effectiveness of the proposed methods.
 
-<img src="figs/overflow.pdf" width="800px" hight="800px"/> 
+<img src="figs/Overview.jpg" width="800px" hight="800px"/> 
 
 ​         Fig. 1: Overflow
 
