@@ -73,7 +73,7 @@ def SVM_(x_train, y_train, x_test, y_test):
 
     # feature permutation
     print('SHAP...')
-    # SHAP_(model.predict_proba, x_train, x_test, f_names)
+    SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     return model
 
@@ -181,9 +181,9 @@ if __name__ == "__main__":
 
     """evaluate and save LSM result"""
     # SVM-based
-    # model_svm = SVM_(x_train, y_train, x_test, y_test)
-    # pred_LSM(model_svm, xy, samples_f, 'SVM')
-    # print('done SVM-based LSM prediction! \n')
+    model_svm = SVM_(x_train, y_train, x_test, y_test)
+    pred_LSM(model_svm, xy, samples_f, 'SVM')
+    print('done SVM-based LSM prediction! \n')
     # # MLP_based
     # model_mlp = ANN_(x_train, y_train, x_test, y_test)
     # pred_LSM(model_mlp, xy, samples_f, 'MLP')
@@ -195,8 +195,8 @@ if __name__ == "__main__":
     # print('done DBN-based LSM prediction! \n')
 
     #RF-based
-    model_rf = RF_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_rf, xy, samples_f, 'RF')
-    print('done RF-based LSM prediction! \n')
+    # model_rf = RF_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_rf, xy, samples_f, 'RF')
+    # print('done RF-based LSM prediction! \n')
 
 

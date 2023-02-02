@@ -422,13 +422,11 @@ def plot_scatter(arr):
 
     x_ = [i for i in range(arr.shape[0])]
     '''draw scatter'''
-    L1 = plt.scatter(x_, arr[:, 0], color="magenta", label="L=1", s=5)
-    L2 = plt.scatter(x_, arr[:, 1], color="cyan", label="L=2", s=5)
-    L3 = plt.scatter(x_, arr[:, 2], color="b", label="L=3", s=5)
-    L4 = plt.scatter(x_, arr[:, 3], color="g", label="L=4", s=5)
-    L5 = plt.scatter(x_, arr[:, 4], color="r", label="L=5", s=5)
-    # L6 = plt.scatter(x_, arr[:, 5], color="r", label="L=6", s=5)
-    # L7 = plt.scatter(x_, arr[:, 6], color="g", label="L=7", s=5)
+    L1 = plt.scatter(x_, arr[:, 0], label="L=1", c="none", s=20, edgecolors='magenta')
+    L2 = plt.scatter(x_, arr[:, 1], label="L=2", c="none", s=20, edgecolors='cyan')
+    L3 = plt.scatter(x_, arr[:, 2], label="L=3", c="none", s=20, edgecolors='b')
+    L4 = plt.scatter(x_, arr[:, 3], label="L=4", c="none", s=20, edgecolors='g')
+    L5 = plt.scatter(x_, arr[:, 4], label="L=5", c="none", s=20, edgecolors='r')
 
     '''设置图例'''
     legend = plt.legend(loc="lower left", prop=font2, ncol=3)
@@ -707,12 +705,12 @@ def read_f_l_csv(file):
 # plt.show()
 # print('finish')
 
-# """draw scatters for fast adaption performance"""
-# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
-# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-# plot_scatter(arr)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-# plt.show()
+"""draw scatters for fast adaption performance"""
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_scatter(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+plt.show()
 
 # """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
@@ -777,11 +775,11 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
 
 
 """draw candles for fast adaption performance"""
-K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_candle.xlsx")
-colors = ['magenta', 'cyan', 'b', 'g', 'r']
-labels = ['L=1', 'L=2', 'L=3', 'L=4', 'L=5']
-pos = [-2, -1, 0, 1, 2]
-for i in range(5):
-    plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
-plt.show()
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
+# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_candle.xlsx")
+# colors = ['magenta', 'cyan', 'b', 'g', 'r']
+# labels = ['L=1', 'L=2', 'L=3', 'L=4', 'L=5']
+# pos = [-2, -1, 0, 1, 2]
+# for i in range(5):
+#     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
+# # plt.show()
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
