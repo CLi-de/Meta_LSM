@@ -41,7 +41,7 @@ This code is implemented with the anaconda environment:
 
 * For the unsupervised pretraining stage, see `./Unsupervised Pretraining/DAS_pretraining.py` and pretrain the base model. The parameter would be saved in `./unsupervised_pretraining/model_init/savedmodel.npz`.
 * For the scene segmentation and task sampling stage, see `./scene_sampling.py`, the result would be output into `./metatask_sampling` folder.
-* For the meta learner, see `./meta_learner.py`.
+* For the meta learner, see `./meta_learner.py`. The data can be find in `./src_data/` where `samples_HK.csv` and `samples_HK_noTS.csv` are datasets with and without augmented slow-moving landslides, respectively.
 * For the model adaption and landslide susceptibility prediction, see `./predict_LSM.py`. The intermediate model and adapted models of blocks would be saved in folder `./checkpoint_dir` and `./models_of_blocks`, respectively.The adapted models will predict the susceptibility for each sample vector in `./src_data/grid_samples_HK.csv`.
 * The `./tmp` folder restores some temp records.
 * For the figuring in the experiment, see `./figure.py`, the figures would be saved in folder `./figs`.
