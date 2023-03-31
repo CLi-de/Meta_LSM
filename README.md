@@ -1,6 +1,10 @@
+<p align="right">
+    <b> <img src="https://img.shields.io/bower/l/bootstrap" title="license-MIT"/> </b> <br> <br>
+</p>
 
 # Hong Kong Landslide Susceptibility Mapping in a Meta-learning Way (tf2).
-# Landslide Susceptibility Assessment in Multiple Landslide-inducing Environments with a Landslide Inventory Augmented by InSAR Techniques
+
+[//]: # (# Landslide Susceptibility Assessment in Multiple Landslide-inducing Environments with a Landslide Inventory Augmented by InSAR Techniques)
 
 ##Table of Contents
 
