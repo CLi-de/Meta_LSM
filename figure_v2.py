@@ -682,7 +682,7 @@ def read_f_l_csv(file):
 
 # """draw AUR"""
 # print('drawing ROC...')
-# x, y = read_f_l_csv('src_data/samples_HK_noTS.csv')
+# x, y = read_f_l_csv('src_data/samples_HK.csv')
 # y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
 # n_times = 5
 # for i in range(n_times):
@@ -712,7 +712,7 @@ plot_scatter(arr)
 plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
 plt.show()
 
-# """draw lines for fast adaption performance"""
+"""draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
 # arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
 # plot_lines(arr)
