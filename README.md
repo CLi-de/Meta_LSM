@@ -82,10 +82,12 @@ To ask questions or report issues, please open an issue on the [issue tracker](h
 
 If this repository helps your research, please cite the paper. Here is the BibTeX entry:
 
+```
 @article{chen4388892landslide,
   title={Landslide Susceptibility Assessment in Multiple Urban Environments with a Landslide Inventory Augmented by Insar Techniques},
   author={Chen, Li and Ma, Peifeng and Yu, Chang and Zheng, Yi and Zhu, Qing and Ding, Yulin},
   journal={Available at SSRN 4388892}
 }
+```
 
 The preprint can be found at: [here](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4388892)
