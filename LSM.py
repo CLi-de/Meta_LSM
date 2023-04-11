@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 from osgeo import gdal
 
-from meta_learner import FLAGS
+from meta_LSM import FLAGS
 from modeling import MAML
 from utils import batch_generator, read_pts, read_tasks
 
