@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import os
 from tensorflow.python.platform import flags
-from utils_v2 import mse, xent, normalize
+from utils import mse, xent, normalize
 
 FLAGS = flags.FLAGS
 

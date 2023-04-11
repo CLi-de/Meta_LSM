@@ -2,9 +2,9 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 from modeling import MAML
-from scene_sampling_v2 import SLICProcessor, TaskSampling
+from scene_segmentation import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
-from utils_v2 import tasksbatch_generator, batch_generator, meta_train_test1, save_tasks, \
+from utils import tasksbatch_generator, batch_generator, meta_train_test1, save_tasks, \
     read_tasks, savepts_fortask, cal_measure
 from unsupervised_pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics import accuracy_score

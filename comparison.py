@@ -12,7 +12,7 @@ from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
 
-from utils_v2 import cal_measure
+from utils import cal_measure
 import shap
 import matplotlib.pyplot as plt
 

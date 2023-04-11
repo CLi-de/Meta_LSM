@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from sklearn import svm
 import numpy as np
 import pandas as pd
-from meta_learner_v2 import FLAGS
+from meta_learner import FLAGS
 from modeling import MAML
 
 from sklearn.model_selection import train_test_split

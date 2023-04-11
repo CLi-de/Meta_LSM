@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 from osgeo import gdal
 
-from meta_learner_v2 import FLAGS
+from meta_learner import FLAGS
 from modeling import MAML
-from utils_v2 import batch_generator, read_pts, read_tasks
+from utils import batch_generator, read_pts, read_tasks
 
 
 def readfxy_csv(file):
