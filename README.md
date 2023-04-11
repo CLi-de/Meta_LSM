@@ -10,8 +10,10 @@
 
 - [Background](#background)
 - [Dependencies](#dependencies)
+- [Data](#data)
 - [Usage](#usage)
 - [Contact](#contact)
+- [Citation](#citation)
 
 
 ## Background
