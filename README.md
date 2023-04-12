@@ -58,8 +58,8 @@ This code is implemented with the anaconda environment:
 
 ## Data
 
-* The landslide inventory can be found at [here](https://data.gov.hk/en-data/dataset/hk-cedd-csu-cedd-entli).
-* The related thematic information can be found at [here](https://geodata.gov.hk/gs).
+* The landslide inventory can be found [here](https://data.gov.hk/en-data/dataset/hk-cedd-csu-cedd-entli).
+* The related thematic information can be found [here](https://geodata.gov.hk/gs).
 * The nonlandslide/landslide sample vectors are filed into `./src_data/` where `samples_HK.csv` and `samples_HK_noTS.csv` are datasets with and without augmented slow-moving landslides, respectively.
 
 [//]: # ()
@@ -92,4 +92,4 @@ If this repository helps your research, please cite the paper. Here is the BibTe
 }
 ```
 
-The preprint can be found at: [here](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4388892)
+The preprint can be found: [here](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4388892)
