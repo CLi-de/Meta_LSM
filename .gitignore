@@ -7,14 +7,6 @@
 .idea/
 __pycache__/
 
-# checkpoint_dir
-checkpoint_dir/
-
-#figs, tmp
-# figs/
-Unsupervised_Pretraining/
-tmp/
-
 # figs
 figs/*.pdf
 
@@ -26,7 +18,9 @@ metatask_sampling/*.tif
 metatask_sampling/*.xlsx
 
 # files
-
+Unsupervised_Pretraining/
+tmp/
+checkpoint_dir/
 
 *~
 
