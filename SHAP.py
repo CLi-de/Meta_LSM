@@ -39,9 +39,9 @@ def init_weights(file):
 
 
 # define model.pred_prob() for shap.KernelExplainer(model, data)
-def pred_prob(X):
+def pred_prob(X_):
     with tf.compat.v1.variable_scope('model', reuse=True):
-        return sess.run(tf.nn.softmax(model.forward(X, model.weights, reuse=True)))
+        return sess.run(tf.nn.softmax(model.forward(X_, model.weights, reuse=True)))
 
 
 # read subtasks
@@ -78,40 +78,39 @@ sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # eligible i: [11, 31, 81, ],['planting area', 'catchment', 'mountainous areas with severe deformation', '']
 # SHAP for ith subtasks
-for i in range(181, len(task), 10):
+for i in range(11, len(task), 10):
     model.weights = init_weights('./models_of_blocks/HK/model' + str(i) + '.npz')
 
     tmp_ = task[i]
     np.random.shuffle(tmp_)  # shuffle
-    # 训练集
-    x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
-    y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
-    x_train = x_train / x_train.max(axis=0)
-    # 测试集
-    # x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
-    # y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
-    x_test = tmp_[:, :-1]  # 加载i行数据部分
-    y_test = tmp_[:, -1]  # 加载类别标签部分
-    x_test = x_test / x_test.max(axis=0)
+    # # 训练集
+    # x_train = tmp_[:int(tmp_.shape[0] / 2), :-1]  # 加载i行数据部分
+    # y_train = tmp_[:int(tmp_.shape[0] / 2), -1]  # 加载类别标签部分
+    # # 测试集
+    # # x_test = tmp_[int(tmp_.shape[0] / 2):, :-1]  # 加载i行数据部分
+    # # y_test = tmp_[int(tmp_.shape[0] / 2):, -1]  # 加载类别标签部分
+    # X, Y
+    X = tmp_[:, :-1]  # 加载i行数据部分
+    Y = tmp_[:, -1]  # 加载类别标签部分
 
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
-    x_train = pd.DataFrame(x_train)  # convert np.array to pd.dataframe
-    x_test = pd.DataFrame(x_test)
-    x_train.columns = feature_names  # 添加特征名称
-    x_test.columns = feature_names
+    X_ = pd.DataFrame(X)  # convert np.array to pd.dataframe
+    # x_test = pd.DataFrame(x_test)
+    X_.columns = feature_names  # 添加特征名称
+    # x_test.columns = feature_names
 
     # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
-    explainer = shap.KernelExplainer(pred_prob, x_train)
-    shap_values = explainer.shap_values(x_test, nsamples=100)  # shap_values
+    explainer = shap.KernelExplainer(pred_prob, shap.sample(X_, 100))
+    shap_values = explainer.shap_values(X_, nsamples=100)  # shap_values
     # (_prob, n_samples, features)
     # TODO: refer https://shap-lrjball.readthedocs.io/en/latest/generated/shap.summary_plot.html to change plot style
     # shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)  # single feature
-    shap.summary_plot(shap_values, x_test, plot_type="bar", show=False)
-    plt.savefig('tmp/bar_'+str(i)+'.pdf')
+    shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
+    plt.savefig('tmp/bar_' + str(i) + '.pdf')
     plt.close()
-    shap.summary_plot(shap_values[1], x_test, plot_type="violin", show=False)
-    plt.savefig('tmp/violin_'+str(i)+'.pdf')
+    shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False)
+    plt.savefig('tmp/violin_' + str(i) + '.pdf')
     plt.close()
 # shap.summary_plot(shap_values[1], x_test, plot_type="compact_dot")
 

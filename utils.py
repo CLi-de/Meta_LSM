@@ -68,28 +68,28 @@ def batch_generator(one_task, dim_input, dim_output, batch_size):
     for i in range(batch_size):
         init_inputs[i] = batch_[i][0]
         if batch_[i][1] == 1:
-            labels[i][0] = 1
-        else:
             labels[i][1] = 1
+        else:
+            labels[i][0] = 1
     return init_inputs, labels
 
 
-# for each region (e.g., FJ&FL)
-def sample_generator_(tasks, dim_input, dim_output):
-    all_samples = np.array(tasks[0])
-    num_samples = int(FLAGS.num_samples_each_task / 2)
-    for i in range(len(tasks) - 1):
-        if len(tasks[i + 1]) > 0:
-            all_samples = np.vstack((all_samples, np.array(tasks[i + 1])))
-    init_inputs = np.zeros([1, num_samples, dim_input], dtype=np.float32)
-    labels = np.zeros([1, num_samples, dim_output], dtype=np.float32)
-    for i in range(num_samples):
-        init_inputs[0][i] = all_samples[i][:-1]
-    if all_samples[i][-1] == 1:
-        labels[0][i][0] = 1
-    else:
-        labels[0][i][1] = 1
-    return init_inputs, labels
+# # for each region (e.g., FJ&FL)
+# def sample_generator_(tasks, dim_input, dim_output):
+#     all_samples = np.array(tasks[0])
+#     num_samples = int(FLAGS.num_samples_each_task / 2)
+#     for i in range(len(tasks) - 1):
+#         if len(tasks[i + 1]) > 0:
+#             all_samples = np.vstack((all_samples, np.array(tasks[i + 1])))
+#     init_inputs = np.zeros([1, num_samples, dim_input], dtype=np.float32)
+#     labels = np.zeros([1, num_samples, dim_output], dtype=np.float32)
+#     for i in range(num_samples):
+#         init_inputs[0][i] = all_samples[i][:-1]
+#     if all_samples[i][-1] == 1:
+#         labels[0][i][0] = 1
+#     else:
+#         labels[0][i][1] = 1
+#     return init_inputs, labels
 
 
 def meta_train_test(fj_tasks, fl_tasks, mode=0):
