@@ -18,7 +18,7 @@ metatask_sampling/*.tif
 metatask_sampling/*.xlsx
 
 # files
-Unsupervised_Pretraining/
+unsupervised_pretraining/
 tmp/
 checkpoint_dir/
 
