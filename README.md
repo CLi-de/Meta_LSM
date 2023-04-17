@@ -49,6 +49,7 @@ The default branch uses tf2 environment:
 * cudnn 8.1.0.77
 * python 3.9.13
 * tensorflow 2.10.0
+
 Install required packages
 ```
 python -m pip install -r requirements.txt
