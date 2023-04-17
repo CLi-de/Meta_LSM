@@ -10,6 +10,7 @@
 
 - [Background](#background)
 - [Data](#data)
+- [Tensorflow Environment](#tensorflow environment)
 - [Usage](#usage)
 - [Contact](#contact)
 - [Citation](#citation)
@@ -41,6 +42,13 @@ and approximately 10% in Cohen Kappa.
 
 ​         Fig. 1: Overflow
 
+## Tensorflow Environment
+
+The default branch uses tf2 environment:
+* cudatoolkit 11.2.2
+* cudnn 8.1.0.77
+* python 3.9.13
+* tensorflow 2.10.0
 
 ## Data
 
