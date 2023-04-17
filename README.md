@@ -9,7 +9,6 @@
 ## Table of Contents
 
 - [Background](#background)
-- [Dependencies](#dependencies)
 - [Data](#data)
 - [Usage](#usage)
 - [Contact](#contact)
@@ -42,19 +41,6 @@ and approximately 10% in Cohen Kappa.
 
 ​         Fig. 1: Overflow
 
-
-## Dependencies
-
-This code is implemented with the anaconda environment:
-* cudatoolkit 11.2.2
-* cudnn 8.1.0.77
-* gdal 3.2.3
-* numpy 1.23.3
-* pandas 1.5.0
-* python 3.9.13
-* scikit-learn 1.1.2
-* tensorflow 2.10.0
-* tqdm 4.64.1
 
 ## Data
 
