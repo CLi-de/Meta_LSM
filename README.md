@@ -42,6 +42,17 @@ and approximately 10% in Cohen Kappa.
 
 ​         Fig. 1: Overflow
 
+
+## Data
+
+* The landslide inventory can be found [here](https://data.gov.hk/en-data/dataset/hk-cedd-csu-cedd-entli).
+* The related thematic information can be found [here](https://geodata.gov.hk/gs).
+* The nonlandslide/landslide sample vectors are filed into `./src_data/` where `samples_HK.csv` and `samples_HK_noTS.csv` are datasets with and without augmented slow-moving landslides, respectively.
+
+[//]: # ()
+[//]: # (The source and experiment data will be opened...)
+
+
 ## Dependencies
 
 The default branch uses tf2 environment:
@@ -54,17 +65,6 @@ Install required packages
 ```
 python -m pip install -r requirements.txt
 ```
-
-
-## Data
-
-* The landslide inventory can be found [here](https://data.gov.hk/en-data/dataset/hk-cedd-csu-cedd-entli).
-* The related thematic information can be found [here](https://geodata.gov.hk/gs).
-* The nonlandslide/landslide sample vectors are filed into `./src_data/` where `samples_HK.csv` and `samples_HK_noTS.csv` are datasets with and without augmented slow-moving landslides, respectively.
-
-[//]: # ()
-[//]: # (The source and experiment data will be opened...)
-
 
 ## Usage
 
