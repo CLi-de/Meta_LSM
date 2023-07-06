@@ -18,7 +18,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
-from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
+# from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 from scipy.interpolate import make_interp_spline
 from sklearn.metrics._classification import accuracy_score
 
@@ -348,7 +348,7 @@ def plot_candle(scenes, K, meanOA, maxOA, minOA, std):
     # 设置图例并且设置图例的字体及大小
     font1 = {'family': 'Times New Roman',
              'weight': 'normal',
-             'size': 16,
+             'size': 20,
              }
     font2 = {'family': 'Times New Roman',
              'weight': 'normal',
@@ -393,7 +393,7 @@ def plot_candle(scenes, K, meanOA, maxOA, minOA, std):
     plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
 
     # 设置图例
-    legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
+    legend = plt.legend(loc="lower center", prop=font1, ncol=3, columnspacing=0.1)
 
 
 def plot_scatter(arr):
@@ -565,22 +565,22 @@ def MLP_fit_pred(x_train, x_test, y_train, y_test):
     return classifier.predict_proba(x_test)
 
 
-def DBN_fit_pred(x_train, x_test, y_train, y_test):
-    classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
-                                             learning_rate_rbm=0.001,
-                                             learning_rate=0.5,
-                                             n_epochs_rbm=10,
-                                             n_iter_backprop=200,
-                                             batch_size=64,
-                                             activation_function='relu',
-                                             dropout_p=0.1)
-    classifier.fit(x_train, y_train)
-    pred_prob = classifier.predict_proba(x_test)
-
-    # if pred_prob[0][0] > 0.5:
-    #     pred_prob = np.vstack((pred_prob[:, 0], pred_prob[:, -1])).T  # swap 0, 1 prediction
-
-    return pred_prob
+# def DBN_fit_pred(x_train, x_test, y_train, y_test):
+#     classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
+#                                              learning_rate_rbm=0.001,
+#                                              learning_rate=0.5,
+#                                              n_epochs_rbm=10,
+#                                              n_iter_backprop=200,
+#                                              batch_size=64,
+#                                              activation_function='relu',
+#                                              dropout_p=0.1)
+#     classifier.fit(x_train, y_train)
+#     pred_prob = classifier.predict_proba(x_test)
+#
+#     # if pred_prob[0][0] > 0.5:
+#     #     pred_prob = np.vstack((pred_prob[:, 0], pred_prob[:, -1])).T  # swap 0, 1 prediction
+#
+#     return pred_prob
 
 
 def RF_fit_pred(x_train, x_test, y_train, y_test):
@@ -664,12 +664,12 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
 """draw candle"""
 
 
-# scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
-# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
-# for i in range(len(scenes)):
-#     plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
-#     plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
-#     plt.show()
+scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
+K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
+for i in range(len(scenes)):
+    plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
+    plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
+    plt.show()
 
 
 def read_f_l_csv(file):
@@ -706,11 +706,11 @@ def read_f_l_csv(file):
 # print('finish')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"

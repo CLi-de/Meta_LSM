@@ -173,7 +173,7 @@ if __name__ == "__main__":
     x_test = tmp_[int(tmp_.shape[0] / 4 * 3):, :-1]  # 加载i行数据部分
     y_test = tmp_[int(tmp_.shape[0] / 4 * 3):, -1]  # 加载类别标签部分
     x_test = x_test / x_test.max(axis=0)
-    #
+    # grid samples
     grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
     samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
