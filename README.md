@@ -84,11 +84,16 @@ To ask questions or report issues, please open an issue on the [issue tracker](h
 If this repository helps your research, please cite the paper. Here is the BibTeX entry:
 
 ```
-@article{chen4388892landslide,
-  title={Landslide Susceptibility Assessment in Multiple Urban Environments with a Landslide Inventory Augmented by Insar Techniques},
-  author={Chen, Li and Ma, Peifeng and Yu, Chang and Zheng, Yi and Zhu, Qing and Ding, Yulin},
-  journal={Available at SSRN 4388892}
+@article{CHEN2023107342,
+title = {Landslide susceptibility assessment in multiple urban slope settings with a landslide inventory augmented by InSAR techniques},
+journal = {Engineering Geology},
+volume = {327},
+pages = {107342},
+year = {2023},
+issn = {0013-7952},
+doi = {https://doi.org/10.1016/j.enggeo.2023.107342},
+author = {Li Chen and Peifeng Ma and Chang Yu and Yi Zheng and Qing Zhu and Yulin Ding},
 }
 ```
 
-The preprint can be found: [here](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4388892)
+The preprint can be found: [here](https://www.sciencedirect.com/science/article/pii/S0013795223003605)
